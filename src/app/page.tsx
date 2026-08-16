@@ -1,4 +1,4 @@
-import SeasonBoard from "@/components/SeasonBoard";
+import AppShell from "@/components/AppShell";
 
 const FIVE_LINES = [
   "You're in ⚓ Navy or 🦅 Marine Corps. Fourteen teams each.",
@@ -48,11 +48,12 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Interactive spin + boards */}
-      <SeasonBoard />
-
-      {/* The whole game, in five lines */}
-      <section className="mt-16">
+      {/* Tabbed app: Board · Channel · Rules */}
+      <AppShell
+        rules={
+          <div className="space-y-14">
+            {/* The whole game, in five lines */}
+            <section>
         <h2 className="mb-5 text-xl font-bold">The whole game, in five lines</h2>
         <ol className="space-y-2">
           {FIVE_LINES.map((line, i) => (
@@ -123,7 +124,10 @@ export default function Home() {
           Commissioner: Dawit, who went into the same hat as everybody else and
           gets exactly one team. Advisory board: Peter &amp; Art.
         </p>
-      </footer>
+            </footer>
+          </div>
+        }
+      />
     </main>
   );
 }

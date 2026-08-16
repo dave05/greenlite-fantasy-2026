@@ -10,6 +10,7 @@ import {
   TOTAL_MANAGERS,
 } from "@/lib/roster";
 import LeagueBoard from "./LeagueBoard";
+import type { Me } from "./AppShell";
 
 type Assignment = { name: string; league: LeagueId | null; claimedAt: string | null };
 type State = {
@@ -33,7 +34,15 @@ function wheelGradient(): string {
   return `conic-gradient(${stops.join(", ")})`;
 }
 
-export default function SeasonBoard() {
+export default function SeasonBoard({
+  me,
+  onIdentify,
+  onSignOut,
+}: {
+  me: Me | null;
+  onIdentify: (name: string, league: LeagueId | null) => void;
+  onSignOut: () => void;
+}) {
   const [state, setState] = useState<State | null>(null);
   const [selected, setSelected] = useState("");
   const [spinning, setSpinning] = useState(false);
@@ -76,8 +85,12 @@ export default function SeasonBoard() {
     [state],
   );
 
+  // If they already identified (name known), spin in as that name; otherwise
+  // use whatever they picked from the dropdown.
+  const spinName = me?.name ?? selected;
+
   async function spin() {
-    if (!selected || spinning) return;
+    if (!spinName || spinning) return;
     setError(null);
     setResult(null);
     setSpinning(true);
@@ -86,7 +99,7 @@ export default function SeasonBoard() {
       const res = await fetch("/api/claim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: selected }),
+        body: JSON.stringify({ name: spinName }),
       });
       const data = await res.json();
 
@@ -113,8 +126,9 @@ export default function SeasonBoard() {
 
       // Reveal after the CSS spin finishes.
       window.setTimeout(() => {
-        setResult({ name: selected, league });
+        setResult({ name: spinName, league });
         setSpinning(false);
+        onIdentify(spinName, league);
         setSelected("");
         load();
       }, 4200);
@@ -125,11 +139,39 @@ export default function SeasonBoard() {
   }
 
   const seasonSet = state?.full ?? false;
+  const hasLeague = !!me?.league;
+  const myLeague = me?.league ? LEAGUES[me.league] : null;
 
   return (
     <div className="space-y-10">
+      {/* Already drawn a league — welcome / assignment card */}
+      {hasLeague && myLeague && (
+        <div
+          className="animate-pop rounded-3xl border p-8 text-center"
+          style={{
+            borderColor: myLeague.accent,
+            backgroundColor: `${myLeague.accent}12`,
+          }}
+        >
+          <p className="text-sm text-white/60">Welcome back, {me!.name}. You fight under</p>
+          <p className="mt-1 text-3xl font-black">
+            {myLeague.emoji} {myLeague.name}
+          </p>
+          <p className="mt-2 text-sm text-white/55">
+            Your only job is to not finish last. Draft opens the week of Aug 31 —
+            check your byes, set your lineup, and talk your trash in the Channel.
+          </p>
+          <button
+            onClick={onSignOut}
+            className="mt-4 text-xs text-white/40 underline-offset-2 hover:text-white/70 hover:underline"
+          >
+            not you? switch manager
+          </button>
+        </div>
+      )}
+
       {/* Spin panel */}
-      {!seasonSet && (
+      {!hasLeague && !seasonSet && (
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
           <div className="grid items-center gap-8 md:grid-cols-2">
             {/* Wheel */}
@@ -178,26 +220,33 @@ export default function SeasonBoard() {
                 side. No takebacks.
               </p>
 
-              <label className="block text-sm font-medium text-white/70">
-                Your name
-                <select
-                  value={selected}
-                  onChange={(e) => setSelected(e.target.value)}
-                  disabled={spinning || unclaimed.length === 0}
-                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-[#0d1220] px-4 py-3 text-base outline-none focus:border-white/40 disabled:opacity-50"
-                >
-                  <option value="">— pick your name —</option>
-                  {unclaimed.map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {me?.name ? (
+                <div className="rounded-xl border border-white/15 bg-[#0d1220] px-4 py-3 text-base">
+                  Spinning in as{" "}
+                  <span className="font-semibold">{me.name}</span>
+                </div>
+              ) : (
+                <label className="block text-sm font-medium text-white/70">
+                  Your name
+                  <select
+                    value={selected}
+                    onChange={(e) => setSelected(e.target.value)}
+                    disabled={spinning || unclaimed.length === 0}
+                    className="mt-1.5 w-full rounded-xl border border-white/15 bg-[#0d1220] px-4 py-3 text-base outline-none focus:border-white/40 disabled:opacity-50"
+                  >
+                    <option value="">— pick your name —</option>
+                    {unclaimed.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
 
               <button
                 onClick={spin}
-                disabled={!selected || spinning}
+                disabled={!spinName || spinning}
                 className="w-full rounded-xl bg-white px-4 py-3 text-base font-bold text-[#0a0e17] transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {spinning ? "Spinning…" : "Spin for my league 🎡"}
@@ -238,7 +287,7 @@ export default function SeasonBoard() {
         </div>
       )}
 
-      {seasonSet && (
+      {!hasLeague && seasonSet && (
         <div className="animate-pop rounded-3xl border border-white/10 bg-white/[0.03] p-8 text-center">
           <h2 className="text-2xl font-black">The board is set. 🏈</h2>
           <p className="mt-2 text-white/60">
@@ -259,7 +308,7 @@ export default function SeasonBoard() {
               key={l.id}
               league={l}
               members={membersOf(l.id)}
-              highlightName={result?.name}
+              highlightName={me?.name ?? result?.name}
             />
           ))}
         </div>

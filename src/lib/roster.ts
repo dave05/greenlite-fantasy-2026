@@ -16,6 +16,8 @@ export type League = {
 
 export const CAP_PER_LEAGUE = 14;
 
+export const MAX_MESSAGE_LEN = 500;
+
 export const LEAGUES: Record<LeagueId, League> = {
   navy: {
     id: "navy",
