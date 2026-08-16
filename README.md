@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏈 GreenLite Survivor Fantasy 2026
 
-## Getting Started
+Twenty-eight managers. Two leagues. Every week, the lowest scorer in your league
+is out — for good. This app is the front door for the season: **no login, just
+pick your name and spin in** to ⚓ League Navy or 🦅 League Marine Corps
+(fourteen a side, cap-enforced).
 
-First, run the development server:
+Built with Next.js 16 (App Router) + Tailwind v4, deployed on Vercel, backed by
+Neon Postgres.
+
+## How it works
+
+- **Spin to assign.** Managers aren't pre-split. Each person picks their name
+  from the fixed 28-person roster and spins; the server assigns a league
+  atomically and keeps both sides capped at 14.
+- **Live board.** Everyone sees the same rosters fill up in real time.
+- **Coming next.** Wire in the **Sleeper** leagues for live standings, weekly
+  chops, and the survivor dashboard.
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Without a `DATABASE_URL`, the app runs in **in-memory demo mode** — the spin
+works but assignments reset on restart. To use real persistence locally:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+vercel env pull .env.local   # after linking the project + Neon integration
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Data
 
-## Learn More
+Single table, created + seeded lazily on first request:
 
-To learn more about Next.js, take a look at the following resources:
+```sql
+CREATE TABLE assignments (
+  name       text PRIMARY KEY,
+  league     text,          -- 'navy' | 'marine' | NULL (unclaimed)
+  claimed_at timestamptz
+);
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Provisioned via the Vercel Marketplace Neon integration (sets `DATABASE_URL`),
+then deployed with the Vercel CLI. See the project on Vercel for env + logs.
 
-## Deploy on Vercel
+## Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Connect Sleeper league IDs (Navy + Marine) via MCP
+- [ ] Weekly standings + elimination dashboard
+- [ ] Waiver ($1,000 FAAB) tracker
+- [ ] Week 14 redraft + Weeks 15–16 final view

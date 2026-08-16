@@ -1,69 +1,129 @@
-import Image from "next/image";
+import SeasonBoard from "@/components/SeasonBoard";
+
+const FIVE_LINES = [
+  "You're in ⚓ Navy or 🦅 Marine Corps. Fourteen teams each.",
+  "Every week, the lowest scorer in your league is out. For good.",
+  "Survive thirteen weeks and you win your league.",
+  "Week 14: the two survivors redraft, live, against each other.",
+  "Weeks 15–16: most points wins the whole thing.",
+];
+
+const RULES = [
+  ["Your only job is to not finish last", "No records, no playoffs. Thirteenth is survival. Fourteenth is a funeral."],
+  ["Elimination is permanent", "No consolation bracket, no buy-back. You're never out of it, and never safe."],
+  ["A bad week is a fatal week", "One quiet Sunday ends your year. Check the byes, check the injury report."],
+  ["Set your lineup every week", "An abandoned team hands a free pass to whoever would've finished last."],
+  ["Eliminated teams release their players", "The waiver wire gets better every week — real starters by Week 10."],
+  ["Waivers run on a $1,000 budget", "For the whole season, and it never refills. Spend early, be broke later."],
+  ["No trades", "Twenty-eight managers and a weekly execution. No honest way to police it."],
+  ["You stay in the channel after you're out", "Heckling from the grave is a feature, not a bug."],
+];
+
+const PAYOUTS = [
+  ["Champion", "Wins the Week 15–16 final", "$1,500"],
+  ["Second", "Loses the final", "$700"],
+  ["Navy runner-up", "Last team chopped in ⚓ Navy", "$300"],
+  ["Marine runner-up", "Last team chopped in 🦅 Marine Corps", "$300"],
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:py-16">
+      {/* Hero */}
+      <header className="mb-12 text-center">
+        <p className="mb-3 text-sm font-medium uppercase tracking-[0.3em] text-white/40">
+          GreenLite · Fantasy Football 2026
+        </p>
+        <h1 className="text-4xl font-black leading-tight sm:text-6xl">
+          Twenty-eight managers.
+          <br />
+          <span className="bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
+            Two leagues. One survivor each.
+          </span>
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-base text-white/60 sm:text-lg">
+          Every week, the lowest scorer in your league is gone — for good.
+          Survive thirteen weeks to win your side, then the two survivors redraft
+          and settle it. Spin in below to find out which flag you fight under.
+        </p>
+      </header>
+
+      {/* Interactive spin + boards */}
+      <SeasonBoard />
+
+      {/* The whole game, in five lines */}
+      <section className="mt-16">
+        <h2 className="mb-5 text-xl font-bold">The whole game, in five lines</h2>
+        <ol className="space-y-2">
+          {FIVE_LINES.map((line, i) => (
+            <li
+              key={i}
+              className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <span className="font-mono text-sm text-white/40">{i + 1}</span>
+              <span className="text-sm text-white/80">{line}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Rules */}
+      <section className="mt-14">
+        <h2 className="mb-5 text-xl font-bold">The game rules</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {RULES.map(([title, body], i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-white/10 bg-white/[0.02] p-4"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <h3 className="text-sm font-semibold">
+                <span className="text-white/40">Rule {i + 1} — </span>
+                {title}
+              </h3>
+              <p className="mt-1 text-sm text-white/55">{body}</p>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Money */}
+      <section className="mt-14">
+        <h2 className="mb-1 text-xl font-bold">💰 The money</h2>
+        <p className="mb-5 text-sm text-white/50">
+          $100 a team, twenty-eight teams. Total pot:{" "}
+          <span className="font-semibold text-white/80">$2,800</span>. Four of
+          twenty-eight get paid.
+        </p>
+        <div className="overflow-hidden rounded-xl border border-white/10">
+          {PAYOUTS.map(([who, note, amount], i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between gap-4 border-b border-white/10 bg-white/[0.02] px-4 py-3 last:border-b-0"
+            >
+              <div>
+                <p className="text-sm font-semibold">{who}</p>
+                <p className="text-xs text-white/45">{note}</p>
+              </div>
+              <span className="font-mono text-lg font-bold text-emerald-400">
+                {amount}
+              </span>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* House rules footer */}
+      <footer className="mt-16 border-t border-white/10 pt-8 text-center text-xs text-white/40">
+        <p className="mb-2">
+          🤝 House rules: talk all the trash you want, aim at the lineup not the
+          person, punch up not down, and no scores in top-level messages for 24
+          hours. Eliminated? Stay and heckle.
+        </p>
+        <p>
+          Commissioner: Dawit, who went into the same hat as everybody else and
+          gets exactly one team. Advisory board: Peter &amp; Art.
+        </p>
+      </footer>
+    </main>
   );
 }
