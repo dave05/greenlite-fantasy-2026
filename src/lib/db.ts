@@ -54,7 +54,7 @@ let _sql: NeonQueryFunction<false, false> | null = null;
 let _ready: Promise<void> | null = null;
 
 function getSql(): NeonQueryFunction<false, false> {
-  // Lazy init — never call neon() at module top level, it throws without a URL
+  // Lazy init - never call neon() at module top level, it throws without a URL
   // and would crash `next build` before the DB is provisioned.
   if (!_sql) _sql = neon(DB_URL);
   return _sql;
@@ -88,8 +88,41 @@ async function ensureReady(): Promise<void> {
         created_at timestamptz NOT NULL DEFAULT now()
       )
     `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS config (
+        key   text PRIMARY KEY,
+        value text
+      )
+    `;
   })();
   return _ready;
+}
+
+/* ------------------------------- config store ------------------------------ */
+
+const memConfig = new Map<string, string>();
+
+export async function getConfig(key: string): Promise<string | null> {
+  if (!usingDatabase) return memConfig.get(key) ?? null;
+  await ensureReady();
+  const sql = getSql();
+  const rows = (await sql`SELECT value FROM config WHERE key = ${key}`) as {
+    value: string | null;
+  }[];
+  return rows[0]?.value ?? null;
+}
+
+export async function setConfig(key: string, value: string): Promise<void> {
+  if (!usingDatabase) {
+    memConfig.set(key, value);
+    return;
+  }
+  await ensureReady();
+  const sql = getSql();
+  await sql`
+    INSERT INTO config (key, value) VALUES (${key}, ${value})
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+  `;
 }
 
 async function neonGetState(): Promise<State> {
@@ -125,7 +158,7 @@ async function neonClaim(name: string): Promise<ClaimResult> {
     if (updated.length > 0) return { ok: true, name, league };
   }
 
-  // Nothing updated — figure out why for a useful message.
+  // Nothing updated - figure out why for a useful message.
   const existing = (await sql`
     SELECT league FROM assignments WHERE name = ${name}
   `) as { league: LeagueId | null }[];
@@ -271,7 +304,7 @@ if (!usingDatabase && process.env.NODE_ENV === "production") {
   // Loud warning: prod without a DB means assignments won't persist across
   // serverless invocations. Provision Neon and set DATABASE_URL.
   console.warn(
-    "[greenlite] No DATABASE_URL set — using in-memory store. Assignments will NOT persist.",
+    "[greenlite] No DATABASE_URL set - using in-memory store. Assignments will NOT persist.",
   );
 }
 

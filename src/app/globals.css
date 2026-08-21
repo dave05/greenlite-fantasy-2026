@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0e17;
-  --foreground: #e7ecf3;
+  /* GreenLite coach's chalkboard */
+  --background: #0b2018; /* chalkboard green */
+  --foreground: #eaf6ee; /* chalk white */
+  --brand: #34d17a; /* GreenLite green */
+  --brand-bright: #5ee69a;
+  --ink: #08170f;
 }
 
 @theme inline {
@@ -10,6 +14,18 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
+}
+
+/* Condensed broadcast display face for headings + big stat numbers. */
+.font-display {
+  font-family: var(--font-display), "Arial Narrow", system-ui, sans-serif;
+  letter-spacing: 0.01em;
+}
+.stat-num {
+  font-family: var(--font-display), "Arial Narrow", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 body {
@@ -17,10 +33,32 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100dvh;
+  /* Coach's chalkboard: faint chalk X's, O's and routes over a dark green board,
+     with a soft brand-green glow up top. */
+  background-color: #0b2018;
   background-image:
-    radial-gradient(60rem 60rem at 80% -10%, rgba(59, 130, 246, 0.12), transparent 60%),
-    radial-gradient(50rem 50rem at 0% 10%, rgba(239, 68, 68, 0.1), transparent 55%);
+    radial-gradient(60rem 46rem at 50% -12%, rgba(52, 209, 122, 0.12), transparent 62%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='190' viewBox='0 0 190 190'%3E%3Cg fill='none' stroke='%23eaf6ee' stroke-opacity='0.045' stroke-width='2'%3E%3Cpath d='M26 26 L46 46 M46 26 L26 46'/%3E%3Ccircle cx='140' cy='42' r='13'/%3E%3Cpath d='M32 126 q14 -16 28 0 t28 0' stroke-dasharray='5 5'/%3E%3Cpath d='M126 126 L146 146 M146 126 L126 146'/%3E%3Cpath d='M158 100 l0 42 M158 142 l-9 -9 M158 142 l9 -9'/%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings inherit the display face; keep them crisp, no chalk texture. */
+.chalk {
+  color: var(--foreground);
+}
+
+/* Broadcast ticker */
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-ticker {
+  animation: ticker 32s linear infinite;
 }
 
 @keyframes pop-in {
@@ -36,4 +74,19 @@ body {
 
 .animate-pop {
   animation: pop-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Drifting graveyard fog (Chopped page) */
+.cemetery-fog {
+  background: linear-gradient(to top, rgba(233, 246, 238, 0.1), transparent);
+  filter: blur(10px);
+  animation: fog-drift 34s linear infinite;
+}
+@keyframes fog-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
