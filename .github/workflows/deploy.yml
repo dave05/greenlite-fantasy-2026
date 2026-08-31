@@ -4,12 +4,13 @@ name: Deploy to Vercel
 # Vercel CLI), so pushing to main does not deploy on its own. This workflow is
 # that missing link: every push to main builds and ships to production.
 #
-# One-time setup - add three repository secrets under
-# Settings -> Secrets and variables -> Actions:
-#   VERCEL_TOKEN       vercel.com/account/tokens (or `vercel tokens add`)
-#   VERCEL_ORG_ID      from .vercel/project.json after `vercel link`
-#   VERCEL_PROJECT_ID  from the same file
-# (.vercel is gitignored, so read the ids there and paste them in.)
+# Setup is ONE repository secret:
+#   VERCEL_TOKEN  - create at https://vercel.com/account/tokens, then add it at
+#                   Settings > Secrets and variables > Actions > New repository secret
+#
+# The org and project ids are NOT secrets and are not needed here - the token
+# can look them up. Override the project name with a `VERCEL_PROJECT_NAME`
+# repository variable if the Vercel project is ever renamed.
 
 on:
   push:
@@ -22,30 +23,48 @@ concurrency:
   group: vercel-production
   cancel-in-progress: true
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
 jobs:
   deploy:
     name: Production
     runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      PROJECT_NAME: ${{ vars.VERCEL_PROJECT_NAME || 'greenlite-fantasy-2026' }}
     steps:
       - uses: actions/checkout@v4
 
       # Fail loudly with the fix, rather than a confusing CLI error later.
-      - name: Check Vercel credentials
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Check Vercel token
         run: |
-          missing=""
-          if [ -z "$VERCEL_TOKEN" ]; then missing="$missing VERCEL_TOKEN"; fi
-          if [ -z "$VERCEL_ORG_ID" ]; then missing="$missing VERCEL_ORG_ID"; fi
-          if [ -z "$VERCEL_PROJECT_ID" ]; then missing="$missing VERCEL_PROJECT_ID"; fi
-          if [ -n "$missing" ]; then
-            echo "::error::Missing repository secret(s):$missing - add them under Settings > Secrets and variables > Actions. See the comments at the top of .github/workflows/deploy.yml."
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::Missing repository secret VERCEL_TOKEN. Create a token at https://vercel.com/account/tokens, then add it under Settings > Secrets and variables > Actions as VERCEL_TOKEN."
             exit 1
           fi
+
+      # The ids the Vercel CLI needs are readable from the token, so nobody has
+      # to run `vercel link` or paste them in by hand.
+      - name: Resolve Vercel project
+        run: |
+          resp=$(curl -sS -w '\n%{http_code}' \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$PROJECT_NAME")
+          code=$(echo "$resp" | tail -n1)
+          body=$(echo "$resp" | sed '$d')
+
+          if [ "$code" != "200" ]; then
+            echo "::error::Could not find Vercel project '$PROJECT_NAME' (HTTP $code)."
+            echo "Projects this token can see:"
+            curl -sS -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v9/projects" \
+              | jq -r '.projects[]?.name | "  - \(.)"' || true
+            echo "Set a VERCEL_PROJECT_NAME repository variable if the name differs."
+            exit 1
+          fi
+
+          # Ids, not secrets - safe to log so a wrong-project deploy is obvious.
+          echo "VERCEL_PROJECT_ID=$(echo "$body" | jq -r .id)" >> "$GITHUB_ENV"
+          echo "VERCEL_ORG_ID=$(echo "$body" | jq -r .accountId)" >> "$GITHUB_ENV"
+          echo "Deploying project '$(echo "$body" | jq -r .name)' ($(echo "$body" | jq -r .id))"
 
       - uses: actions/setup-node@v4
         with:
@@ -55,15 +74,18 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull Vercel environment information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
 
       # Build here rather than on Vercel, so a broken build fails this workflow.
       - name: Build project artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token "$VERCEL_TOKEN"
 
       - name: Deploy to production
         run: |
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          url=$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
           echo "Deployed: $url"
-          echo "### Deployed to production" >> "$GITHUB_STEP_SUMMARY"
-          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Deployed to production"
+            echo ""
+            echo "$url"
+          } >> "$GITHUB_STEP_SUMMARY"
