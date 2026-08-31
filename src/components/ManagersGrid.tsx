@@ -3,6 +3,7 @@ type Member = {
   handle: string;
   team: string | null;
   avatar: string | null;
+  isCommissioner?: boolean;
 };
 
 function initials(s: string): string {
@@ -46,15 +47,17 @@ export default function ManagersGrid({
   members,
   accent,
   totalTeams,
+  title = "The field",
 }: {
   members: Member[];
   accent: string;
   totalTeams?: number;
+  title?: string;
 }) {
   return (
     <section>
       <h3 className="chalk font-display mb-3 text-2xl font-semibold uppercase">
-        The field
+        {title}
         <span className="ml-2 align-middle text-sm font-normal normal-case tracking-normal text-white/40">
           {members.length}
           {totalTeams ? ` / ${totalTeams}` : ""} managers
@@ -73,8 +76,24 @@ export default function ManagersGrid({
             >
               <Avatar member={m} accent={accent} />
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{m.team || m.handle}</p>
-                <p className="truncate text-xs text-white/40">@{m.handle}</p>
+                {/* Team name with the Sleeper handle in brackets, so a manager
+                    is identifiable whether you know them by team or by @name. */}
+                <p className="truncate text-sm font-semibold">
+                  {m.team || m.handle}
+                  {m.team && (
+                    <span className="ml-1.5 font-normal text-white/40">
+                      (@{m.handle})
+                    </span>
+                  )}
+                </p>
+                {m.isCommissioner && (
+                  <p
+                    className="truncate text-[10px] font-semibold uppercase tracking-widest"
+                    style={{ color: accent }}
+                  >
+                    Commissioner
+                  </p>
+                )}
               </div>
             </div>
           ))}

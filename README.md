@@ -17,6 +17,23 @@ Neon Postgres.
 - **Coming next.** Wire in the **Sleeper** leagues for live standings, weekly
   chops, and the survivor dashboard.
 
+## Sleeper connection
+
+The Country Club's Sleeper league is **not** a hard-coded id. The app looks up
+the commissioner's public Sleeper username (`cheezychang`) and pulls whichever
+of their leagues is The Country Club, newest season first — so a new season, or
+a new commissioner, is a one-line change in `src/lib/leagues.ts` rather than an
+env-var redeploy. Resolution order:
+
+1. `SLEEPER_LEAGUE_REGULAR` — an explicit pin, if ops needs one.
+2. The commissioner's newest Country Club league (default).
+3. Legacy `SLEEPER_LEAGUE_MARINE` / DB config, from before the redesign.
+
+`GET /api/sleeper/matchups` reports which of the three it used in `source`, and
+also returns the live **draft clock** (`draft`): who is on the clock, the
+deadline for the current pick, and the projected end of every round. The client
+counts down from those timestamps, so the timer ticks between polls.
+
 ## Local development
 
 ```bash
@@ -51,7 +68,8 @@ then deployed with the Vercel CLI. See the project on Vercel for env + logs.
 
 ## Roadmap
 
-- [ ] Connect Sleeper league IDs (Navy + Marine) via MCP
+- [x] Connect the Country Club league (resolved from the commissioner's username)
+- [ ] Connect the Guillotine league id
 - [ ] Weekly standings + elimination dashboard
 - [ ] Waiver ($1,000 FAAB) tracker
 - [ ] Week 14 redraft + Weeks 15–16 final view

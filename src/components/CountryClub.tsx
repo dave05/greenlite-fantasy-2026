@@ -5,16 +5,27 @@ import SettingsCard from "./SettingsCard";
 import Fairway from "./Fairway";
 import RosterList from "./RosterList";
 import SectionBar from "./SectionBar";
+import ManagersGrid from "./ManagersGrid";
+import DraftClock, { type DraftClockData } from "./DraftClock";
 import { COUNTRY_CLUB_FIELD } from "@/lib/assignments";
 
 type MatchupTeam = { rosterId: number; name: string; points: number; played: boolean };
 type Matchup = { matchupId: number; teams: MatchupTeam[] };
+type Member = {
+  userId: string;
+  handle: string;
+  team: string | null;
+  avatar: string | null;
+  isCommissioner?: boolean;
+};
 type Settings = React.ComponentProps<typeof SettingsCard>["settings"];
 type MatchupsData = {
   leagueId: string;
   leagueName: string;
   status: string | null;
   settings: Settings | null;
+  members: Member[];
+  totalTeams: number;
   week: number;
   matchups: Matchup[];
 } | null;
@@ -31,8 +42,14 @@ type Resp = {
   connected: boolean;
   week?: number;
   seasonType?: string | null;
+  // Where the league id came from ("commissioner" = looked up from the
+  // commissioner's Sleeper username) and which season it belongs to.
+  source?: "env" | "commissioner" | "legacy";
+  commissioner?: string | null;
+  leagueSeason?: string | null;
   matchups?: MatchupsData;
   season?: SeasonData;
+  draft?: DraftClockData | null;
 };
 
 export default function CountryClub() {
@@ -58,7 +75,11 @@ export default function CountryClub() {
   const leagueId = m?.leagueId ?? season?.leagueId;
   const leagueName = m?.leagueName ?? season?.leagueName;
   const isRegular = data?.seasonType === "regular";
-  const predraft = (m?.status ?? season?.status) === "pre_draft" || (m?.status ?? season?.status) === "drafting";
+  const status = m?.status ?? season?.status;
+  const drafting = status === "drafting";
+  const predraft = status === "pre_draft" || drafting;
+  const members = m?.members ?? [];
+  const draft = data?.draft ?? null;
   const matchups = m?.matchups ?? [];
   const hasMatchups = matchups.some((mm) => mm.teams.some((t) => t.played));
 
@@ -112,10 +133,41 @@ export default function CountryClub() {
       </section>
 
       {predraft ? (
-        <p className="mx-auto max-w-md rounded-xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-white/55">
-          Head-to-head matchups (Team vs Team, winner highlighted) and standings
-          appear once the league drafts and Week 1 kicks off.
-        </p>
+        /* Draft dashboard: until Week 1 scores exist, the useful view is who is
+           in the league - team name with the Sleeper handle in brackets. */
+        <section>
+          <SectionBar
+            title={drafting ? "Draft board" : "Draft lobby"}
+            accent="#34d17a"
+            right={
+              <span className="text-[10px] uppercase tracking-widest text-white/40">
+                {drafting ? "Draft in progress" : "Pre-draft"}
+                {data?.leagueSeason ? ` · ${data.leagueSeason}` : ""}
+              </span>
+            }
+          />
+          {draft && (
+            <div className="mb-5">
+              <DraftClock draft={draft} accent="#34d17a" />
+            </div>
+          )}
+          {members.length > 0 ? (
+            <ManagersGrid
+              members={members}
+              accent="#34d17a"
+              totalTeams={m?.totalTeams}
+              title="Drafting managers"
+            />
+          ) : (
+            <p className="mx-auto max-w-md rounded-xl border border-dashed border-white/15 px-4 py-6 text-center text-sm text-white/55">
+              No managers have joined the Sleeper league yet.
+            </p>
+          )}
+          <p className="mt-4 text-center text-sm text-white/45">
+            Head-to-head matchups (Team vs Team, winner highlighted) and standings
+            appear once the league drafts and Week 1 kicks off.
+          </p>
+        </section>
       ) : (
         <>
           {/* Weekly scoreboard */}
