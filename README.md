@@ -19,20 +19,32 @@ Neon Postgres.
 
 ## Sleeper connection
 
-The Country Club's Sleeper league is **not** a hard-coded id. The app looks up
-the commissioner's public Sleeper username (`cheezychang`) and pulls whichever
-of their leagues is The Country Club, newest season first — so a new season, or
-a new commissioner, is a one-line change in `src/lib/leagues.ts` rather than an
-env-var redeploy. Resolution order:
+Neither league's Sleeper id is hard-coded. Each format is looked up from **its
+own commissioner's** public Sleeper username, taking whichever of that
+commissioner's leagues matches the format's name, newest season first:
 
-1. `SLEEPER_LEAGUE_REGULAR` — an explicit pin, if ops needs one.
-2. The commissioner's newest Country Club league (default).
-3. Legacy `SLEEPER_LEAGUE_MARINE` / DB config, from before the redesign.
+| Format | Commissioner | Name match |
+| --- | --- | --- |
+| 🪓 The Guillotine | `dawit21` | `/guillotine/i` |
+| ⛳ The Country Club | `cheezychang` | `/country\s*club/i` |
 
-`GET /api/sleeper/matchups` reports which of the three it used in `source`, and
-also returns the live **draft clock** (`draft`): who is on the clock, the
-deadline for the current pick, and the projected end of every round. The client
-counts down from those timestamps, so the timer ticks between polls.
+Both commissioners sit in other leagues too, hence the name match rather than
+"their only league". A new season, or a new commissioner for either league, is a
+one-line change in `src/lib/leagues.ts` — no env-var redeploy. Resolution order
+per league:
+
+1. `SLEEPER_LEAGUE_CHOPPED` / `SLEEPER_LEAGUE_REGULAR` — an explicit pin, if ops
+   needs one. **Note:** a pin beats the commissioner lookup, so leaving a stale
+   one set stops the league from following its commissioner.
+2. That commissioner's newest matching league (default).
+3. Legacy `SLEEPER_LEAGUE_NAVY` / `SLEEPER_LEAGUE_MARINE` or DB config.
+
+Both endpoints report which of the three they used in `source`, alongside
+`commissioner` and `leagueSeason`, so a stale pull is obvious.
+`GET /api/sleeper/matchups` also returns the live **draft clock** (`draft`): who
+is on the clock, the deadline for the current pick, and the projected end of
+every round. The client counts down from those timestamps, so the timer ticks
+between polls.
 
 ## Local development
 
@@ -68,8 +80,7 @@ then deployed with the Vercel CLI. See the project on Vercel for env + logs.
 
 ## Roadmap
 
-- [x] Connect the Country Club league (resolved from the commissioner's username)
-- [ ] Connect the Guillotine league id
+- [x] Connect both leagues (each resolved from its own commissioner's username)
 - [ ] Weekly standings + elimination dashboard
 - [ ] Waiver ($1,000 FAAB) tracker
 - [ ] Week 14 redraft + Weeks 15–16 final view
