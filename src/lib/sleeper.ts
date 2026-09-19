@@ -66,7 +66,9 @@ function parseSettings(l: SleeperLeague): LeagueSettings {
     passTd: sc.pass_td ?? 0,
     playoffWeekStart: s.playoff_week_start ?? null,
     playoffTeams: s.playoff_teams ?? null,
-    faabBudget: s.waiver_budget ?? null,
+    // Only a FAAB league (waiver_type 2) actually has a budget; rolling-waiver
+    // leagues report a leftover waiver_budget we should ignore.
+    faabBudget: (s.waiver_type ?? 0) === 2 ? s.waiver_budget ?? null : null,
     tradeDeadline: s.trade_deadline ?? null,
     tradesDisabled: (s.disable_trades ?? 0) === 1,
     maxKeepers: s.max_keepers ?? null,
@@ -83,6 +85,8 @@ export type SleeperLeagueUser = {
 export type SleeperRoster = {
   roster_id: number;
   owner_id: string | null;
+  players?: string[] | null;
+  starters?: string[] | null;
   settings?: {
     wins?: number;
     losses?: number;
@@ -199,12 +203,15 @@ export async function getLeagueStandings(
   };
 }
 
-// The Guillotine standings: CUMULATIVE season points (roster fpts), sorted
-// low-to-high so the bottom of the table is on the chopping block. Elimination
-// begins in Week 2.
-export const ELIMINATION_WEEK = 2;
+// The Guillotine standings: THIS WEEK'S points, sorted low-to-high so the
+// bottom of the table is on the chopping block. The chop starts in Week 1 and
+// continues every week until one team is left standing - that survivor wins.
+export const ELIMINATION_WEEK = 1;
 
-export async function getCumulativeStandings(leagueId: string): Promise<{
+export async function getWeeklyStandings(
+  leagueId: string,
+  week: number,
+): Promise<{
   leagueId: string;
   leagueName: string;
   status: string | null;
@@ -213,21 +220,24 @@ export async function getCumulativeStandings(leagueId: string): Promise<{
   totalTeams: number;
   standings: Standing[];
 } | null> {
-  const [league, users, rosters] = await Promise.all([
+  const [league, users, rosters, matchups] = await Promise.all([
     getLeague(leagueId),
     getLeagueUsers(leagueId),
     getRosters(leagueId),
+    getMatchups(leagueId, week),
   ]);
   const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
+  const ptsByRoster = new Map(
+    (matchups ?? []).map((m) => [m.roster_id, m.points]),
+  );
   const standings: Standing[] = (rosters ?? [])
     .map((r) => {
-      const s = r.settings ?? {};
-      const total = (s.fpts ?? 0) + (s.fpts_decimal ?? 0) / 100;
+      const raw = ptsByRoster.get(r.roster_id);
       return {
         rosterId: r.roster_id,
         name: teamName(r, userById),
-        points: total,
-        played: total > 0,
+        points: raw ?? 0,
+        played: raw != null && raw > 0,
       };
     })
     .sort((a, b) => a.points - b.points);
@@ -241,6 +251,71 @@ export async function getCumulativeStandings(leagueId: string): Promise<{
     totalTeams: league?.total_rosters ?? (rosters ?? []).length,
     standings,
   };
+}
+
+// A team the Guillotine has already chopped, with the week it went out.
+export type Eliminated = {
+  week: number;
+  rosterId: number;
+  name: string;
+  points: number; // that week's score, the one that got them chopped
+};
+
+// Reconstruct the graveyard deterministically from Sleeper's weekly scores.
+// Rule: from Week 1, at the end of each COMPLETED week the surviving team with
+// the lowest score THAT WEEK is chopped - every week until one team is left
+// standing. `lastCompletedWeek` is state.week-1, so a week only counts once its
+// Monday-night game is final (Sleeper advances the NFL week after MNF).
+// Earliest elimination first.
+export async function getEliminations(
+  leagueId: string,
+  lastCompletedWeek: number,
+): Promise<Eliminated[]> {
+  if (lastCompletedWeek < ELIMINATION_WEEK) return [];
+
+  const [users, rosters] = await Promise.all([
+    getLeagueUsers(leagueId),
+    getRosters(leagueId),
+  ]);
+  const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
+  // Only claimed rosters are real teams - unclaimed slots never "compete".
+  const claimed = (rosters ?? []).filter((r) => r.owner_id);
+  if (claimed.length <= 1) return [];
+
+  const weeks = Array.from({ length: lastCompletedWeek }, (_, i) => i + 1);
+  const weekly = await Promise.all(weeks.map((w) => getMatchups(leagueId, w)));
+  const pointsByWeek = weekly.map(
+    (ms) => new Map((ms ?? []).map((m) => [m.roster_id, m.points ?? 0])),
+  );
+
+  const survivors = new Set(claimed.map((r) => r.roster_id));
+  const nameById = new Map(claimed.map((r) => [r.roster_id, teamName(r, userById)]));
+  const eliminated: Eliminated[] = [];
+
+  for (let w = 1; w <= lastCompletedWeek; w++) {
+    const wk = pointsByWeek[w - 1];
+    if (w >= ELIMINATION_WEEK && survivors.size > 1) {
+      let outId: number | null = null;
+      let low = Infinity;
+      for (const rid of survivors) {
+        const p = wk.get(rid) ?? 0;
+        if (p < low) {
+          low = p;
+          outId = rid;
+        }
+      }
+      if (outId != null) {
+        eliminated.push({
+          week: w,
+          rosterId: outId,
+          name: nameById.get(outId) ?? `Roster ${outId}`,
+          points: low,
+        });
+        survivors.delete(outId);
+      }
+    }
+  }
+  return eliminated;
 }
 
 /* --------------------- regular head-to-head league ------------------------ */
@@ -264,6 +339,7 @@ export async function getWeeklyMatchups(
   status: string | null;
   settings: LeagueSettings | null;
   members: SleeperMember[];
+  teams: { rosterId: number; name: string }[];
   totalTeams: number;
   week: number;
   matchups: Matchup[];
@@ -298,12 +374,22 @@ export async function getWeeklyMatchups(
       teams: teams.sort((a, b) => b.points - a.points),
     }));
 
+  // Actual rostered teams (claimed rosters only). A commissioner who joined the
+  // league without taking a roster is NOT a team, so we key off owner_id - not
+  // the users list, which would count non-playing members.
+  const teams = (rosters ?? [])
+    .filter((r) => r.owner_id)
+    .map((r) => ({ rosterId: r.roster_id, name: teamName(r, userById) }))
+    .filter((t) => !/^Roster \d+$/.test(t.name))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
   return {
     leagueId,
     leagueName: league?.name ?? "League",
     status: league?.status ?? null,
     settings: league ? parseSettings(league) : null,
     members: buildMembers(users),
+    teams,
     totalTeams: league?.total_rosters ?? (rosters ?? []).length,
     week,
     matchups: matchupList,
@@ -354,4 +440,490 @@ export async function getSeasonStandings(leagueId: string): Promise<{
     status: league?.status ?? null,
     rows,
   };
+}
+
+/* ------------------------------- the draft -------------------------------- */
+
+// Aug 31, 2026, 10:00 AM EDT (14:00 UTC) - the scheduled draft time. Used as a
+// fallback when a league hasn't set its start_time on Sleeper yet.
+export const DRAFT_FALLBACK_START = 1788184800000;
+
+type SleeperDraft = {
+  draft_id: string;
+  status: string;
+  type: string;
+  start_time: number | null;
+  created?: number | null;
+  last_picked?: number | null;
+  settings?: { rounds?: number; teams?: number; pick_timer?: number };
+  draft_order?: Record<string, number> | null;
+};
+type SleeperPick = {
+  pick_no: number;
+  round: number;
+  draft_slot?: number;
+  picked_by: string;
+  metadata?: { first_name?: string; last_name?: string; position?: string; team?: string };
+};
+
+const getDrafts = (leagueId: string) =>
+  get<SleeperDraft[]>(`/league/${leagueId}/drafts`);
+const getDraft = (draftId: string) => get<SleeperDraft>(`/draft/${draftId}`);
+const getDraftPicks = (draftId: string) =>
+  get<SleeperPick[]>(`/draft/${draftId}/picks`);
+
+export type DraftSlotName = { name: string; pick: number; round: number };
+export type DraftPick = {
+  pickNo: number;
+  round: number;
+  slot: number;
+  team: string;
+  player: string;
+  position: string;
+};
+export type DraftState = {
+  draftId: string | null;
+  status: string | null; // pre_draft | drafting | paused | complete
+  type: string | null;
+  startTime: number | null;
+  rounds: number;
+  teams: number;
+  pickTimer: number;
+  picksMade: number;
+  totalPicks: number;
+  onClock: DraftSlotName | null;
+  onDeck: DraftSlotName | null;
+  pickDeadline: number | null; // epoch ms the current pick clock expires
+  firstPick: string | null; // slot-1 team, shown before the draft starts
+  lastPick: { name: string; player: string; pick: number } | null;
+  order: string[]; // "Team (username)" per draft slot (index 0 = slot 1)
+  picks: DraftPick[]; // every pick made so far, in order
+};
+
+// Snake draft: map a 1-based overall pick number to its round + draft slot.
+function slotForPick(pick: number, teams: number): { round: number; slot: number } {
+  const round = Math.ceil(pick / teams);
+  const idx = (pick - 1) % teams; // 0-based position in the round
+  const slot = round % 2 === 1 ? idx + 1 : teams - idx; // even rounds reverse
+  return { round, slot };
+}
+
+export async function getDraftState(leagueId: string): Promise<DraftState | null> {
+  const drafts = await getDrafts(leagueId);
+  // A league can have several drafts (e.g. a re-draft). Always use the newest.
+  const head = [...(drafts ?? [])].sort(
+    (a, b) => (b.created ?? 0) - (a.created ?? 0),
+  )[0];
+  if (!head) return null;
+
+  const [draft, picks, users] = await Promise.all([
+    getDraft(head.draft_id),
+    getDraftPicks(head.draft_id),
+    getLeagueUsers(leagueId),
+  ]);
+  const dr = draft ?? head;
+  const teams = dr.settings?.teams ?? 0;
+  const rounds = dr.settings?.rounds ?? 0;
+  const totalPicks = teams * rounds;
+
+  // "Team Name (username)" when a custom team name is set, else just the handle.
+  const nameByUser = new Map(
+    (users ?? []).map((u) => {
+      const team = u.metadata?.team_name?.trim();
+      const handle = u.display_name || "Team";
+      return [u.user_id, team ? `${team} (${handle})` : handle];
+    }),
+  );
+  // slot -> team name, via the inverted draft_order (user_id -> slot)
+  const nameBySlot = new Map<number, string>();
+  for (const [userId, slot] of Object.entries(dr.draft_order ?? {})) {
+    nameBySlot.set(slot, nameByUser.get(userId) ?? "Team");
+  }
+  const slotName = (slot: number) => nameBySlot.get(slot) ?? `Slot ${slot}`;
+
+  const picksMade = (picks ?? []).length;
+
+  const namedPick = (pick: number): DraftSlotName | null => {
+    if (teams <= 0 || pick < 1 || pick > totalPicks) return null;
+    const { round, slot } = slotForPick(pick, teams);
+    return { name: slotName(slot), pick, round };
+  };
+
+  // Some Sleeper drafts (slow re-drafts) sit at status "pre_draft" while picks
+  // are actually being made - so treat "has picks and not finished" as live.
+  const complete =
+    dr.status === "complete" || (totalPicks > 0 && picksMade >= totalPicks);
+  const paused = dr.status === "paused";
+  const inProgress =
+    !complete && (dr.status === "drafting" || paused || picksMade > 0);
+  const onClock = inProgress ? namedPick(picksMade + 1) : null;
+  const onDeck = inProgress ? namedPick(picksMade + 2) : null;
+
+  // Normalize the status the UI sees, since Sleeper's raw status can lag.
+  const normalizedStatus = complete
+    ? "complete"
+    : paused
+      ? "paused"
+      : inProgress
+        ? "drafting"
+        : dr.status ?? null;
+
+  // Live pick clock: starts when the last pick was made. Paused drafts show no
+  // running clock (the UI labels them paused instead).
+  const pickTimer = dr.settings?.pick_timer ?? 0;
+  const clockBase = dr.last_picked || dr.start_time || 0;
+  const pickDeadline =
+    inProgress && !paused && pickTimer && clockBase
+      ? clockBase + pickTimer * 1000
+      : null;
+
+  // Draft order (round 1) and the full pick log for the board.
+  const order: string[] = [];
+  for (let s = 1; s <= teams; s++) order.push(slotName(s));
+
+  const board: DraftPick[] = [...(picks ?? [])]
+    .sort((a, b) => a.pick_no - b.pick_no)
+    .map((p) => {
+      const md = p.metadata ?? {};
+      // Use Sleeper's own round + draft_slot so the board matches the Sleeper
+      // board exactly; only fall back to the snake formula if they're missing.
+      const fallback = slotForPick(p.pick_no, teams);
+      const round = p.round ?? fallback.round;
+      const slot = p.draft_slot ?? fallback.slot;
+      return {
+        pickNo: p.pick_no,
+        round,
+        slot,
+        team: nameByUser.get(p.picked_by) ?? slotName(slot),
+        player: `${md.first_name ?? ""} ${md.last_name ?? ""}`.trim() || "—",
+        position: md.position ?? "",
+      };
+    });
+
+  let lastPick: DraftState["lastPick"] = null;
+  if (picksMade > 0) {
+    const last = [...(picks ?? [])].sort((a, b) => b.pick_no - a.pick_no)[0];
+    const md = last.metadata ?? {};
+    lastPick = {
+      name: nameByUser.get(last.picked_by) ?? "Team",
+      player: `${md.first_name ?? ""} ${md.last_name ?? ""}`.trim() || "a player",
+      pick: last.pick_no,
+    };
+  }
+
+  return {
+    draftId: dr.draft_id,
+    status: normalizedStatus,
+    type: dr.type ?? null,
+    startTime: dr.start_time ?? null,
+    rounds,
+    teams,
+    pickTimer,
+    picksMade,
+    totalPicks,
+    onClock,
+    onDeck,
+    pickDeadline,
+    firstPick: nameBySlot.get(1) ?? null,
+    lastPick,
+    order,
+    picks: board,
+  };
+}
+
+/* ------------------- team detail: rosters + est. scores ------------------- */
+
+// Sleeper's weekly projections endpoint carries a player's name, position, team
+// AND projected PPR points in one call - so it doubles as our name lookup and
+// our "estimated score" source. Cached per (year,week); projections drift
+// slowly through the week, so a 30-min hold is plenty and saves CPU.
+export type ProjPlayer = { name: string; position: string; team: string; proj: number };
+
+const PROJ_POSITIONS = ["QB", "RB", "WR", "TE", "K", "DEF"] as const;
+const projCache = new Map<string, { at: number; map: Map<string, ProjPlayer> }>();
+const PROJ_TTL_MS = 30 * 60 * 1000;
+
+async function getWeeklyProjMap(
+  year: string,
+  week: number,
+): Promise<Map<string, ProjPlayer>> {
+  const key = `${year}-${week}`;
+  const now = Date.now();
+  const hit = projCache.get(key);
+  if (hit && now - hit.at < PROJ_TTL_MS) return hit.map;
+
+  const qs = PROJ_POSITIONS.map((p) => `position[]=${p}`).join("&");
+  type Raw = {
+    player_id?: string;
+    team?: string | null;
+    player?: { first_name?: string; last_name?: string; position?: string } | null;
+    stats?: { pts_ppr?: number } | null;
+  };
+  let rows: Raw[] = [];
+  try {
+    const res = await fetch(
+      `https://api.sleeper.app/projections/nfl/${year}/${week}?season_type=regular&${qs}`,
+      { cache: "no-store" },
+    );
+    if (res.ok) rows = (await res.json()) as Raw[];
+  } catch {
+    rows = [];
+  }
+
+  const map = new Map<string, ProjPlayer>();
+  for (const r of rows) {
+    if (!r.player_id) continue;
+    const pl = r.player ?? {};
+    map.set(r.player_id, {
+      name: `${pl.first_name ?? ""} ${pl.last_name ?? ""}`.trim() || r.player_id,
+      position: pl.position ?? "",
+      team: r.team ?? "",
+      proj: r.stats?.pts_ppr ?? 0,
+    });
+  }
+  if (map.size > 0) projCache.set(key, { at: now, map });
+  return map.size > 0 ? map : hit?.map ?? map;
+}
+
+export type TeamPlayer = {
+  id: string;
+  name: string;
+  position: string;
+  team: string;
+  proj: number;
+  live: number; // actual points scored so far this week (Sleeper live)
+};
+export type TeamDetail = {
+  rosterId: number;
+  name: string;
+  owner: string; // the manager's Sleeper handle (username)
+  points: number; // this week's live team total
+  played: boolean;
+  projected: number; // sum of starters' preseason projected points this week
+  projFinal: number; // live-updating projected FINAL: live for players who've
+  // gone, projection for the rest (this is what reorders the board live)
+  live: number; // live team total (starters' actual points)
+  hasLive: boolean; // any live scoring has happened this week
+  starters: TeamPlayer[];
+};
+
+// Sleeper matchups carry live scoring: `players_points` (per player) and
+// `points` (team total) update through the week's games.
+type SleeperMatchupLive = SleeperMatchup & {
+  players_points?: Record<string, number> | null;
+};
+
+// Per-team roster detail for a league: the starting lineup with each player's
+// projected AND live points, plus team totals. Used to expand standings rows.
+export async function getLeagueTeams(
+  leagueId: string,
+  week: number,
+  year = "2026",
+): Promise<{ week: number; teams: TeamDetail[] } | null> {
+  const [users, rosters, projMap, matchups] = await Promise.all([
+    getLeagueUsers(leagueId),
+    getRosters(leagueId),
+    getWeeklyProjMap(year, week),
+    get<SleeperMatchupLive[]>(`/league/${leagueId}/matchups/${week}`),
+  ]);
+  const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
+  // roster_id -> { players_points, team points } for this week (live).
+  const liveByRoster = new Map(
+    (matchups ?? []).map((m) => [
+      m.roster_id,
+      { pp: m.players_points ?? {}, total: m.points ?? 0 },
+    ]),
+  );
+
+  const teams: TeamDetail[] = (rosters ?? [])
+    .filter((r) => r.owner_id)
+    .map((r) => {
+      const liveInfo = liveByRoster.get(r.roster_id);
+      const pp = liveInfo?.pp ?? {};
+      const liveTotal = liveInfo?.total ?? 0;
+      const starters: TeamPlayer[] = (r.starters ?? [])
+        .filter((id) => id && id !== "0")
+        .map((id) => {
+          const p = projMap.get(id);
+          return {
+            id,
+            name: p?.name ?? `Player ${id}`,
+            position: p?.position ?? "",
+            team: p?.team ?? "",
+            proj: p?.proj ?? 0,
+            live: pp[id] ?? 0,
+          };
+        });
+      const projected = starters.reduce((sum, p) => sum + p.proj, 0);
+      // Projected final: use live for players who've scored, projection for the
+      // rest - this updates and reorders the board as games are played.
+      const projFinal = starters.reduce((sum, p) => sum + (p.live > 0 ? p.live : p.proj), 0);
+      const owner = r.owner_id ? userById.get(r.owner_id)?.display_name ?? "" : "";
+      return {
+        rosterId: r.roster_id,
+        name: teamName(r, userById),
+        owner,
+        points: liveTotal,
+        played: liveTotal > 0,
+        projected,
+        projFinal,
+        live: liveTotal,
+        hasLive: liveTotal > 0,
+        starters,
+      };
+    });
+
+  return { week, teams };
+}
+
+/* --------------------- waiver wire / FAAB activity ------------------------ */
+
+type SleeperTxn = {
+  type: string; // waiver | free_agent | trade
+  status: string; // complete | failed
+  created: number;
+  roster_ids?: number[];
+  adds?: Record<string, number> | null;
+  drops?: Record<string, number> | null;
+  settings?: { waiver_bid?: number } | null;
+};
+
+export type TxnPlayer = { name: string; position: string };
+export type WaiverMove = {
+  id: string;
+  type: "waiver" | "free_agent" | "trade";
+  status: string;
+  week: number;
+  created: number;
+  team: string;
+  bid: number | null; // FAAB amount for waiver claims
+  adds: TxnPlayer[];
+  drops: TxnPlayer[];
+};
+export type FaabRow = {
+  rosterId: number;
+  name: string;
+  used: number;
+  remaining: number;
+};
+export type Bid = { team: string; amount: number; won: boolean };
+export type BidGroup = {
+  id: string;
+  player: TxnPlayer;
+  week: number;
+  created: number;
+  bids: Bid[]; // highest first; winner is the `won` one
+};
+export type WaiverFeed = {
+  faabBudget: number | null;
+  faab: FaabRow[];
+  moves: WaiverMove[];
+  bids: BidGroup[]; // FAAB competitions grouped by the player bid on
+};
+
+// Recent waiver / free-agent / FAAB activity for a league, newest first, plus
+// each team's FAAB budget status. Pulls the last few weeks of transactions.
+export async function getLeagueTransactions(
+  leagueId: string,
+  throughWeek: number,
+  year = "2026",
+): Promise<WaiverFeed | null> {
+  const startWeek = Math.max(1, throughWeek - 3); // last ~4 weeks of activity
+  const weeks = [];
+  for (let w = startWeek; w <= Math.max(startWeek, throughWeek); w++) weeks.push(w);
+
+  const [league, users, rosters, projMap, ...txnWeeks] = await Promise.all([
+    getLeague(leagueId),
+    getLeagueUsers(leagueId),
+    getRosters(leagueId),
+    getWeeklyProjMap(year, throughWeek),
+    ...weeks.map((w) => get<SleeperTxn[]>(`/league/${leagueId}/transactions/${w}`)),
+  ]);
+  const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
+  const nameByRoster = new Map(
+    (rosters ?? []).map((r) => [r.roster_id, teamName(r, userById)]),
+  );
+  const player = (id: string): TxnPlayer => {
+    const p = projMap.get(id);
+    return { name: p?.name ?? `Player ${id}`, position: p?.position ?? "" };
+  };
+  const faabBudget = league ? parseSettings(league).faabBudget : null;
+
+  const faab: FaabRow[] = (rosters ?? [])
+    .filter((r) => r.owner_id)
+    .map((r) => {
+      const used = (r.settings as { waiver_budget_used?: number } | null)?.waiver_budget_used ?? 0;
+      return {
+        rosterId: r.roster_id,
+        name: teamName(r, userById),
+        used,
+        remaining: faabBudget != null ? faabBudget - used : 0,
+      };
+    })
+    .sort((a, b) => b.remaining - a.remaining);
+
+  const moves: WaiverMove[] = [];
+  // Group FAAB bids by the player being claimed (winner + everyone they outbid).
+  const bidGroups = new Map<
+    string,
+    { player: TxnPlayer; week: number; created: number; bids: Bid[] }
+  >();
+
+  weeks.forEach((w, i) => {
+    for (const t of txnWeeks[i] ?? []) {
+      const rid = t.roster_ids?.[0];
+      const addIds = Object.keys(t.adds ?? {});
+      const adds = addIds.map(player);
+      const drops = Object.keys(t.drops ?? {}).map(player);
+      if (adds.length === 0 && drops.length === 0) continue;
+      const team = rid != null ? nameByRoster.get(rid) ?? "Team" : "Team";
+      const bid = t.settings?.waiver_bid ?? null;
+
+      // Collect competing FAAB bids on the same player (waiver type, has a bid).
+      if (t.type === "waiver" && bid != null && addIds.length > 0) {
+        const pid = addIds[0];
+        const key = `${w}-${pid}`;
+        if (!bidGroups.has(key)) {
+          bidGroups.set(key, {
+            player: player(pid),
+            week: w,
+            created: t.created,
+            bids: [],
+          });
+        }
+        const g = bidGroups.get(key)!;
+        g.bids.push({ team, amount: bid, won: t.status === "complete" });
+        g.created = Math.max(g.created, t.created);
+        // FAAB waivers live in the grouped "bids by player" section - keep them
+        // out of the moves feed so it isn't a wall of duplicate bid rows.
+        continue;
+      }
+
+      moves.push({
+        id: `${t.created}-${rid}`,
+        type: (t.type as WaiverMove["type"]) ?? "free_agent",
+        status: t.status,
+        week: w,
+        created: t.created,
+        team,
+        bid,
+        adds,
+        drops,
+      });
+    }
+  });
+  moves.sort((a, b) => b.created - a.created);
+
+  const bids: BidGroup[] = [...bidGroups.entries()]
+    .map(([id, g]) => ({
+      id,
+      player: g.player,
+      week: g.week,
+      created: g.created,
+      bids: g.bids.sort((a, b) => b.amount - a.amount),
+    }))
+    .sort((a, b) => b.created - a.created)
+    .slice(0, 30);
+
+  return { faabBudget, faab, moves: moves.slice(0, 40), bids };
 }

@@ -51,7 +51,7 @@ export default function SettingsCard({
       label: "Format",
       value:
         format === "chopped"
-          ? `Cumulative points · chop from Wk ${eliminationWeek}`
+          ? `Weekly points · chop from Wk ${eliminationWeek}`
           : "Head-to-head · win or lose, you stay",
     },
     { label: "Starters", value: rosterSummary(s.starters) },
@@ -77,7 +77,7 @@ export default function SettingsCard({
     });
   }
   if (s.maxKeepers) rows.push({ label: "Keepers", value: `${s.maxKeepers}` });
-  rows.push({ label: "Prize", value: "TBD — set per league" });
+  rows.push({ label: "Prize", value: "TBD - set per league" });
 
   return (
     <div

@@ -12,6 +12,9 @@ export type RankedPlayer = {
   position: string;
   bye: number | null;
   delta: number; // ECR movement (+ up / - down)
+  proj?: number; // projected points (weekly rankings only)
+  opp?: string; // weekly opponent team code (weekly rankings only)
+  oppRank?: number | null; // opp defense rank vs this position (1 = softest)
 };
 
 type RawPlayer = {
@@ -74,4 +77,46 @@ export async function getConsensusRankings(
   } catch {
     return null;
   }
+}
+
+// The public API key is hard-capped at ~10 players per position and forbids the
+// cross-position "ALL"/"OP" endpoint (403). So a true overall top-100 is not
+// available on this tier. The best honest board we can build is every position
+// stacked in draft-relevant order, each player keeping its real FantasyPros
+// position rank - we do NOT invent a fake unified 1..N ranking (that would rank
+// a kicker above a WR2). The UI renders these grouped by position.
+const MERGE_POSITIONS = ["QB", "RB", "WR", "TE", "K", "DST"] as const;
+
+export async function getMergedRankings(year: string): Promise<Rankings | null> {
+  const key = process.env.FANTASYPROS_API_KEY;
+  if (!key) return null;
+
+  const results = await Promise.all(
+    MERGE_POSITIONS.map((p) => getConsensusRankings(p, year)),
+  );
+  const byPos = new Map<string, Rankings>();
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r) byPos.set(MERGE_POSITIONS[i], r);
+  }
+  if (byPos.size === 0) return null;
+
+  // Stack in draft order, preserving each player's own position rank.
+  const merged: RankedPlayer[] = [];
+  for (const pos of MERGE_POSITIONS) {
+    const r = byPos.get(pos);
+    if (!r) continue;
+    for (const pl of r.players) {
+      if (!pl.name) continue;
+      merged.push({ ...pl, position: pl.position || pos });
+    }
+  }
+
+  return {
+    year,
+    type: "Consensus PPR",
+    scoring: "PPR",
+    position: "ALL",
+    players: merged,
+  };
 }

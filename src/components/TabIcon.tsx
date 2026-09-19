@@ -1,8 +1,44 @@
 // Minimal line icons for the nav - stroke uses currentColor so they inherit the
 // tab's text color (and flip on the active state). Consistent 24-grid, 1.75 stroke.
-type Name = "home" | "guillotine" | "countryclub" | "rankings" | "guide";
+type Name =
+  | "home"
+  | "guillotine"
+  | "countryclub"
+  | "rankings"
+  | "howto"
+  | "guide"
+  | "draft"
+  | "news"
+  | "waiver";
 
 const PATHS: Record<Name, React.ReactNode> = {
+  // swap arrows = the waiver wire (add / drop)
+  waiver: (
+    <>
+      <path d="M4 9h13M14 6l3 3-3 3" />
+      <path d="M20 15H7M10 12l-3 3 3 3" />
+    </>
+  ),
+  // grid board = the draft board
+  draft: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 9h18M9 9v11M15 9v11" />
+    </>
+  ),
+  // newspaper = the newsroom
+  news: (
+    <>
+      <path d="M4 5h13v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5z" />
+      <path d="M17 8h3v10a2 2 0 0 1-2 2M7 8h6M7 12h6M7 16h4" />
+    </>
+  ),
+  // open book = how to / beginner guide
+  howto: (
+    <>
+      <path d="M12 6.5C12 5 10.4 4 8 4S4 5 4 6.5V19c2.4-1.3 4-1.3 6.5 0M12 6.5C12 5 13.6 4 16 4s4 1 4 2.5V19c-2.4-1.3-4-1.3-6.5 0M12 6.5V19" />
+    </>
+  ),
   // bar chart = rankings
   rankings: (
     <>

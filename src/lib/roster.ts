@@ -26,20 +26,20 @@ export const MAX_MESSAGE_LEN = 500;
 // The Guillotine rules, written in ASD-STE100 Simplified Technical English.
 export const GAME_RULES: { title: string; body: string }[] = [
   {
-    title: "Cumulative points decide the table",
-    body: "The standings are your total points for the whole season, added together. A win in a single week gives no advantage. Only your running total matters.",
+    title: "Weekly points decide the table",
+    body: "The standings are your points for the current week only. A win in a single week gives no advantage, and last week's score does not carry over. Every week starts level.",
   },
   {
-    title: "Elimination starts in Week 2",
-    body: "Nobody is chopped after Week 1. From Week 2, one team is eliminated each week - the team at the bottom of the cumulative table.",
+    title: "The chop starts in Week 1",
+    body: "One team is eliminated every week from Week 1 - the team with the lowest score that week.",
   },
   {
     title: "Elimination is permanent",
     body: "There is no consolation bracket and no buy-back. When you are chopped, your season is over.",
   },
   {
-    title: "A slow start is dangerous",
-    body: "Because the table is cumulative, early points matter. A bad opening week puts you near the bottom, and it is hard to climb out.",
+    title: "One bad week ends your season",
+    body: "There is no running total to protect you. If you put up the lowest score in any week, you are chopped in that week.",
   },
   {
     title: "Set your lineup each week",
@@ -51,7 +51,11 @@ export const GAME_RULES: { title: string; body: string }[] = [
   },
   {
     title: "Waivers use a FAAB budget",
-    body: "Add players with free-agent auction bidding (FAAB). The budget is set on Sleeper and does not refill. Spend it with care.",
+    body: "Add players with free-agent auction bidding (FAAB). Each team gets a $1000 season budget that does not refill. Spend it with care.",
+  },
+  {
+    title: "Last team standing wins",
+    body: "The chop continues every week until only one team is left. That final survivor wins the league - there is no separate championship round.",
   },
   {
     title: "Buy-in is $100",
