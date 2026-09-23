@@ -31,8 +31,19 @@ raw="$out/.gazette-raw-$week.pdf"
 pdf="$out/guillotine-gazette-week-$week.pdf"
 rm -f "$raw" "$pdf"
 
+# In a sandboxed CI/cloud container Chrome's browser process hangs BEFORE it
+# forks a renderer, blocked on component-update / safebrowsing / sync calls that
+# cannot reach the network. It then never writes the PDF. Every flag below
+# switches off one of those background fetches, and --virtual-time-budget caps
+# how long the page may keep the renderer busy so it always terminates.
 profile="$(mktemp -d)"
 "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
+  --no-sandbox --disable-dev-shm-usage \
+  --disable-background-networking --disable-component-update \
+  --disable-client-side-phishing-detection --safebrowsing-disable-auto-update \
+  --disable-sync --disable-default-apps --disable-extensions \
+  --no-first-run --no-default-browser-check --metrics-recording-only \
+  --virtual-time-budget=10000 \
   --user-data-dir="$profile" --print-to-pdf="$raw" \
   "file://$out/gazette-print-$week.html" >/dev/null 2>&1 &
 chrome_pid=$!
