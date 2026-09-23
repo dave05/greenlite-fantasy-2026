@@ -980,8 +980,13 @@ export type Gazette = {
     overkill: GazetteContest | null;
     heartbreak: GazetteContest | null;
     lowball: GazetteBid | null;
+    // The funniest thing in either run: the biggest MULTIPLE over the next bid.
+    // Ratio, not gap - $299 against a $5 bid is 60x and absurd, while
+    // $503 against $400 is 1.26x and merely expensive.
+    mostAbsurd: GazetteContest | null;
   };
   contests: GazetteContest[];
+  freshContests: GazetteContest[];
   scores: { rosterId: number; team: string; points: number }[];
   chopped: { rosterId: number; team: string; points: number | null } | null;
 };
@@ -1073,24 +1078,37 @@ export async function getGazette(
     [...won].filter((b) => b.points != null && b.points > 0)
       .sort((a, b) => b.points! / Math.max(1, b.bid) - a.points! / Math.max(1, a.bid))[0] ?? null;
 
-  const byPlayer = new Map<string, GazetteBid[]>();
-  for (const b of bids) byPlayer.set(b.playerId, [...(byPlayer.get(b.playerId) ?? []), b]);
+  const contestsOf = (list: GazetteBid[]): GazetteContest[] => {
+    const byPlayer = new Map<string, GazetteBid[]>();
+    for (const b of list) byPlayer.set(b.playerId, [...(byPlayer.get(b.playerId) ?? []), b]);
+    const out: GazetteContest[] = [];
+    for (const [, group] of byPlayer) {
+      const winner = group.find((g) => g.won);
+      if (!winner) continue;
+      // Losing to yourself is not a rivalry: a manager often stacks several
+      // bids on one player at different priorities.
+      const runnerUp =
+        group.filter((g) => !g.won && g.rosterId !== winner.rosterId)
+          .sort((a, b) => b.bid - a.bid)[0] ?? null;
+      if (!runnerUp) continue;
+      const gap = winner.bid - runnerUp.bid;
+      // Discard invalid claims that merely carried a bigger number - see header.
+      if (gap < 0) continue;
+      out.push({ player: winner.player, winner, runnerUp, gap, points: winner.points });
+    }
+    return out;
+  };
 
-  const contests: GazetteContest[] = [];
-  for (const [, group] of byPlayer) {
-    const winner = group.find((g) => g.won);
-    if (!winner) continue;
-    // Losing to yourself is not a rivalry: a manager often stacks several bids
-    // on one player at different priorities.
-    const runnerUp =
-      group.filter((g) => !g.won && g.rosterId !== winner.rosterId)
-        .sort((a, b) => b.bid - a.bid)[0] ?? null;
-    if (!runnerUp) continue;
-    const gap = winner.bid - runnerUp.bid;
-    // Discard invalid claims that merely carried a bigger number - see header.
-    if (gap < 0) continue;
-    contests.push({ player: winner.player, winner, runnerUp, gap, points: winner.points });
-  }
+  const contests = contestsOf(bids);
+  const freshContests = contestsOf(fresh);
+
+  // Overpaying by a big MULTIPLE is the funny one. Require a real bid so a
+  // $2-over-$0 claim does not top the chart on a technicality.
+  const ratio = (c: GazetteContest) => c.winner.bid / Math.max(1, c.runnerUp?.bid ?? 1);
+  const mostAbsurd =
+    [...contests, ...freshContests]
+      .filter((c) => c.winner.bid >= 25 && ratio(c) >= 3)
+      .sort((a, b) => ratio(b) - ratio(a))[0] ?? null;
 
   const overkill = [...contests].sort((a, b) => b.gap - a.gap)[0] ?? null;
   const heartbreak = [...contests].sort((a, b) => a.gap - b.gap)[0] ?? null;
@@ -1117,8 +1135,9 @@ export async function getGazette(
       bidsWon: won.length,
       bidsLost: lost.length,
     },
-    awards: { bigSpender, flop, steal, benched, overkill, heartbreak, lowball },
+    awards: { bigSpender, flop, steal, benched, overkill, heartbreak, lowball, mostAbsurd },
     contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
+    freshContests: freshContests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
     scores,
     chopped: choppedRosterId
       ? {

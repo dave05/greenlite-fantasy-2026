@@ -104,31 +104,32 @@ export default function Gazette() {
   const a = g.awards;
   const top = g.scores[0];
 
-  // Lead with the most absurd thing available, in descending order of shame.
-  const lead =
-    a.overkill && a.overkill.gap >= 50
+  // Lead with the biggest MULTIPLE over the next bid. A 60x overpay is funny;
+  // a 1.26x overpay is just expensive, and reads as a restatement of the price.
+  const abs = a.mostAbsurd;
+  const lead = abs
+    ? {
+        kicker: "Bidding against nobody",
+        head: `${money(abs.winner.bid)} for a ${money(abs.runnerUp?.bid)} player`,
+        sub: `${abs.winner.team} won ${abs.player.name}. The only other person who wanted him offered ${money(abs.runnerUp?.bid)}. That is ${Math.round(abs.winner.bid / Math.max(1, abs.runnerUp?.bid ?? 1))} times more than he had to pay.`,
+      }
+    : a.benched
       ? {
-          kicker: "Overpaid",
-          head: `${money(a.overkill.winner.bid)} for a guy nobody else bid over ${money(a.overkill.runnerUp?.bid)} on`,
-          sub: `${a.overkill.winner.team} won ${a.overkill.player.name} by ${money(a.overkill.gap)}. Second place was ${money(a.overkill.runnerUp?.bid)}. Nobody was going to outbid him. He beat himself.`,
+          kicker: "Why",
+          head: `Paid ${money(a.benched.bid)}, then sat him on the bench`,
+          sub: `${a.benched.team} spent ${money(a.benched.bid)} on ${a.benched.player.name} and then did not play him. He scored ${pts(a.benched.points)} sitting down. Bro.`,
         }
-      : a.benched
+      : a.flop
         ? {
-            kicker: "Why",
-            head: `Paid ${money(a.benched.bid)}, then sat him on the bench`,
-            sub: `${a.benched.team} spent ${money(a.benched.bid)} on ${a.benched.player.name} and then did not play him. He scored ${pts(a.benched.points)} from the bench. Bro.`,
+            kicker: "Wasted",
+            head: `${money(a.flop.bid)} spent. ${pts(a.flop.points)} points scored.`,
+            sub: `${a.flop.team} bought ${a.flop.player.name} for ${money(a.flop.bid)}. He scored ${pts(a.flop.points)}. That is ${money(Math.round(a.flop.bid / Math.max(0.1, a.flop.points ?? 0.1)))} per point.`,
           }
-        : a.flop
-          ? {
-              kicker: "Wasted",
-              head: `${money(a.flop.bid)} spent. ${pts(a.flop.points)} points scored.`,
-              sub: `${a.flop.team} bought ${a.flop.player.name} for ${money(a.flop.bid)}. He scored ${pts(a.flop.points)}. That works out to ${money(Math.round(a.flop.bid / Math.max(0.1, a.flop.points ?? 0.1)))} per point.`,
-            }
-          : {
-              kicker: `Week ${g.week}`,
-              head: "Nobody did anything stupid this week",
-              sub: "No wild overpays, no benched stars, nothing to report. Do better.",
-            };
+        : {
+            kicker: `Week ${g.week}`,
+            head: "Nobody did anything stupid this week",
+            sub: "No wild overpays, no benched stars, nothing to report. Do better.",
+          };
 
   const weeks = Array.from({ length: data.lastCompleted }, (_, i) => i + 1).reverse();
 
@@ -304,6 +305,63 @@ export default function Gazette() {
             </tbody>
           </table>
         </div>
+
+        {/* This week's run has already cleared. Those players have not played
+            yet, so there are no points to judge - but an overpay is funny the
+            moment it lands, and waiting a week to mention it wastes the joke. */}
+        {g.freshContests.length > 0 && (
+          <>
+            <h4 className="font-display mt-4 border-b-2 border-[#14110d] pb-1 text-[10px] uppercase tracking-[0.22em]">
+              Just In · Week {g.week} claims, verdict pending
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="border-b border-[#14110d] text-left font-display text-[8px] uppercase tracking-[0.12em]">
+                    <th className="py-1 pr-2">Player</th>
+                    <th className="py-1 pr-2">Bought by</th>
+                    <th className="py-1 pr-2 text-right">Paid</th>
+                    <th className="py-1 pr-2">Next highest</th>
+                    <th className="py-1 pr-2 text-right">Bid (unpaid)</th>
+                    <th className="py-1 text-right">Over</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {g.freshContests.map((c: GazetteContest) => {
+                    const mult = c.winner.bid / Math.max(1, c.runnerUp?.bid ?? 1);
+                    return (
+                      <tr
+                        key={c.winner.playerId}
+                        className="border-b border-dotted border-[#14110d]/30"
+                      >
+                        <td className="py-1 pr-2 font-bold">{c.player.name}</td>
+                        <td className="py-1 pr-2">{c.winner.team}</td>
+                        <td className="font-display py-1 pr-2 text-right font-bold text-[#8c1c13] tabular-nums">
+                          {money(c.winner.bid)}
+                        </td>
+                        <td className="py-1 pr-2 text-[#14110d]/60">
+                          {c.runnerUp?.team ?? "—"}
+                        </td>
+                        <td className="font-display py-1 pr-2 text-right tabular-nums text-[#14110d]/60">
+                          {c.runnerUp ? money(c.runnerUp.bid) : "—"}
+                        </td>
+                        <td
+                          className={`font-display py-1 text-right tabular-nums ${mult >= 3 ? "font-bold text-[#8c1c13]" : "text-[#14110d]/60"}`}
+                        >
+                          {mult >= 2 ? `${Math.round(mult)}x` : `+${money(c.gap)}`}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-1 text-[10px] italic text-[#14110d]/55">
+              These players have not played yet. Next week we find out who was
+              right.
+            </p>
+          </>
+        )}
 
         <div className="mt-4 grid gap-4 sm:grid-cols-[1.5fr_1fr]">
           <div>
