@@ -186,12 +186,16 @@ async function main() {
       });
     }
   }
-  // A negative gap is not a bug: FAAB rejects a higher bid when the bidder is
-  // short on budget or the roster move is illegal. Bidding MORE and still losing
-  // is its own headline, so it gets its own award instead of poisoning the
-  // "closest miss" sort.
-  const robbed = [...contests].filter((c) => c.gap < 0).sort((a, b) => a.gap - b.gap)[0] ?? null;
-
+  // Highest valid bid always wins - that is the whole mechanic. A FAILED claim
+  // carrying a larger number than the winner was never a valid claim: it had no
+  // drop designated against a full roster, or was otherwise rejected before the
+  // amount mattered. Verified in the live league - a $203 claim failed with
+  // drops=(none) while the $125 winner dropped a player, and the bidder still
+  // had $497 of budget, so money was not the reason.
+  //
+  // Those rows are therefore NOT evidence that a lower bid won, and must never
+  // be framed that way. They are dropped from the contest set entirely rather
+  // than dressed up as an award.
   const legit = contests.filter((c) => c.gap >= 0);
   // Closest miss, and the most lopsided overpay.
   const heartbreak = [...legit].sort((a, b) => a.gap - b.gap)[0] ?? null;
@@ -221,7 +225,8 @@ async function main() {
       }
     : null;
 
-  // Total FAAB torched this week, for the front-page number.
+  // Total FAAB actually SPENT: winning claims only. A losing bid costs the
+  // bidder nothing, so failed claims must never be added into a spend figure.
   const spend = won.reduce((sum, b) => sum + b.bid, 0);
   const freshSpend = freshBids.filter((b) => b.won).reduce((sum, b) => sum + b.bid, 0);
 
@@ -239,7 +244,7 @@ async function main() {
           bidsLost: lost.length,
           contested: contests.length,
         },
-        awards: { bigSpender, flop, steal, benched, heartbreak, overkill, robbed, lowball },
+        awards: { bigSpender, flop, steal, benched, heartbreak, overkill, lowball },
         contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
         topBids: byBidDesc.slice(0, 10),
         freshMoney: freshBids.filter((b) => b.won).sort((a, b) => b.bid - a.bid).slice(0, 8),

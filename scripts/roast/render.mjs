@@ -29,8 +29,8 @@ function headline(d) {
   if (a.overkill && a.overkill.gap >= 50) {
     return {
       kicker: "PROFLIGACY",
-      head: `${money(a.overkill.winner.bid)} FOR A MAN WHO COST ${money(a.overkill.losers[0].bid + 1)}`,
-      sub: `${a.overkill.winner.team} torches ${money(a.overkill.gap)} of FAAB it did not have to spend on ${a.overkill.player}. Nobody else was close. Nobody else needed to be.`,
+      head: `${money(a.overkill.winner.bid)} WHEN THE NEXT BID WAS ${money(a.overkill.losers[0].bid)}`,
+      sub: `${a.overkill.winner.team} went ${money(a.overkill.gap)} clear of the field for ${a.overkill.player}. Only the winner pays, and the winner paid.`,
     };
   }
   if (a.benched) {
@@ -96,11 +96,6 @@ function page(d) {
       "That is not a bid, that is a rounding error.",
       "Somewhere, a waiver processor laughed.",
     ],
-    robbed: [
-      "Bid more. Lost anyway. Budget is a cruel master.",
-      "Outbid the field and still went home empty.",
-      "The only thing worse than losing is losing while winning.",
-    ],
   };
 
   const card = (cls, tag, title, body, foot) => `
@@ -132,17 +127,6 @@ function page(d) {
         `${esc(a.benched.team)}`,
         `Won <b>${esc(a.benched.player)}</b> for ${money(a.benched.bid)}, then left him on the bench while he scored <b>${pts(a.benched.points)}</b>.`,
         pick(jab.benched, week),
-      ),
-    );
-
-  if (a.robbed)
-    cards.push(
-      card(
-        "odd",
-        "Robbed",
-        `${esc(a.robbed.losers[0].team)}`,
-        `Bid <b>${money(a.robbed.losers[0].bid)}</b> on ${esc(a.robbed.player)} and <b>lost</b> to a ${money(a.robbed.winner.bid)} bid from ${esc(a.robbed.winner.team)}. Budget rules are undefeated.`,
-        pick(jab.robbed, week),
       ),
     );
 
@@ -342,7 +326,7 @@ ${fontLink}
 
   <h4 class="sec">The Bidding War · who wanted it, who paid for it</h4>
   <table>
-    <thead><tr><th>Player</th><th>Winner</th><th style="text-align:right">Paid</th><th>Runner-up</th><th style="text-align:right">Bid</th><th style="text-align:right">Pts</th></tr></thead>
+    <thead><tr><th>Player</th><th>Winner</th><th style="text-align:right">Paid</th><th>Next highest</th><th style="text-align:right">Bid (unpaid)</th><th style="text-align:right">Pts</th></tr></thead>
     <tbody>${contestRows || `<tr><td colspan="6" style="text-align:center;font-style:italic">No contested claims. A peaceful, cowardly week.</td></tr>`}</tbody>
   </table>
 
