@@ -108,26 +108,26 @@ export default function Gazette() {
   const lead =
     a.overkill && a.overkill.gap >= 50
       ? {
-          kicker: "Profligacy",
-          head: `${money(a.overkill.winner.bid)} when the next bid was ${money(a.overkill.runnerUp?.bid)}`,
-          sub: `${a.overkill.winner.team} went ${money(a.overkill.gap)} clear of the field for ${a.overkill.player.name}. Only the winner pays, and the winner paid.`,
+          kicker: "Overpaid",
+          head: `${money(a.overkill.winner.bid)} for a guy nobody else bid over ${money(a.overkill.runnerUp?.bid)} on`,
+          sub: `${a.overkill.winner.team} won ${a.overkill.player.name} by ${money(a.overkill.gap)}. Second place was ${money(a.overkill.runnerUp?.bid)}. Nobody was going to outbid him. He beat himself.`,
         }
       : a.benched
         ? {
-            kicker: "Self-inflicted",
-            head: `Paid ${money(a.benched.bid)}. Started someone else.`,
-            sub: `${a.benched.team} bought ${a.benched.player.name}, watched him post ${pts(a.benched.points)}, and did it from the bench.`,
+            kicker: "Why",
+            head: `Paid ${money(a.benched.bid)}, then sat him on the bench`,
+            sub: `${a.benched.team} spent ${money(a.benched.bid)} on ${a.benched.player.name} and then did not play him. He scored ${pts(a.benched.points)} from the bench. Bro.`,
           }
         : a.flop
           ? {
-              kicker: "Buyer's remorse",
-              head: `${money(a.flop.bid)} buys ${pts(a.flop.points)} points`,
-              sub: `${a.flop.team} on ${a.flop.player.name}. The receipts are public. The shame is permanent.`,
+              kicker: "Wasted",
+              head: `${money(a.flop.bid)} spent. ${pts(a.flop.points)} points scored.`,
+              sub: `${a.flop.team} bought ${a.flop.player.name} for ${money(a.flop.bid)}. He scored ${pts(a.flop.points)}. That works out to ${money(Math.round(a.flop.bid / Math.max(0.1, a.flop.points ?? 0.1)))} per point.`,
             }
           : {
               kicker: `Week ${g.week}`,
-              head: "A quiet week, for once",
-              sub: "Nobody distinguished themselves. Try harder.",
+              head: "Nobody did anything stupid this week",
+              sub: "No wild overpays, no benched stars, nothing to report. Do better.",
             };
 
   const weeks = Array.from({ length: data.lastCompleted }, (_, i) => i + 1).reverse();
@@ -165,6 +165,12 @@ export default function Gazette() {
           <span className="hidden sm:inline">The League&apos;s Paper of Record</span>
           <span>Price: One Waiver Claim</span>
         </div>
+        {/* The bids were placed during the previous week's waiver run; the
+            players they bought played THIS week. Saying so up front, because
+            "Week 2" next to a bid placed in week 1 reads as an error. */}
+        <p className="pb-1 text-center text-[9px] italic text-[#14110d]/60">
+          Bids placed in the Week {Math.max(1, g.week - 1)} waiver run · scored in Week {g.week}
+        </p>
         <div className="border-t border-[#14110d]" />
 
         <h1 className="py-2 text-center font-serif text-[34px] font-black leading-none tracking-tight sm:text-[52px]">
@@ -208,55 +214,57 @@ export default function Gazette() {
           {a.flop && (
             <Card
               tone="bad"
-              tag="The Flop"
+              tag="Worst Buy"
               team={a.flop.team}
-              jab="Refunds are not a feature of this league."
+              jab="There are no refunds. Live with it."
             >
-              {money(a.flop.bid)} on <b>{a.flop.player.name}</b> returned{" "}
-              <b>{pts(a.flop.points)}</b> points. That is{" "}
+              Spent <b>{money(a.flop.bid)}</b> on <b>{a.flop.player.name}</b>. He
+              scored <b>{pts(a.flop.points)}</b>. That is{" "}
               <b>{money(Math.round(a.flop.bid / Math.max(0.1, a.flop.points ?? 0.1)))}</b>{" "}
-              per point.
+              for every single point.
             </Card>
           )}
           {a.benched && (
             <Card
               tone="bad"
-              tag="Bench Warmer"
+              tag="Didn't Even Play Him"
               team={a.benched.team}
-              jab="Bought the man. Benched the man. Bold."
+              jab="Paid for him. Didn't use him. Bro."
             >
-              Won <b>{a.benched.player.name}</b> for {money(a.benched.bid)}, then
-              left him on the bench while he scored <b>{pts(a.benched.points)}</b>.
+              Paid <b>{money(a.benched.bid)}</b> for <b>{a.benched.player.name}</b>{" "}
+              and then left him on the bench. He scored{" "}
+              <b>{pts(a.benched.points)}</b> sitting down.
             </Card>
           )}
           {a.lowball && (
             <Card
               tone="cheap"
-              tag="Penny Pincher"
+              tag="Cheapest Offer"
               team={a.lowball.team}
-              jab="That is not a bid, that is a rounding error."
+              jab="You have to actually bid to win, you know."
             >
-              Offered <b>{money(a.lowball.bid)}</b> for {a.lowball.player.name}.
-              It went elsewhere, and the offer cost them nothing.
+              Offered <b>{money(a.lowball.bid)}</b> for{" "}
+              <b>{a.lowball.player.name}</b> and lost. It cost nothing, which is
+              roughly what it was worth.
             </Card>
           )}
           {a.steal && (
             <Card
               tone="good"
-              tag="Actual Genius"
+              tag="Best Buy"
               team={a.steal.team}
-              jab="Credit where it is due. Do not get used to it."
+              jab="One of you can do math. Only one."
             >
-              Paid {money(a.steal.bid)} for <b>{a.steal.player.name}</b>, got{" "}
-              <b>{pts(a.steal.points)}</b>. The only defensible transaction of the
-              week.
+              Paid <b>{money(a.steal.bid)}</b> for <b>{a.steal.player.name}</b> and
+              got <b>{pts(a.steal.points)}</b> points out of him. Everyone else
+              spent more and got less.
             </Card>
           )}
         </div>
 
         {/* bidding war */}
         <h4 className="font-display mt-4 border-b-2 border-[#14110d] pb-1 text-[10px] uppercase tracking-[0.22em]">
-          The Bidding War · who wanted it, who paid for it
+          The Bidding War · Week {Math.max(1, g.week - 1)} claims, Week {g.week} points
         </h4>
         <div className="overflow-x-auto">
           <table className="w-full text-[12px]">
@@ -350,8 +358,7 @@ export default function Gazette() {
         </div>
 
         <p className="mt-4 text-center text-[8px] uppercase tracking-[0.12em] text-[#14110d]/55">
-          Compiled from Sleeper&apos;s public record · Week {g.week} · Losing bids
-          cost nothing; only the winning claim is charged · All bids are real
+          Compiled from Sleeper&apos;s public record · If you lose a bid you pay nothing, so the losing numbers below are what people offered, not what they spent
         </p>
       </div>
     </div>
