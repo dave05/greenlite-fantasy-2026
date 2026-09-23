@@ -11,10 +11,12 @@ import Fantasy101 from "./Fantasy101";
 import DraftBoard from "./DraftBoard";
 import News from "./News";
 import WaiverWire from "./WaiverWire";
+import Gazette from "./Gazette";
 
 const TABS = [
   { id: "home", label: "Home", icon: "home" },
   { id: "guillotine", label: "The Guillotine", icon: "guillotine" },
+  { id: "gazette", label: "Gazette", icon: "news" },
   { id: "countryclub", label: "The Country Club", icon: "countryclub" },
   { id: "waiver", label: "Waiver Wire", icon: "waiver" },
   { id: "draft", label: "Draft Board", icon: "draft" },
@@ -96,6 +98,9 @@ export default function AppShell({ rules }: { rules: ReactNode }) {
       </div>
       <div className={tab === "guillotine" ? "" : "hidden"}>
         <Guillotine />
+      </div>
+      <div className={tab === "gazette" ? "" : "hidden"}>
+        <Gazette />
       </div>
       <div className={tab === "countryclub" ? "" : "hidden"}>
         <CountryClub />

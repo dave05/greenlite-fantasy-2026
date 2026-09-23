@@ -101,6 +101,10 @@ export type SleeperMatchup = {
   roster_id: number;
   points: number | null;
   matchup_id: number | null;
+  // Per-player scoring and the started lineup. Needed to judge whether an
+  // expensive waiver pickup actually delivered, and whether they even played him.
+  players_points?: Record<string, number> | null;
+  starters?: string[] | null;
 };
 
 export const getNflState = () => get<SleeperState>(`/state/nfl`);
@@ -926,4 +930,202 @@ export async function getLeagueTransactions(
     .slice(0, 30);
 
   return { faabBudget, faab, moves: moves.slice(0, 40), bids };
+}
+
+// ─── The Guillotine Gazette ───────────────────────────────────────────────────
+// The weekly waiver roast, computed from the public record.
+//
+// Week pairing, which is the non-obvious part: Sleeper files a waiver under the
+// week its run PROCESSED, but the player it delivers plays the FOLLOWING week.
+// So bids from the week W-1 run are judged against week W scoring. Getting this
+// backwards makes every expensive pickup look like it scored nothing.
+//
+// Two rules the league owner has corrected once already, encoded here so the
+// copy cannot drift back:
+//   - A LOSING BID COSTS NOTHING. Only the winning claim is charged, so `spend`
+//     sums winners only and losing amounts are labelled unpaid everywhere.
+//   - THE HIGHEST VALID BID ALWAYS WINS. A failed claim showing a larger number
+//     than the winner was never a valid claim (typically no drop designated
+//     against a full roster) - it is NOT an upset, and those rows are discarded
+//     rather than presented as one.
+
+export type GazetteBid = {
+  rosterId: number;
+  team: string;
+  playerId: string;
+  player: TxnPlayer;
+  bid: number;
+  won: boolean;
+  points: number | null;
+  started: boolean | null;
+};
+
+export type GazetteContest = {
+  player: TxnPlayer;
+  winner: GazetteBid;
+  runnerUp: GazetteBid | null;
+  gap: number;
+  points: number | null;
+};
+
+export type Gazette = {
+  week: number;
+  generatedAt: string;
+  totals: { spend: number; freshSpend: number; bidsPlaced: number; bidsWon: number; bidsLost: number };
+  awards: {
+    bigSpender: GazetteBid | null;
+    flop: GazetteBid | null;
+    steal: GazetteBid | null;
+    benched: GazetteBid | null;
+    overkill: GazetteContest | null;
+    heartbreak: GazetteContest | null;
+    lowball: GazetteBid | null;
+  };
+  contests: GazetteContest[];
+  scores: { rosterId: number; team: string; points: number }[];
+  chopped: { rosterId: number; team: string; points: number | null } | null;
+};
+
+type RawTxn = {
+  type?: string;
+  status?: string;
+  roster_ids?: number[];
+  adds?: Record<string, number> | null;
+  drops?: Record<string, number> | null;
+  settings?: { waiver_bid?: number; seq?: number } | null;
+};
+
+export async function getGazette(
+  leagueId: string,
+  week: number,
+  year = "2026",
+): Promise<Gazette | null> {
+  const [users, rosters, priorRun, thisRun, matchups, projMap] = await Promise.all([
+    getLeagueUsers(leagueId),
+    getRosters(leagueId),
+    week > 1
+      ? get<RawTxn[]>(`/league/${leagueId}/transactions/${week - 1}`)
+      : Promise.resolve([] as RawTxn[]),
+    get<RawTxn[]>(`/league/${leagueId}/transactions/${week}`),
+    getMatchups(leagueId, week),
+    getWeeklyProjMap(year, week),
+  ]);
+
+  const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
+  const teamOf = (rid: number) => {
+    const r = (rosters ?? []).find((x) => x.roster_id === rid);
+    return r ? teamName(r, userById) : `Roster ${rid}`;
+  };
+  const playerOf = (id: string): TxnPlayer => {
+    const p = projMap.get(id);
+    return { name: p?.name ?? `Player ${id}`, position: p?.position ?? "" };
+  };
+
+  const scoreByRoster = new Map<number, number>();
+  const ptsByRosterPlayer = new Map<number, Record<string, number>>();
+  const startersByRoster = new Map<number, Set<string>>();
+  for (const m of matchups ?? []) {
+    scoreByRoster.set(m.roster_id, m.points ?? 0);
+    ptsByRosterPlayer.set(m.roster_id, (m.players_points ?? {}) as Record<string, number>);
+    startersByRoster.set(m.roster_id, new Set((m.starters ?? []) as string[]));
+  }
+
+  const bidsFrom = (run: RawTxn[] | null, judged: boolean): GazetteBid[] => {
+    const out: GazetteBid[] = [];
+    for (const t of (run ?? []).filter((x) => x.type === "waiver")) {
+      const bid = t.settings?.waiver_bid;
+      if (bid == null) continue;
+      const rosterId = t.roster_ids?.[0];
+      if (rosterId == null) continue;
+      for (const playerId of Object.keys(t.adds ?? {})) {
+        const won = t.status === "complete";
+        const raw = judged && won ? ptsByRosterPlayer.get(rosterId)?.[playerId] : undefined;
+        out.push({
+          rosterId,
+          team: teamOf(rosterId),
+          playerId,
+          player: playerOf(playerId),
+          bid,
+          won,
+          points: raw === undefined ? null : raw,
+          started: judged && won ? startersByRoster.get(rosterId)?.has(playerId) ?? false : null,
+        });
+      }
+    }
+    return out;
+  };
+
+  const bids = bidsFrom(priorRun, true);
+  const fresh = bidsFrom(thisRun, false);
+  const won = bids.filter((b) => b.won);
+  const lost = bids.filter((b) => !b.won);
+
+  const byBid = [...won].sort((a, b) => b.bid - a.bid);
+  const bigSpender = byBid[0] ?? null;
+
+  const flop =
+    [...won].filter((b) => b.bid >= 20 && b.points != null)
+      .sort((a, b) => a.points! / a.bid - b.points! / b.bid)[0] ?? null;
+  const benched =
+    [...won].filter((b) => b.bid >= 25 && b.started === false)
+      .sort((a, b) => b.bid - a.bid)[0] ?? null;
+  const steal =
+    [...won].filter((b) => b.points != null && b.points > 0)
+      .sort((a, b) => b.points! / Math.max(1, b.bid) - a.points! / Math.max(1, a.bid))[0] ?? null;
+
+  const byPlayer = new Map<string, GazetteBid[]>();
+  for (const b of bids) byPlayer.set(b.playerId, [...(byPlayer.get(b.playerId) ?? []), b]);
+
+  const contests: GazetteContest[] = [];
+  for (const [, group] of byPlayer) {
+    const winner = group.find((g) => g.won);
+    if (!winner) continue;
+    // Losing to yourself is not a rivalry: a manager often stacks several bids
+    // on one player at different priorities.
+    const runnerUp =
+      group.filter((g) => !g.won && g.rosterId !== winner.rosterId)
+        .sort((a, b) => b.bid - a.bid)[0] ?? null;
+    if (!runnerUp) continue;
+    const gap = winner.bid - runnerUp.bid;
+    // Discard invalid claims that merely carried a bigger number - see header.
+    if (gap < 0) continue;
+    contests.push({ player: winner.player, winner, runnerUp, gap, points: winner.points });
+  }
+
+  const overkill = [...contests].sort((a, b) => b.gap - a.gap)[0] ?? null;
+  const heartbreak = [...contests].sort((a, b) => a.gap - b.gap)[0] ?? null;
+  const lowball =
+    [...lost].filter((b) => won.some((w) => w.playerId === b.playerId))
+      .sort((a, b) => a.bid - b.bid)[0] ?? null;
+
+  const scores = [...scoreByRoster.entries()]
+    .map(([rosterId, points]) => ({ rosterId, team: teamOf(rosterId), points }))
+    .filter((s) => s.points > 0)
+    .sort((a, b) => b.points - a.points);
+
+  const choppedTxn = (thisRun ?? []).find((t) => t.type === "chopped");
+  const choppedRosterId = choppedTxn ? Number(Object.values(choppedTxn.drops ?? {})[0]) : null;
+
+  return {
+    week,
+    generatedAt: new Date().toISOString(),
+    totals: {
+      // Winners only. A losing bid is never charged.
+      spend: won.reduce((s, b) => s + b.bid, 0),
+      freshSpend: fresh.filter((b) => b.won).reduce((s, b) => s + b.bid, 0),
+      bidsPlaced: bids.length,
+      bidsWon: won.length,
+      bidsLost: lost.length,
+    },
+    awards: { bigSpender, flop, steal, benched, overkill, heartbreak, lowball },
+    contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
+    scores,
+    chopped: choppedRosterId
+      ? {
+          rosterId: choppedRosterId,
+          team: teamOf(choppedRosterId),
+          points: scoreByRoster.get(choppedRosterId) ?? null,
+        }
+      : null,
+  };
 }
