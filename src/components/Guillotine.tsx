@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Cemetery from "./Cemetery";
 import GuillotineMark from "./GuillotineMark";
 import SettingsCard from "./SettingsCard";
@@ -101,6 +101,22 @@ export default function Guillotine() {
   // Teams already chopped - shown in the memorial, excluded from the live table.
   const eliminated = data?.eliminated ?? [];
   const eliminatedIds = new Set(eliminated.map((e) => e.rosterId));
+
+  // Graves grouped by the week that chopped them, earliest first. `depth` is how
+  // far back a row sits: 0 = nearest the viewer. With a weekly chop this grows
+  // one row per week, so the staging has to scale past two rows, not just assume
+  // a front and a back.
+  const gravesByWeek = useMemo(() => {
+    const byWeek = new Map<number, Eliminated[]>();
+    for (const e of eliminated) {
+      const row = byWeek.get(e.week);
+      if (row) row.push(e);
+      else byWeek.set(e.week, [e]);
+    }
+    return [...byWeek.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([week, teams], depth) => ({ week, teams, depth }));
+  }, [eliminated]);
   const teamById = new Map((data?.teams ?? []).map((t) => [t.rosterId, t]));
   // Unclaimed Sleeper roster slots come back as "Roster N" - never show those.
   // Eliminated teams drop out of the live standings (they're in the graveyard).
@@ -480,8 +496,50 @@ export default function Guillotine() {
               <p className="mb-6 text-center font-display text-lg uppercase tracking-[0.35em] text-white/55">
                 In loving memory of
               </p>
-              <div className="flex flex-wrap items-end justify-center gap-5">
-                {eliminated.map((e) => (
+              {/* Graves are staged by week, receding into the dark: the earliest
+                  chop stands nearest and sharpest, later weeks sit further back,
+                  smaller and hazier. Rows render back-to-front so the near row
+                  overlaps the ones behind it. transform-origin is the plinth, so
+                  a scaled row still sits on the same ground line. */}
+              <div className="relative flex flex-col items-center">
+                {/* ground fog the back rows sink into */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
+                  style={{
+                    background:
+                      "linear-gradient(to bottom, rgba(10,15,12,0.75) 0%, rgba(10,15,12,0.35) 45%, transparent 100%)",
+                  }}
+                />
+                {gravesByWeek
+                  .slice()
+                  .reverse()
+                  .map(({ week, teams, depth }) => {
+                    const scale = Math.max(0.58, 1 - depth * 0.13);
+                    const opacity = Math.max(0.35, 1 - depth * 0.17);
+                    const blur = Math.min(2.2, depth * 0.65);
+                    return (
+                      <div
+                        key={week}
+                        className="relative flex w-full flex-wrap items-end justify-center gap-5"
+                        style={{
+                          transform: `scale(${scale})`,
+                          transformOrigin: "bottom center",
+                          opacity,
+                          filter: blur ? `blur(${blur}px)` : undefined,
+                          zIndex: 40 - depth,
+                          // Pull each nearer row up over the one behind it.
+                          marginTop: depth === gravesByWeek.length - 1 ? 0 : "-1.5rem",
+                        }}
+                      >
+                        {/* week marker, carved into the row rather than floating */}
+                        <span
+                          className="absolute -top-1 left-1/2 -translate-x-1/2 font-display text-[10px] uppercase tracking-[0.4em] text-white/25"
+                          style={{ textShadow: "0 1px 0 rgba(0,0,0,0.8)" }}
+                        >
+                          Week {week}
+                        </span>
+                        {teams.map((e) => (
                   <div key={e.rosterId} className="w-52 max-w-full">
                     <div
                       className="relative rounded-t-[6rem] rounded-b-lg border border-white/15 px-5 pb-9 pt-9 text-center"
@@ -511,7 +569,10 @@ export default function Guillotine() {
                     {/* plinth */}
                     <div className="mx-auto -mt-1 h-3.5 w-[116%] -translate-x-[8%] rounded-md bg-black/60 shadow-[0_8px_20px_rgba(0,0,0,0.55)]" />
                   </div>
-                ))}
+                        ))}
+                      </div>
+                    );
+                  })}
               </div>
             </>
           )}
