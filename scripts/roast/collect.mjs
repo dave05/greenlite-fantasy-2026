@@ -86,6 +86,9 @@ async function main() {
     const u = r?.owner_id ? userById.get(r.owner_id) : null;
     return u?.metadata?.team_name?.trim() || u?.display_name || `Roster ${rosterId}`;
   };
+  // Team names change mid-season; the Sleeper user_id does not. Everything the
+  // memory layer (memory.mjs) remembers about a manager is keyed by this.
+  const ownerOf = (rosterId) => rosters.find((x) => x.roster_id === rosterId)?.owner_id ?? null;
   const playerName = (id) => players[id]?.name ?? `Player ${id}`;
   const playerMeta = (id) => players[id] ?? { name: `Player ${id}`, pos: "", team: "" };
 
@@ -119,6 +122,7 @@ async function main() {
         const wonIt = t.status === "complete";
         out.push({
           rosterId,
+          ownerId: ownerOf(rosterId),
           team: teamOf(rosterId),
           playerId,
           player: playerName(playerId),
@@ -209,7 +213,7 @@ async function main() {
 
   // ── Scores and the chop ────────────────────────────────────────────────────
   const scores = [...scoreByRoster.entries()]
-    .map(([rosterId, points]) => ({ rosterId, team: teamOf(rosterId), points }))
+    .map(([rosterId, points]) => ({ rosterId, ownerId: ownerOf(rosterId), team: teamOf(rosterId), points }))
     .filter((s) => s.points > 0)
     .sort((a, b) => b.points - a.points);
 
@@ -220,6 +224,7 @@ async function main() {
   const chopped = choppedRosterId
     ? {
         rosterId: choppedRosterId,
+        ownerId: ownerOf(choppedRosterId),
         team: teamOf(choppedRosterId),
         points: scoreByRoster.get(choppedRosterId) ?? null,
       }
@@ -250,6 +255,10 @@ async function main() {
         freshMoney: freshBids.filter((b) => b.won).sort((a, b) => b.bid - a.bid).slice(0, 8),
         scores,
         chopped,
+        managers: rosters.map((r) => {
+          const u = r.owner_id ? userById.get(r.owner_id) : null;
+          return { rosterId: r.roster_id, ownerId: r.owner_id ?? null, displayName: u?.display_name ?? null, team: teamOf(r.roster_id) };
+        }),
       },
       null,
       2,

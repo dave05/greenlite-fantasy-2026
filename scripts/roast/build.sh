@@ -4,6 +4,11 @@
 #   ./build.sh              # last completed week
 #   ./build.sh --week 2     # a specific week
 #
+#   GAZETTE_JSON=gazette.json COPY=copy.json ./build.sh
+#       render an already-collected week with freshly written jokes. This is how
+#       the weekly routine runs it: collect, read league-memory, write copy.json,
+#       pass memory.mjs check, then build. See league-memory/README.md.
+#
 # Two renders come out of this:
 #   gazette-week-N.html   web fonts + animation, for viewing/sharing as a page
 #   guillotine-gazette-week-N.pdf   system fonts, one A4 page, for emailing
@@ -19,13 +24,20 @@ CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 [ -x "$CHROME" ] || CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser || true)"
 [ -n "${CHROME:-}" ] && [ -x "$CHROME" ] || { echo "no Chrome/Chromium found; set CHROME=/path/to/chrome" >&2; exit 1; }
 
-node "$here/collect.mjs" "$@" > "$out/gazette.json"
+if [ -n "${GAZETTE_JSON:-}" ]; then
+  [ "$(cd "$(dirname "$GAZETTE_JSON")" && pwd)/$(basename "$GAZETTE_JSON")" = "$out/gazette.json" ] \
+    || cp "$GAZETTE_JSON" "$out/gazette.json"
+else
+  node "$here/collect.mjs" "$@" > "$out/gazette.json"
+fi
+copy_flag=()
+[ -n "${COPY:-}" ] && copy_flag=("--copy=$COPY")
 week="$(node -e "console.log(JSON.parse(require('fs').readFileSync('$out/gazette.json','utf8')).week)")"
 
 # Screen version: web fonts, animation.
-node "$here/render.mjs" --fonts=web    < "$out/gazette.json" > "$out/gazette-week-$week.html"
+node "$here/render.mjs" --fonts=web    ${copy_flag[@]+"${copy_flag[@]}"} < "$out/gazette.json" > "$out/gazette-week-$week.html"
 # Print version: system fonts and no emoji, which keeps the PDF small.
-node "$here/render.mjs" --fonts=system < "$out/gazette.json" > "$out/gazette-print-$week.html"
+node "$here/render.mjs" --fonts=system ${copy_flag[@]+"${copy_flag[@]}"} < "$out/gazette.json" > "$out/gazette-print-$week.html"
 
 raw="$out/.gazette-raw-$week.pdf"
 pdf="$out/guillotine-gazette-week-$week.pdf"
