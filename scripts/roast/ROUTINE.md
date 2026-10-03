@@ -34,14 +34,15 @@ Export `CHROME` to that path. Only if nothing is there, install with
     node scripts/roast/memory.mjs brief $OUT/gazette.json
 
 No arguments = the last COMPLETED NFL week. Note the week number N from the
-JSON. Read the whole briefing: who is in this week's news, their profile, their
-rap sheet, and every joke already used.
+JSON. Read the whole briefing: what the group chat is talking about (storylines -
+work these in, they are the most current material you have), who is in this
+week's news, their profile, their rap sheet, and every joke already used.
 
 ## Step 3 - write every joke into $OUT/copy.json
 
 Format is in `league-memory/README.md`.
 
-- `paper`: headline `{kicker, head, sub}`, jabs `{flop, benched, lowball, steal}`
+- `paper`: headline `{kicker, head, sub}`, jabs `{flop, benched, lowball, steal, hoarder}`
   for whichever awards exist, and `obituary` (one-line epitaph for the chopped
   team). These print on the sheet. Fill every slot that has an award - a
   missing slot falls back to a canned line that has already run.
@@ -119,7 +120,8 @@ discovering that. The inline `<img>` below does the same thing for free.
 Use ONLY the jokes in copy.json (paper lines plus the `jokes` list). If you
 want a new line while writing, add it to copy.json, re-run check, and re-run
 record before sending. Cover whichever exist: awards.overkill, awards.flop,
-awards.benched, awards.lowball, awards.steal, and chopped (who died, with what
+awards.benched, awards.lowball, awards.steal, awards.hoarder (managers still
+sitting on their whole FAAB budget), any storylines, and chopped (who died, with what
 score).
 
 - to: dasam2012@gmail.com

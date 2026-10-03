@@ -68,7 +68,8 @@ async function main() {
   const state = await get("/state/nfl");
   const week = Number(arg("--week") ?? Math.max(1, (state.week ?? 1) - 1));
 
-  const [users, rosters, priorRun, thisRun, matchups, players] = await Promise.all([
+  const [league, users, rosters, priorRun, thisRun, matchups, players] = await Promise.all([
+    get(`/league/${LEAGUE}`),
     get(`/league/${LEAGUE}/users`),
     get(`/league/${LEAGUE}/rosters`),
     // The run that DELIVERED this week's players - the one we can now judge.
@@ -230,6 +231,36 @@ async function main() {
       }
     : null;
 
+  // ── The mattress fund ──────────────────────────────────────────────────────
+  // Managers still alive who have not spent a cent. waiver_budget_used is the
+  // roster's running total as of NOW, so re-rendering an old week shows today's
+  // hoarders, not that week's - fine for a paper that only looks forward.
+  const budget = league?.settings?.waiver_budget ?? 0;
+  const choppedSoFar = new Set();
+  const runs = await Promise.all(
+    Array.from({ length: week }, (_, i) => (i + 1 === week ? Promise.resolve(thisRun) : get(`/league/${LEAGUE}/transactions/${i + 1}`))),
+  );
+  for (const run of runs)
+    for (const t of run ?? [])
+      if (t.type === "chopped") for (const r of Object.values(t.drops ?? {})) choppedSoFar.add(Number(r));
+  const faab = rosters.map((r) => {
+    const spent = r.settings?.waiver_budget_used ?? 0;
+    return {
+      rosterId: r.roster_id,
+      ownerId: r.owner_id ?? null,
+      team: teamOf(r.roster_id),
+      spent,
+      remaining: budget - spent,
+      alive: !choppedSoFar.has(r.roster_id),
+    };
+  });
+  const hoarders = budget
+    ? faab.filter((f) => f.alive && f.spent === 0).sort((a, b) => a.team.localeCompare(b.team))
+    : [];
+  // Chopped without ever bidding: buried with the full budget.
+  const buriedRich = budget ? faab.filter((f) => !f.alive && f.spent === 0) : [];
+  const hoarder = hoarders.length ? { budget, hoarders, buriedRich } : null;
+
   // Total FAAB actually SPENT: winning claims only. A losing bid costs the
   // bidder nothing, so failed claims must never be added into a spend figure.
   const spend = won.reduce((sum, b) => sum + b.bid, 0);
@@ -249,12 +280,13 @@ async function main() {
           bidsLost: lost.length,
           contested: contests.length,
         },
-        awards: { bigSpender, flop, steal, benched, heartbreak, overkill, lowball },
+        awards: { bigSpender, flop, steal, benched, heartbreak, overkill, lowball, hoarder },
         contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
         topBids: byBidDesc.slice(0, 10),
         freshMoney: freshBids.filter((b) => b.won).sort((a, b) => b.bid - a.bid).slice(0, 8),
         scores,
         chopped,
+        faab: { budget, rosters: faab },
         managers: rosters.map((r) => {
           const u = r.owner_id ? userById.get(r.owner_id) : null;
           return { rosterId: r.roster_id, ownerId: r.owner_id ?? null, displayName: u?.display_name ?? null, team: teamOf(r.roster_id) };

@@ -37,6 +37,7 @@ export const JABS = {
     "Somewhere, a waiver processor laughed.",
   ],
   steal: ["Credit where it is due. Do not get used to it."],
+  hoarder: ["FAAB does not accrue interest. Spend it or be buried with it."],
   obituary: ["Lowest score. No appeal. No mercy."],
 };
 
@@ -108,6 +109,7 @@ export function resolveCopy(d, override) {
       benched: line("benched"),
       lowball: line("lowball"),
       steal: line("steal"),
+      hoarder: line("hoarder"),
     },
     obituary: o.obituary ?? pick(JABS.obituary, week),
   };
@@ -123,6 +125,8 @@ export function printedJokes(d, copy) {
   for (const slot of ["flop", "benched", "lowball", "steal"]) {
     if (a[slot]) rows.push({ slot, target: targetOf(d, slot), text: copy.jabs[slot] });
   }
+  // Aimed at a group, so no single target.
+  if (a.hoarder) rows.push({ slot: "hoarder", target: null, text: copy.jabs.hoarder });
   if (d.chopped) rows.push({ slot: "obituary", target: targetOf(d, "obituary"), text: copy.obituary });
   return rows;
 }

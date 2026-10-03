@@ -9,6 +9,7 @@ old crimes and never tell the same joke twice. Read and written by
 | `members.json` | **you**, by hand (plus `record` for `teams`/`status`) | one profile per manager, keyed by Sleeper `user_id` |
 | `rap-sheet.jsonl` | `record` only | every award and chop, straight from Sleeper data |
 | `jokes.jsonl` | `record` only | every joke published, paper and email |
+| `storylines.json` | **you**, by hand | what the group chat is talking about this week |
 
 ## Filling in profiles
 
@@ -33,6 +34,19 @@ whatever makes a better roast - all optional:
 Keep it about football decisions. `off_limits` is the safety valve: anything
 listed there fails `memory.mjs check`, whoever the joke is about.
 
+## Storylines
+
+Add whatever the group chat is on about before Wednesday's run. `brief` shows
+every entry whose `from_week`..`until_week` covers the week being written
+(leave `until_week` out for one that runs all season):
+
+```json
+{ "from_week": 4, "until_week": 4, "topic": "what happened", "angle": "how to play it", "notes": "anything else" }
+```
+
+The week is the one the paper covers: Wednesday's run writes up the week whose
+games just finished.
+
 ## The weekly flow
 
 ```sh
@@ -54,7 +68,7 @@ git add league-memory gazettes && git commit -m "gazette: week N"
   "week": 4,
   "paper": {
     "headline": { "kicker": "REPEAT OFFENDER", "head": "BENCHED AGAIN", "sub": "...", "target": "<user_id>" },
-    "jabs": { "flop": "...", "benched": "...", "lowball": "...", "steal": "..." },
+    "jabs": { "flop": "...", "benched": "...", "lowball": "...", "steal": "...", "hoarder": "..." },
     "obituary": "..."
   },
   "jokes": [

@@ -105,6 +105,23 @@ function page(d) {
       ),
     );
 
+  if (a.hoarder) {
+    const and = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0]);
+    const list = and(a.hoarder.hoarders.map((h) => `<b>${esc(h.team)}</b>`));
+    const buried = a.hoarder.buriedRich?.length
+      ? ` ${and(a.hoarder.buriedRich.map((h) => esc(h.team)))} took the whole budget to the grave.`
+      : "";
+    cards.push(
+      card(
+        "odd wide",
+        "The Mattress Fund",
+        `${a.hoarder.hoarders.length} ${a.hoarder.hoarders.length === 1 ? "manager" : "managers"}, ${money(a.hoarder.budget)} each, $0 spent`,
+        `${list} ${a.hoarder.hoarders.length === 1 ? "has" : "have"} not placed a single winning bid. The full ${money(a.hoarder.budget)} is still in the mattress.${buried}`,
+        copy.jabs.hoarder,
+      ),
+    );
+  }
+
   const contestRows = (d.contests ?? [])
     .slice(0, 6)
     .map(
@@ -198,6 +215,7 @@ ${fontLink}
   .card.good .tag { background: #1d5c33; }
   .card.cheap .tag { background: #6b5b1f; }
   .card.odd .tag { background: #3b3563; }
+  .card.wide { grid-column: 1 / -1; }
   .card h3 { font-family: ${condStack}; font-size: 12.5pt; margin: 0 0 1mm; text-transform: uppercase; }
   .card p { font-size: 8.6pt; line-height: 1.32; margin: 0; }
   .card .jab {

@@ -1,0 +1,15 @@
+[
+  {
+    "from_week": 4,
+    "until_week": 4,
+    "topic": "The Cleveland Browns are winning, and the group chat cannot cope.",
+    "angle": "Treat it as breaking news of historic, possibly apocalyptic, proportions. Good for a 'signs of the end times' or 'elsewhere in impossible news' aside.",
+    "notes": "From the group chat. Deshaun Watson is the Browns QB, and the chat joked he has 'found a new masseuse in Cleveland' - a nod to the massage allegations from his Houston days. Fine to use as ONE quick nod; keep it about Watson, keep it brief, and do not build a whole bit on it."
+  },
+  {
+    "from_week": 4,
+    "topic": "FAAB hoarders: managers still sitting on their full $1,000 budget (awards.hoarder in gazette.json).",
+    "angle": "They are treating fake waiver money like a retirement account. Group chat line to riff on: 'Don't try to make up for your real savings with fake FAAB money.' Chopped managers who never spent a cent died with $1,000 in the mattress.",
+    "notes": "Runs all season. Find a new angle every week - the joke log will reject a repeat."
+  }
+]

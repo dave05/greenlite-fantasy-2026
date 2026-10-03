@@ -16,6 +16,8 @@
 //                    jokes.
 //   jokes.jsonl      every joke published, paper and email. `check` compares
 //                    new copy against it.
+//   storylines.json  what the group chat is talking about, written by hand;
+//                    `brief` shows the ones live for the week being written.
 //
 // `record` is idempotent per week: it replaces that week's rows, so re-running
 // a week never double-counts.
@@ -30,6 +32,7 @@ const DIR = process.env.MEMORY_DIR || join(here, "..", "..", "league-memory");
 const MEMBERS = join(DIR, "members.json");
 const RAP = join(DIR, "rap-sheet.jsonl");
 const JOKES = join(DIR, "jokes.jsonl");
+const STORYLINES = join(DIR, "storylines.json");
 
 const readJson = (p, fallback) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : fallback);
 const readJsonl = (p) =>
@@ -108,6 +111,8 @@ function offences(d) {
       winningBid: a.heartbreak.winner.bid,
       winner: a.heartbreak.winner.team,
     });
+  for (const h of a.hoarder?.hoarders ?? [])
+    add("hoarder", h.ownerId, h.team, { remaining: h.remaining, budget: a.hoarder.budget });
   const top = d.scores?.[0];
   if (top) add("top_score", top.ownerId, top.team, { points: top.points });
   if (d.chopped) add("chopped", d.chopped.ownerId, d.chopped.team, { points: d.chopped.points });
@@ -130,6 +135,8 @@ const describe = (r) => {
       return `OVERKILL: ${money(r.bid)} on ${r.player} when the next bid was ${money(r.nextBid)} (${money(r.gap)} clear)`;
     case "heartbreak":
       return `HEARTBREAK: bid ${money(r.bid)} for ${r.player}, lost to ${r.winner}'s ${money(r.winningBid)} (unpaid)`;
+    case "hoarder":
+      return `HOARDER: still sitting on all ${money(r.remaining)} of FAAB`;
     case "top_score":
       return `top score of the week: ${pts(r.points)}`;
     case "chopped":
@@ -179,6 +186,21 @@ function brief(d) {
     if (p.off_limits?.length) l.push(`  OFF LIMITS: ${p.off_limits.join("; ")}`);
     return l;
   };
+
+  // Storylines are live from `from_week` through `until_week` (inclusive);
+  // leave until_week out for one that runs all season.
+  const live = readJson(STORYLINES, []).filter(
+    (s) => (s.from_week ?? 0) <= d.week && d.week <= (s.until_week ?? Infinity),
+  );
+  if (live.length) {
+    out.push("## From the group chat this week", "");
+    for (const s of live) {
+      out.push(`- ${s.topic}`);
+      if (s.angle) out.push(`  angle: ${s.angle}`);
+      if (s.notes) out.push(`  notes: ${s.notes}`);
+    }
+    out.push("");
+  }
 
   out.push("## In this week's news", "");
   if (!inNews.size) out.push("Nobody. A quiet week.", "");
