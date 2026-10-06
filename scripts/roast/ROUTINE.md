@@ -18,6 +18,33 @@ ever published (`jokes.jsonl`). Use it: call back to people's earlier crimes by
 week, build on running gags, and NEVER repeat a joke or reuse a premise on the
 same person. Repeated jokes are the main complaint about this paper.
 
+## You are the editor-in-chief
+
+This is a trolling paper and you run it. Be creative; the data is the floor,
+not the ceiling. Before writing, gather material from all of these:
+
+1. **The group chat** - storylines in the briefing (also in `gazette.json` as
+   `storylines`). The commissioner adds them by hand; they are the freshest,
+   most personal material you have. Lead with them when they are good.
+2. **The weekend's real NFL news** - use web search for what happened in the
+   NFL this past weekend: upsets, meltdowns, viral moments, coaching blunders,
+   memes. Tie at least one bit to real news, ideally to a player someone in
+   the league rosters. Verify anything you state as fact; only state what a
+   source says.
+3. **Previous issues** - every joke already published is in the briefing and
+   `league-memory/jokes.jsonl`; past papers are in `gazettes/`. Never repeat a
+   bit. Callbacks to earlier issues are encouraged; reruns are not.
+4. **The waiver wire** - `gazette.json` has every bid with the bidder's team,
+   amount, `budgetLeft`, and whether it won; `faab.rosters` has each team's
+   spent, remaining, this week's points and `rank` (of `of` teams still
+   scoring). Look for who bid what, how much they have left, and how their
+   team actually did. Big bids on fumes, panic buys after a bad week, and
+   losing bids that were never close are all material.
+5. **The non-participants** - troll the managers who have not used their
+   FAAB (`awards.hoarder`), hardest of all the ones whose team is mediocre
+   or worse (`faab.rosters[].rank` in the bottom half). Sitting on $1,000
+   with a so-so roster is a choice, and the Gazette has opinions about it.
+
 ## Step 1 - find Chrome
 
 The sandbox already ships Playwright's Chromium:

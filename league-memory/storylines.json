@@ -11,5 +11,25 @@
     "topic": "FAAB hoarders: managers still sitting on their full $1,000 budget (awards.hoarder in gazette.json).",
     "angle": "They are treating fake waiver money like a retirement account. Group chat line to riff on: 'Don't try to make up for your real savings with fake FAAB money.' Chopped managers who never spent a cent died with $1,000 in the mattress.",
     "notes": "Runs all season. Find a new angle every week - the joke log will reject a repeat."
+  },
+  {
+    "from_week": 4,
+    "until_week": 4,
+    "topic": "Sergio (sergioflores98) was chopped in Week 4 for not setting his lineup.",
+    "angle": "He does not know how to set a lineup, and the whole group chat begged him to fix it. Play it as a man who was handed the answer key and still left the page blank. He also died with his entire $1,000 FAAB unspent (awards.hoarder.buriedRich).",
+    "notes": "VERIFIED FROM SLEEPER, use these numbers: scored 87.42, lowest in the league. Started an EMPTY WR slot and Jalen Coker, who was ruled out late and scored 0.0. On Sunday afternoon he picked up Noah Fant (TE), Bryce Lance (WR) and Michael Penix (QB) and started none of them - they scored 0.0, 1.7 and 12.72 on his bench. Kenny Gainwell scored 10.7 on his bench too: moving Diggs into the empty WR spot and Gainwell into FLEX gives 98.1, which survives. Do NOT claim the new WR/TE would have saved him - together they scored 1.7, and the gap was 3.6. Gainwell would have."
+  },
+  {
+    "from_week": 4,
+    "until_week": 4,
+    "topic": "Collusion rumor: the commissioner survived because Sergio did not set his lineup.",
+    "angle": "Report it as a breaking conspiracy with a straight face: 'sources', 'the commissioner declined to comment', 'the Gazette has filed a records request'. It is a joke - present it as a rumor, never as fact.",
+    "notes": "JSN - Just Survive Now (dawit21) is the league commissioner and scored 91.02, second-lowest, 3.6 points above Sergio. Had Sergio started Kenny Gainwell (10.7, on his bench), Sergio scores 98.1 and JSN is the one chopped. The team name is literally 'Just Survive Now'. The group chat says Sergio and the commissioner colluded."
+  },
+  {
+    "from_week": 4,
+    "topic": "The great Drake Maye vs Bo Nix debate: the league is split into Nix Believers and Maye Defenders.",
+    "angle": "Cover it like a bitter political race or a holy war - polling, campaign ads, defectors. The Gazette pretends to be neutral and obviously is not. Maye is on maruniak's team, Nix is on BDALOHA's, so each side has a candidate in the league.",
+    "notes": "Runs all season: refresh the numbers each week from Sleeper (https://api.sleeper.app/v1/stats/nfl/regular/<season>/<week>, field pts_ppr; Nix id 11563, Maye id 11564). Week 4, verified: Maye 27.16 (269 pass yds, 3 TD, 1 INT, 54 rush yds) vs Nix 13.56 (214 yds, 1 TD). Season through week 4: Nix 60.26, Maye 54.76; interceptions Maye 7, Nix 4. So Maye finally showed up, but Nix still leads on the season."
   }
 ]

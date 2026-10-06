@@ -10,7 +10,7 @@
     "tendencies": [],
     "running_gags": [],
     "off_limits": [],
-    "notes": "",
+    "notes": "League commissioner. Team name: JSN - Just Survive Now.",
     "status": "alive"
   },
   "860959579746484224": {
@@ -203,8 +203,12 @@
       "sergioflores98"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "does not set his lineup, even when the whole group chat begs him to (week 4: empty WR slot, Sunday pickups left on the bench)"
+    ],
+    "running_gags": [
+      "died with an empty lineup slot and $1,000 of FAAB untouched"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"

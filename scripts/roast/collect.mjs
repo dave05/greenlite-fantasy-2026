@@ -57,6 +57,16 @@ async function loadPlayers() {
   return slim;
 }
 
+async function liveStorylines(week) {
+  const { readFile } = await import("node:fs/promises");
+  try {
+    const all = JSON.parse(await readFile(new URL("../../league-memory/storylines.json", import.meta.url), "utf8"));
+    return all.filter((s) => (s.from_week ?? 0) <= week && week <= (s.until_week ?? Infinity));
+  } catch {
+    return [];
+  }
+}
+
 const arg = (flag) => {
   const i = process.argv.indexOf(flag);
   return i === -1 ? null : process.argv[i + 1];
@@ -243,6 +253,13 @@ async function main() {
   for (const run of runs)
     for (const t of run ?? [])
       if (t.type === "chopped") for (const r of Object.values(t.drops ?? {})) choppedSoFar.add(Number(r));
+  // This week's finish, so a hoarder can be measured against how badly they
+  // need help: $1,000 in the bank and a bottom-four team is its own story.
+  const ranked = [...scoreByRoster.entries()].filter(([, p]) => p > 0).sort((a, b) => b[1] - a[1]);
+  const rankOf = (rosterId) => {
+    const i = ranked.findIndex(([id]) => id === rosterId);
+    return i === -1 ? null : i + 1;
+  };
   const faab = rosters.map((r) => {
     const spent = r.settings?.waiver_budget_used ?? 0;
     return {
@@ -252,8 +269,15 @@ async function main() {
       spent,
       remaining: budget - spent,
       alive: !choppedSoFar.has(r.roster_id),
+      points: scoreByRoster.get(r.roster_id) ?? null,
+      rank: rankOf(r.roster_id),
+      of: ranked.length,
     };
   });
+  // Every bid gets the bidder's budget left, so the writer can see who is
+  // bidding big on fumes and who is sitting on a fortune.
+  const leftOf = new Map(faab.map((f) => [f.rosterId, f.remaining]));
+  for (const b of [...bids, ...freshBids]) b.budgetLeft = budget ? leftOf.get(b.rosterId) ?? null : null;
   const hoarders = budget
     ? faab.filter((f) => f.alive && f.spent === 0).sort((a, b) => a.team.localeCompare(b.team))
     : [];
@@ -287,6 +311,9 @@ async function main() {
         scores,
         chopped,
         faab: { budget, rosters: faab },
+        // Group-chat material from league-memory/storylines.json that covers
+        // this week, so it reaches whoever reads this file.
+        storylines: await liveStorylines(week),
         managers: rosters.map((r) => {
           const u = r.owner_id ? userById.get(r.owner_id) : null;
           return { rosterId: r.roster_id, ownerId: r.owner_id ?? null, displayName: u?.display_name ?? null, team: teamOf(r.roster_id) };
