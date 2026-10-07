@@ -67,7 +67,8 @@ section 5:
 - `paper.jabs` `{flop, benched, lowball, steal, hoarder}` for whichever awards
   exist, and `paper.obituary` (one-line epitaph). A missing slot falls back to
   a canned line that has already run.
-- `jokes` - the Editor's Desk: 12-15 short lines in 5-6 `section`s, each with
+- `jokes` - the Editor's Desk: 15-20 lines that all land, in 5-6 `section`s
+  (cut filler words, never punchlines; group-chat lines word for word), each with
   `target`, a short `premise` and the exact `text`. Section "Obituary" goes on
   the chopped team's memorial.
 - `comic` - four panels: setup, setup, turn, payoff.
@@ -79,7 +80,8 @@ Then:
 Rewrite anything it rejects with a genuinely new angle (not a rewording) until
 it prints ok. Before moving on, re-read every line against EDITORIAL.md
 section 3 (the corrected facts) and section 2 (what flopped). Cut any line
-that is a fact without a punchline.
+that is a fact without a punchline - but do not cut a line that lands just to
+hit a length.
 
 ## Step 5 - build the printed paper
 

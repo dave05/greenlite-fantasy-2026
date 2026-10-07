@@ -23,7 +23,14 @@ fresh benching joke. Callbacks to a past issue are encouraged; reruns are not.
 NFL Twitter, not a newspaper column. The commissioner's notes, verbatim in
 spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 
-- One idea per line, punchline LAST, 25 words or fewer. Never explain the joke.
+- One idea per line, punchline LAST. Never explain the joke.
+- **Balance: cut filler, never punchlines.** Tighten the setup words; keep
+  every line that has a real laugh in it. The commissioner tried a 14-line
+  "short" desk for week 4 and preferred the fuller 19-line one - over-cutting
+  lost the best lines.
+- **The commissioner's and the group chat's own lines run word for word.**
+  "Don't try to make up for your real savings with fake FAAB money" got cut in
+  a trim and he noticed. Never shorten or paraphrase material he hands you.
 - A line that is only a fact gets cut or gets a punchline.
 - Slang bank (rotate - the log catches repeats): "🚨 Sources:", "the league
   office investigated itself and found no wrongdoing", "per sources",
@@ -33,7 +40,11 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
   "never heard of her", "that's not a pattern, that's a scheme".
 - Punch at decisions, never at people. These are the commissioner's friends.
 
-### What landed (week 4)
+### What landed (week 4) - the commissioner's favourites first
+- "Don't try to make up for your real savings with fake FAAB money." (his own line)
+- "Grief makes people generous." / "Some men buy players. The commissioner buys furniture."
+- "The universe has returned his dollar." / "Flowers were not sent."
+- "Bold to buy the murder weapon at the estate sale." 
 - "That's not a waiver claim. That's a thank-you card." (a big bid read as a payoff)
 - "The league office investigated itself and found no wrongdoing." (Schefter-tweet frame for a rumor)
 - "Five moves on Monday. Zero of them in the lineup." (a number that is the joke)
@@ -52,7 +63,8 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 - Lines that assert something false about a person ("you did not participate"
   at a manager who won a claim that same night).
 - Canned lines repeated week after week ("No appeal. No mercy." ran twice).
-- An editor's desk of 18 long paragraphs. 12-15 short lines.
+- Over-correcting: a 14-line desk that cut the commissioner's own line and the
+  best punchlines. Aim for 15-20 lines that all land.
 
 ## 3. Facts the commissioner has corrected - get these right
 
@@ -112,7 +124,7 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 | `paper.headline` | top of the paper and the site | needs a turn or pun, not a summary |
 | `paper.jabs` | award cards on the printed paper | one line each |
 | `paper.obituary` | epitaph on the paper and site memorial | one line |
-| `jokes[]` with `section` | the site's Editor's Desk, grouped by section | 12-15 lines, 5-6 sections |
+| `jokes[]` with `section` | the site's Editor's Desk, grouped by section | 15-20 lines that all land, 5-6 sections |
 | `jokes[]` section "Obituary" | the site's memorial for the chopped team | the death, with the real lineup math |
 | `comic` (4 panels) | the site's Peanut Gallery strip | setup, setup, turn, payoff |
 | bye watch | site P.S. at the bottom (live, automatic) | nothing to write |
