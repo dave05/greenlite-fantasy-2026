@@ -16,3 +16,12 @@
 {"week":3,"kind":"heartbreak","ownerId":"1396537478361387008","team":"Sdobens4","player":"A.J. Brown","bid":42,"winningBid":52,"winner":"maruniak"}
 {"week":3,"kind":"top_score","ownerId":"1258801794037862400","team":"Vladimir Tuten","points":163.9}
 {"week":3,"kind":"chopped","ownerId":"558675356280602624","team":"KRogo5","points":50.98}
+{"week":4,"kind":"big_spender","ownerId":"1396677940267216896","team":"PumpUpTheJam32","player":"Omarion Hampton","pos":"RB","bid":135,"points":13.3}
+{"week":4,"kind":"flop","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Dallas Goedert","pos":"TE","bid":48,"points":0}
+{"week":4,"kind":"benched","ownerId":"1258801794037862400","team":"Vladimir Tuten","player":"Devaughn Vele","pos":"WR","bid":62,"points":17.4}
+{"week":4,"kind":"steal","ownerId":"741512280193261568","team":"maruniak","player":"Malik Washington","pos":"WR","bid":0,"points":12}
+{"week":4,"kind":"lowball","ownerId":"741512280193261568","team":"maruniak","player":"Devaughn Vele","pos":"WR","bid":2,"points":null}
+{"week":4,"kind":"overkill","ownerId":"1396677940267216896","team":"PumpUpTheJam32","player":"Omarion Hampton","pos":"RB","bid":135,"points":13.3,"nextBid":21,"gap":114}
+{"week":4,"kind":"heartbreak","ownerId":"741512280193261568","team":"maruniak","player":"Jaylen Waddle","bid":22,"winningBid":23,"winner":"Vladimir Tuten"}
+{"week":4,"kind":"top_score","ownerId":"1138704096498597888","team":"kaelanzm","points":159.56}
+{"week":4,"kind":"chopped","ownerId":"1399167043244204032","team":"sergioflores98","points":87.42}
