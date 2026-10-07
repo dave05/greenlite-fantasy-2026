@@ -1,6 +1,8 @@
 // Thin client for Sleeper's public, read-only API (https://docs.sleeper.com).
 // No auth or API key - everything is keyed off a public username / league id.
 
+import { getHeadlines, classify, type NewsCategory } from "./news";
+
 const BASE = "https://api.sleeper.app/v1";
 
 async function get<T>(path: string): Promise<T | null> {
@@ -79,8 +81,19 @@ export type SleeperLeagueUser = {
   user_id: string;
   display_name: string;
   avatar: string | null;
-  metadata?: { team_name?: string } | null;
+  // A custom team avatar is a full URL under metadata.avatar; the top-level
+  // `avatar` is instead an id served from sleepercdn.
+  metadata?: { team_name?: string; avatar?: string } | null;
 };
+
+// Resolve a user's best avatar to a full image URL, or null if they have none.
+export function avatarUrl(user: SleeperLeagueUser | undefined): string | null {
+  if (!user) return null;
+  const custom = user.metadata?.avatar?.trim();
+  if (custom) return custom;
+  if (user.avatar) return `https://sleepercdn.com/avatars/thumbs/${user.avatar}`;
+  return null;
+}
 
 export type SleeperRoster = {
   roster_id: number;
@@ -263,6 +276,7 @@ export type Eliminated = {
   rosterId: number;
   name: string;
   points: number; // that week's score, the one that got them chopped
+  avatar: string | null; // owner's Sleeper avatar, for the obituary portrait
 };
 
 // Reconstruct the graveyard deterministically from Sleeper's weekly scores.
@@ -294,6 +308,9 @@ export async function getEliminations(
 
   const survivors = new Set(claimed.map((r) => r.roster_id));
   const nameById = new Map(claimed.map((r) => [r.roster_id, teamName(r, userById)]));
+  const avatarById = new Map(
+    claimed.map((r) => [r.roster_id, avatarUrl(r.owner_id ? userById.get(r.owner_id) : undefined)]),
+  );
   const eliminated: Eliminated[] = [];
 
   for (let w = 1; w <= lastCompletedWeek; w++) {
@@ -314,6 +331,7 @@ export async function getEliminations(
           rosterId: outId,
           name: nameById.get(outId) ?? `Roster ${outId}`,
           points: low,
+          avatar: avatarById.get(outId) ?? null,
         });
         survivors.delete(outId);
       }
@@ -968,6 +986,14 @@ export type GazetteContest = {
   points: number | null;
 };
 
+// A player who outscored a slot he could have filled, left on the bench.
+export type BenchGem = {
+  rosterId: number;
+  team: string;
+  player: TxnPlayer;
+  points: number;
+};
+
 export type Gazette = {
   week: number;
   generatedAt: string;
@@ -984,11 +1010,34 @@ export type Gazette = {
     // Ratio, not gap - $299 against a $5 bid is 60x and absurd, while
     // $503 against $400 is 1.26x and merely expensive.
     mostAbsurd: GazetteContest | null;
+    // The highest-scoring player someone left on their bench this week.
+    benchGem: BenchGem | null;
   };
   contests: GazetteContest[];
   freshContests: GazetteContest[];
   scores: { rosterId: number; team: string; points: number }[];
-  chopped: { rosterId: number; team: string; points: number | null } | null;
+  chopped: { rosterId: number; team: string; points: number | null; avatar: string | null } | null;
+  // Real NFL news tied to a team in this league: their rostered player is in a
+  // headline. Lets the copy connect the wire to the week's fate ("your QB blew a
+  // knee AND you got chopped"). null when nothing matched.
+  newsHook: {
+    team: string;
+    player: string;
+    position: string;
+    nflTeam: string;
+    category: NewsCategory;
+    headline: string;
+    source: string;
+    // The team's role this week, so the copy can land the connection.
+    role: "chopped" | "bottom" | "bigSpender" | "flop" | "benched" | "benchGem" | "marquee" | "top" | "other";
+  } | null;
+  // Season-long FAAB spend, for the "Wallet Watch" receipts: who torches their
+  // budget vs who survives on pocket change. null if no FAAB data.
+  spending: {
+    budget: number | null;
+    topSpender: { team: string; used: number } | null;
+    cheapest: { team: string; used: number } | null;
+  } | null;
 };
 
 type RawTxn = {
@@ -1005,7 +1054,7 @@ export async function getGazette(
   week: number,
   year = "2026",
 ): Promise<Gazette | null> {
-  const [users, rosters, priorRun, thisRun, matchups, projMap] = await Promise.all([
+  const [users, rosters, priorRun, thisRun, matchups, projMap, headlines] = await Promise.all([
     getLeagueUsers(leagueId),
     getRosters(leagueId),
     week > 1
@@ -1014,12 +1063,17 @@ export async function getGazette(
     get<RawTxn[]>(`/league/${leagueId}/transactions/${week}`),
     getMatchups(leagueId, week),
     getWeeklyProjMap(year, week),
+    getHeadlines().catch(() => []),
   ]);
 
   const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
   const teamOf = (rid: number) => {
     const r = (rosters ?? []).find((x) => x.roster_id === rid);
     return r ? teamName(r, userById) : `Roster ${rid}`;
+  };
+  const avatarOf = (rid: number): string | null => {
+    const r = (rosters ?? []).find((x) => x.roster_id === rid);
+    return avatarUrl(r?.owner_id ? userById.get(r.owner_id) : undefined);
   };
   const playerOf = (id: string): TxnPlayer => {
     const p = projMap.get(id);
@@ -1060,22 +1114,33 @@ export async function getGazette(
     return out;
   };
 
-  const bids = bidsFrom(priorRun, true);
-  const fresh = bidsFrom(thisRun, false);
+  // Scored "value" awards (flop/steal/benched) judge THIS PAST WEEKEND's games.
+  // Pool every recent pickup from both waiver runs, judged with this week's
+  // points, so the freshest performers surface regardless of when they were
+  // claimed. `started === true` guarantees the player was actually in this
+  // weekend's lineup (so a brand-new claim that has not played can't sneak in).
+  const bids = [...bidsFrom(priorRun, true), ...bidsFrom(thisRun, true)];
+  const fresh = bidsFrom(thisRun, false); // this morning's run, for the marquee + "just in"
+  const freshLost = fresh.filter((b) => !b.won);
   const won = bids.filter((b) => b.won);
-  const lost = bids.filter((b) => !b.won);
 
   const byBid = [...won].sort((a, b) => b.bid - a.bid);
   const bigSpender = byBid[0] ?? null;
 
+  // A flop is a guy you PAID for and STARTED this weekend who then bricked. A
+  // benched pickup (e.g. stashing an injured stud like A.J. Brown) is not a flop.
   const flop =
-    [...won].filter((b) => b.bid >= 20 && b.points != null)
+    [...won].filter((b) => b.bid >= 20 && b.points != null && b.started === true)
       .sort((a, b) => a.points! / a.bid - b.points! / b.bid)[0] ?? null;
+  // Benched: paid up, sat him, and he still put up real points this weekend (the
+  // points you left on the bench). Require a real haul so a just-claimed guy who
+  // never played for you can't register.
   const benched =
-    [...won].filter((b) => b.bid >= 25 && b.started === false)
+    [...won].filter((b) => b.bid >= 25 && b.started === false && b.points != null && b.points >= 8)
       .sort((a, b) => b.bid - a.bid)[0] ?? null;
+  // Best buy: cheapest starter who actually delivered this weekend.
   const steal =
-    [...won].filter((b) => b.points != null && b.points > 0)
+    [...won].filter((b) => b.points != null && b.points > 0 && b.started === true)
       .sort((a, b) => b.points! / Math.max(1, b.bid) - a.points! / Math.max(1, a.bid))[0] ?? null;
 
   const contestsOf = (list: GazetteBid[]): GazetteContest[] => {
@@ -1102,19 +1167,46 @@ export async function getGazette(
   const contests = contestsOf(bids);
   const freshContests = contestsOf(fresh);
 
-  // Overpaying by a big MULTIPLE is the funny one. Require a real bid so a
-  // $2-over-$0 claim does not top the chart on a technicality.
+  // The marquee is the loudest overpay from THE RUN THAT JUST CLEARED (the fresh
+  // bids, thisRun) - a Wednesday-morning paper leads with this morning's waiver
+  // news, not a bid the league already saw (and we already printed) a week ago.
+  // Because it is always the newest run, the headline is fresh every week and can
+  // never repeat a prior edition. Two ways to earn it: a shocking raw number (a
+  // $503 claim) or a shocking MULTIPLE ($182 for a $2 player = 91x); score both on
+  // one scale where each 1x of overpay is worth ~$6 of buzz.
+  const BUZZ_PER_MULTIPLE = 6;
   const ratio = (c: GazetteContest) => c.winner.bid / Math.max(1, c.runnerUp?.bid ?? 1);
+  const talkValue = (c: GazetteContest) => {
+    const contested = (c.runnerUp?.bid ?? 0) > 0;
+    const mult = contested ? ratio(c) : 1;
+    return c.winner.bid + BUZZ_PER_MULTIPLE * mult;
+  };
   const mostAbsurd =
-    [...contests, ...freshContests]
-      .filter((c) => c.winner.bid >= 25 && ratio(c) >= 3)
-      .sort((a, b) => ratio(b) - ratio(a))[0] ?? null;
+    [...freshContests]
+      .filter((c) => c.winner.bid >= 25 && (ratio(c) >= 3 || c.winner.bid >= 100))
+      .sort((a, b) => talkValue(b) - talkValue(a))[0] ?? null;
 
   const overkill = [...contests].sort((a, b) => b.gap - a.gap)[0] ?? null;
   const heartbreak = [...contests].sort((a, b) => a.gap - b.gap)[0] ?? null;
+  // Cheapest offer: the stingiest LOSING bid from this morning's fresh run, on a
+  // player someone actually won. Fresh, and about the just-cleared run.
   const lowball =
-    [...lost].filter((b) => won.some((w) => w.playerId === b.playerId))
+    [...freshLost].filter((b) => fresh.some((w) => w.won && w.playerId === b.playerId))
       .sort((a, b) => a.bid - b.bid)[0] ?? null;
+
+  // Bench gem: the highest-scoring player left OUT of a starting lineup this
+  // week (in players_points but not in that roster's starters). The "you started
+  // the wrong guy" award. Only counts a real haul (>= 12) so it's actually funny.
+  let benchGem: BenchGem | null = null;
+  for (const [rid, pp] of ptsByRosterPlayer) {
+    const starters = startersByRoster.get(rid) ?? new Set<string>();
+    for (const [pid, p] of Object.entries(pp)) {
+      if (starters.has(pid) || !(p >= 12)) continue;
+      if (!benchGem || p > benchGem.points) {
+        benchGem = { rosterId: rid, team: teamOf(rid), player: playerOf(pid), points: p };
+      }
+    }
+  }
 
   const scores = [...scoreByRoster.entries()]
     .map(([rosterId, points]) => ({ rosterId, team: teamOf(rosterId), points }))
@@ -1123,6 +1215,112 @@ export async function getGazette(
 
   const choppedTxn = (thisRun ?? []).find((t) => t.type === "chopped");
   const choppedRosterId = choppedTxn ? Number(Object.values(choppedTxn.drops ?? {})[0]) : null;
+
+  // Off the wire: tie a real NFL headline to a team in this league. Walk the most
+  // roastable teams first (the one that got chopped is the juiciest), and for each
+  // scan their rostered players against the day's headlines. First solid full-name
+  // match wins. This is what lets the copy go "your QB blew a knee AND you got
+  // chopped - offer him yours."
+  const newsHook = (() => {
+    if (!headlines.length) return null;
+    type Role = NonNullable<Gazette["newsHook"]>["role"];
+    const bottom = scores[scores.length - 1] ?? null;
+    const top = scores[0] ?? null;
+
+    // Give EVERY roster its most roast-worthy role, so no team is invisible to the
+    // wire (the old version only checked 6 teams and missed benched-award guys like
+    // an injured Mike Evans). Highest-weight role wins per roster.
+    const roleWeight: Record<Role, number> = {
+      chopped: 7, bottom: 6, flop: 5, benched: 5, benchGem: 4,
+      marquee: 4, bigSpender: 3, top: 2, other: 1,
+    };
+    const roleOf = new Map<number, Role>();
+    const claim = (rid: number | null | undefined, role: Role) => {
+      if (rid == null) return;
+      const cur = roleOf.get(rid);
+      if (!cur || roleWeight[role] > roleWeight[cur]) roleOf.set(rid, role);
+    };
+    for (const r of rosters ?? []) if (r.owner_id) claim(r.roster_id, "other");
+    claim(top?.rosterId, "top");
+    claim(bigSpender?.rosterId, "bigSpender");
+    claim(mostAbsurd?.winner.rosterId, "marquee");
+    claim(benchGem?.rosterId, "benchGem");
+    claim(benched?.rosterId, "benched");
+    claim(flop?.rosterId, "flop");
+    claim(bottom?.rosterId, "bottom");
+    claim(choppedRosterId, "chopped");
+
+    // How dramatic (roastable) each news category is. "other" = neutral news,
+    // skipped entirely - a vague callout reads as reporting, not trolling.
+    const catWeight: Record<NewsCategory, number> = {
+      injury: 6, legal: 5, suspension: 5, benched: 4, trade: 3, bigGame: 3, other: 0,
+    };
+
+    const lowHeadlines = headlines.map((h) => ({ ...h, lc: h.title.toLowerCase(), cat: classify(h.title) }));
+    // Don't feature the marquee team here too - that's the same manager twice on
+    // one page. Penalize their roster so the wire prefers a DIFFERENT team's
+    // story, and only falls back to the marquee team if nothing else matched.
+    const marqueeRid = mostAbsurd?.winner.rosterId ?? null;
+    let best: NonNullable<Gazette["newsHook"]> | null = null;
+    let bestScore = -Infinity; // so a penalized marquee-team match can still fall back
+    for (const [rid, role] of roleOf) {
+      const roster = (rosters ?? []).find((r) => r.roster_id === rid);
+      for (const id of roster?.players ?? []) {
+        const p = projMap.get(id);
+        const name = p?.name;
+        if (!name || !name.includes(" ") || name.length < 6) continue; // need a real full name
+        const needle = name.toLowerCase();
+        for (const h of lowHeadlines) {
+          if (h.cat === "other" || !h.lc.includes(needle)) continue;
+          // Score = how dramatic the news is + how central this team is this week.
+          // Injuries to a chopped/bottom team are the jackpot. Same team as the
+          // marquee gets buried so we only reuse it as a last resort.
+          let score = catWeight[h.cat] * 2 + roleWeight[role];
+          if (rid === marqueeRid) score -= 100;
+          if (score > bestScore) {
+            bestScore = score;
+            best = {
+              team: teamOf(rid),
+              player: name,
+              position: p?.position ?? "",
+              nflTeam: p?.team ?? "",
+              category: h.cat,
+              headline: h.title,
+              source: h.source,
+              role,
+            };
+          }
+        }
+      }
+    }
+    return best;
+  })();
+
+  // Wallet Watch: season FAAB spend per team (Sleeper tracks it on the roster).
+  // Biggest wallet = most spent overall; tightest = least spent among teams that
+  // actually played this week (so a chopped/bye team isn't crowned "thrifty").
+  const spending = (() => {
+    const usedByRoster = new Map<number, number>();
+    for (const r of rosters ?? []) {
+      if (!r.owner_id) continue;
+      const used = (r.settings as { waiver_budget_used?: number } | null)?.waiver_budget_used ?? 0;
+      usedByRoster.set(r.roster_id, used);
+    }
+    if (usedByRoster.size === 0) return null;
+    let topSpender: { team: string; used: number } | null = null;
+    for (const [rid, used] of usedByRoster) {
+      if (!topSpender || used > topSpender.used) topSpender = { team: teamOf(rid), used };
+    }
+    let cheapest: { team: string; used: number } | null = null;
+    for (const [rid, pts] of scoreByRoster) {
+      if (pts <= 0) continue; // only teams that played this week
+      const used = usedByRoster.get(rid);
+      if (used == null) continue;
+      if (!cheapest || used < cheapest.used) cheapest = { team: teamOf(rid), used };
+    }
+    // Budget isn't fetched in this function; the copy just reads the raw $ used.
+    return { budget: null, topSpender, cheapest };
+  })();
 
   return {
     week,
@@ -1133,9 +1331,9 @@ export async function getGazette(
       freshSpend: fresh.filter((b) => b.won).reduce((s, b) => s + b.bid, 0),
       bidsPlaced: bids.length,
       bidsWon: won.length,
-      bidsLost: lost.length,
+      bidsLost: bids.filter((b) => !b.won).length,
     },
-    awards: { bigSpender, flop, steal, benched, overkill, heartbreak, lowball, mostAbsurd },
+    awards: { bigSpender, flop, steal, benched, overkill, heartbreak, lowball, mostAbsurd, benchGem },
     contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
     freshContests: freshContests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
     scores,
@@ -1144,7 +1342,10 @@ export async function getGazette(
           rosterId: choppedRosterId,
           team: teamOf(choppedRosterId),
           points: scoreByRoster.get(choppedRosterId) ?? null,
+          avatar: avatarOf(choppedRosterId),
         }
       : null,
+    newsHook,
+    spending,
   };
 }

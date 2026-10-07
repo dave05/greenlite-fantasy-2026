@@ -6,6 +6,7 @@ import GuillotineMark from "./GuillotineMark";
 import SettingsCard from "./SettingsCard";
 import RosterList from "./RosterList";
 import SectionBar from "./SectionBar";
+import ObituaryNotice, { Flourish } from "./ObituaryNotice";
 import { GUILLOTINE_FIELD } from "@/lib/assignments";
 import { anyGameLive, LIVE_POLL_MS, IDLE_POLL_MS } from "@/lib/gametime";
 
@@ -18,7 +19,7 @@ type LeagueData = {
   settings: Settings | null;
   standings: Standing[];
 } | null;
-type Eliminated = { week: number; rosterId: number; name: string; points: number };
+type Eliminated = { week: number; rosterId: number; name: string; points: number; avatar: string | null };
 type TeamPlayer = { id: string; name: string; position: string; team: string; proj: number; live: number };
 type TeamDetail = {
   rosterId: number;
@@ -102,10 +103,9 @@ export default function Guillotine() {
   const eliminated = data?.eliminated ?? [];
   const eliminatedIds = new Set(eliminated.map((e) => e.rosterId));
 
-  // Graves grouped by the week that chopped them, earliest first. `depth` is how
-  // far back a row sits: 0 = nearest the viewer. With a weekly chop this grows
-  // one row per week, so the staging has to scale past two rows, not just assume
-  // a front and a back.
+  // Graves grouped by the week that chopped them. `depth` is how far back a row
+  // sits: 0 = nearest the viewer. The MOST RECENT chop stands in front (depth 0)
+  // and earlier weeks recede behind it, so the freshest grave is the sharpest.
   const gravesByWeek = useMemo(() => {
     const byWeek = new Map<number, Eliminated[]>();
     for (const e of eliminated) {
@@ -114,7 +114,7 @@ export default function Guillotine() {
       else byWeek.set(e.week, [e]);
     }
     return [...byWeek.entries()]
-      .sort((a, b) => a[0] - b[0])
+      .sort((a, b) => b[0] - a[0])
       .map(([week, teams], depth) => ({ week, teams, depth }));
   }, [eliminated]);
   const teamById = new Map((data?.teams ?? []).map((t) => [t.rosterId, t]));
@@ -468,113 +468,63 @@ export default function Guillotine() {
             (Who's currently on the block is already flagged in the standings.) */}
         <section className="mx-auto max-w-2xl">
           {eliminated.length === 0 ? (
-            /* Empty state: one large headstone engraved "In loving memory of". */
-            <div className="mx-auto w-80 max-w-full">
-              <div
-                className="relative rounded-t-[9rem] rounded-b-lg border border-white/15 px-8 pb-12 pt-14 text-center"
-                style={{
-                  background:
-                    "radial-gradient(120% 80% at 50% 0%, #454b53 0%, #2c3138 45%, #191c21 100%)",
-                  boxShadow:
-                    "inset 0 3px 0 rgba(255,255,255,0.16), inset 0 -50px 60px rgba(0,0,0,0.5), 0 24px 50px rgba(0,0,0,0.65)",
-                }}
-              >
-                <p className="font-display text-2xl uppercase tracking-[0.35em] text-white/60">
-                  R.I.P.
+            /* Empty state: a blank framed notice waiting for its first victim. */
+            <div className="relative mx-auto w-full max-w-xl bg-[#efe7d3] px-7 py-10 text-center text-[#221d15] shadow-[0_18px_42px_rgba(0,0,0,0.6)]">
+              <span aria-hidden className="pointer-events-none absolute inset-0 border-2 border-[#221d15]" />
+              <span aria-hidden className="pointer-events-none absolute inset-[6px] border border-[#221d15]/55" />
+              <div className="relative">
+                <Flourish />
+                <h3 className="mt-4 font-serif text-2xl font-semibold">In Loving Memory</h3>
+                <p className="mx-auto mt-2 max-w-sm font-serif text-[13px] italic leading-snug text-[#221d15]/80">
+                  No obituaries yet. The obituary desk is warmed up, coffee is on,
+                  and the first chopping block awaits its guest of honor.
                 </p>
-                <div className="mx-auto my-4 h-px w-24 bg-white/20" />
-                <p className="font-display text-sm uppercase tracking-[0.3em] text-white/50">
-                  In loving memory of
-                </p>
-                <p className="mt-3 text-sm italic text-white/40">No graves yet.</p>
+                <div className="mt-4">
+                  <Flourish />
+                </div>
               </div>
-              {/* plinth */}
-              <div className="mx-auto -mt-1 h-4 w-[118%] -translate-x-[9%] rounded-md bg-black/60 shadow-[0_10px_24px_rgba(0,0,0,0.6)]" />
             </div>
           ) : (
             <>
-              <p className="mb-6 text-center font-display text-lg uppercase tracking-[0.35em] text-white/55">
-                In loving memory of
-              </p>
-              {/* Graves are staged by week, receding into the dark: the earliest
-                  chop stands nearest and sharpest, later weeks sit further back,
-                  smaller and hazier. Rows render back-to-front so the near row
-                  overlaps the ones behind it. transform-origin is the plinth, so
-                  a scaled row still sits on the same ground line. */}
-              <div className="relative flex flex-col items-center">
-                {/* ground fog the back rows sink into */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
-                  style={{
-                    background:
-                      "linear-gradient(to bottom, rgba(10,15,12,0.75) 0%, rgba(10,15,12,0.35) 45%, transparent 100%)",
-                  }}
-                />
+              <div className="mb-6 text-center">
+                <p className="font-display text-lg uppercase tracking-[0.35em] text-white/55">
+                  Obituaries
+                </p>
+                <p className="mt-1 text-[11px] italic tracking-wide text-white/35">
+                  In loving memory of the dearly chopped
+                </p>
+              </div>
+              {/* Framed newspaper clippings, most recent chop first, grouped under a
+                  small week dateline. Same clipping the Gazette renders. */}
+              <div className="space-y-8">
                 {gravesByWeek
                   .slice()
                   .reverse()
-                  .map(({ week, teams, depth }) => {
-                    const scale = Math.max(0.58, 1 - depth * 0.13);
-                    const opacity = Math.max(0.35, 1 - depth * 0.17);
-                    const blur = Math.min(2.2, depth * 0.65);
-                    return (
-                      <div
-                        key={week}
-                        className="relative flex w-full flex-wrap items-end justify-center gap-5"
-                        style={{
-                          transform: `scale(${scale})`,
-                          transformOrigin: "bottom center",
-                          opacity,
-                          filter: blur ? `blur(${blur}px)` : undefined,
-                          zIndex: 40 - depth,
-                          // Pull each nearer row up over the one behind it.
-                          marginTop: depth === gravesByWeek.length - 1 ? 0 : "-1.5rem",
-                        }}
-                      >
-                        {/* week marker, carved into the row rather than floating */}
-                        <span
-                          className="absolute -top-1 left-1/2 -translate-x-1/2 font-display text-[10px] uppercase tracking-[0.4em] text-white/25"
-                          style={{ textShadow: "0 1px 0 rgba(0,0,0,0.8)" }}
-                        >
-                          Week {week}
-                        </span>
-                        {teams.map((e) => (
-                  <div key={e.rosterId} className="w-52 max-w-full">
-                    <div
-                      className="relative rounded-t-[6rem] rounded-b-lg border border-white/15 px-5 pb-9 pt-9 text-center"
-                      style={{
-                        background:
-                          "radial-gradient(120% 80% at 50% 0%, #454b53 0%, #2c3138 45%, #191c21 100%)",
-                        boxShadow:
-                          "inset 0 3px 0 rgba(255,255,255,0.16), inset 0 -40px 50px rgba(0,0,0,0.5), 0 20px 40px rgba(0,0,0,0.6)",
-                      }}
-                    >
-                      <p className="font-display text-xl uppercase tracking-[0.3em] text-white/50">
-                        R.I.P.
+                  .map(({ week, teams }) => (
+                    <div key={week} className="space-y-4">
+                      <p className="text-center font-display text-[10px] uppercase tracking-[0.4em] text-white/30">
+                        Week {week} · the fallen
                       </p>
-                      <div className="mx-auto my-2.5 h-px w-16 bg-white/15" />
-                      <p
-                        className="truncate font-display text-lg font-bold uppercase leading-tight text-white/90"
-                        style={{ textShadow: "0 1px 0 rgba(0,0,0,0.7)" }}
-                        title={e.name}
-                      >
-                        {e.name}
-                      </p>
-                      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-red-400/80">
-                        🪓 Chopped · Week {e.week}
-                      </p>
-                      <p className="mt-1 text-xs text-white/40">{e.points.toFixed(1)} pts</p>
+                      {teams.map((e) => (
+                        <ObituaryNotice
+                          key={e.rosterId}
+                          name={e.name}
+                          points={e.points}
+                          week={e.week}
+                          avatar={e.avatar}
+                        />
+                      ))}
                     </div>
-                    {/* plinth */}
-                    <div className="mx-auto -mt-1 h-3.5 w-[116%] -translate-x-[8%] rounded-md bg-black/60 shadow-[0_8px_20px_rgba(0,0,0,0.55)]" />
-                  </div>
-                        ))}
-                      </div>
-                    );
-                  })}
+                  ))}
               </div>
             </>
+          )}
+          {eliminated.length > 0 && (
+            <p className="mx-auto mt-6 max-w-md text-center text-[11px] italic leading-relaxed text-white/30">
+              This memorial section was paid for by the surviving members of The
+              Guillotine, who send their thoughts, prayers, and absolutely zero
+              condolences.
+            </p>
           )}
           <p className="mx-auto mt-5 max-w-xs text-center text-xs leading-relaxed text-white/35">
             The team with the fewest points each week is chopped, every week,

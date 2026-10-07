@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useSyncExternalStore } from "react";
 import Football from "./Football";
 import TabIcon from "./TabIcon";
 import Home from "./Home";
@@ -29,30 +29,30 @@ type TabId = (typeof TABS)[number]["id"];
 
 const isTab = (h: string): h is TabId => TABS.some((t) => t.id === h);
 
-export default function AppShell({ rules }: { rules: ReactNode }) {
-  const [tab, setTab] = useState<TabId>("home");
+const currentTab = (): TabId => {
+  const hash = window.location.hash.slice(1);
+  return isTab(hash) ? hash : "home";
+};
 
-  // Keep the current tab in the URL hash so a refresh (or a shared link) lands
-  // back on the same page instead of resetting to Home, and so browser
-  // back/forward move between tabs.
-  useEffect(() => {
-    const sync = () => {
-      const h = window.location.hash.replace("#", "");
-      setTab(isTab(h) ? h : "home");
-    };
-    sync();
-    window.addEventListener("hashchange", sync);
-    window.addEventListener("popstate", sync);
-    return () => {
-      window.removeEventListener("hashchange", sync);
-      window.removeEventListener("popstate", sync);
-    };
-  }, []);
+const subscribeToLocation = (notify: () => void) => {
+  window.addEventListener("hashchange", notify);
+  window.addEventListener("popstate", notify);
+  return () => {
+    window.removeEventListener("hashchange", notify);
+    window.removeEventListener("popstate", notify);
+  };
+};
+
+export default function AppShell({ rules }: { rules: ReactNode }) {
+  // The URL is the source of truth. useSyncExternalStore re-reads the hash
+  // after hydration, so direct links never remain stuck on the server's Home
+  // fallback and back/forward navigation stays in sync.
+  const tab = useSyncExternalStore(subscribeToLocation, currentTab, () => "home");
 
   const select = useCallback((t: TabId) => {
-    setTab(t);
     const base = window.location.pathname + window.location.search;
     window.history.pushState(null, "", t === "home" ? base : `${base}#${t}`);
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
     window.scrollTo(0, 0);
   }, []);
 

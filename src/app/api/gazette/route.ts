@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getGazette, getNflState } from "@/lib/sleeper";
+import { getThursdayGame } from "@/lib/schedule";
 import { choppedLeagueId } from "@/lib/leagues";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +34,12 @@ export async function GET(req: Request) {
     }
 
     const gazette = await getGazette(leagueId, week);
-    const body = { connected: true, week, lastCompleted, currentWeek: current, gazette };
+    // Tonight's TNF matchup for the upcoming week, for the kickoff section.
+    const tnf =
+      state?.season_type === "regular"
+        ? await getThursdayGame(current).catch(() => null)
+        : null;
+    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette };
     cache.set(week, { at: Date.now(), body });
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {

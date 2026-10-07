@@ -140,8 +140,9 @@ export default function LeagueGuide() {
               ))}
             </ul>
             <p className="mt-3 text-xs text-white/40">
-              Add up every starter and that's your team's score for the week. In
-              the Guillotine those weekly scores stack into a season total.
+              Add up every starter and that&apos;s your team&apos;s score for the week.
+              In the Guillotine, each week starts at zero; that week&apos;s lowest
+              score is chopped, and earlier scores provide no protection.
             </p>
           </div>
         </div>
