@@ -65,7 +65,7 @@ function page(d) {
         "bad",
         "The Flop",
         `${esc(a.flop.team)}`,
-        `${money(a.flop.bid)} on <b>${esc(a.flop.player)}</b> ${a.flop.meta?.pos ? `(${esc(a.flop.meta.pos)})` : ""} returned <b>${pts(a.flop.points)}</b> points. That is <b>${money((a.flop.bid / Math.max(0.1, a.flop.points)).toFixed(0))}</b> per point.`,
+        `${money(a.flop.bid)} on <b>${esc(a.flop.player)}</b> ${a.flop.meta?.pos ? `(${esc(a.flop.meta.pos)})` : ""} returned <b>${pts(a.flop.points)}</b> points. ${a.flop.points > 0 ? `That is <b>${money((a.flop.bid / a.flop.points).toFixed(0))}</b> per point.` : "That is infinity dollars per point."}`,
         copy.jabs.flop,
       ),
     );

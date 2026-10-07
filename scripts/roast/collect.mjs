@@ -187,8 +187,12 @@ async function main() {
     const winner = group.find((g) => g.won);
     // A manager often submits several bids on one player at different
     // priorities; losing to yourself is not a rivalry.
+    // A failed claim for MORE than the winning bid was never valid (see the
+    // note on `legit` below), so it is not a runner-up either - leaving it in
+    // printed "next highest: $88" under a $52 winner, which reads as a lower
+    // bid beating a higher one.
     const losers = group
-      .filter((g) => !g.won && g.rosterId !== winner?.rosterId)
+      .filter((g) => !g.won && g.rosterId !== winner?.rosterId && g.bid <= (winner?.bid ?? Infinity))
       .sort((a, b) => b.bid - a.bid);
     if (winner && losers.length) {
       contests.push({

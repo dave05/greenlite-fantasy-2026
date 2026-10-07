@@ -67,6 +67,10 @@ week's news, their profile, their rap sheet, and every joke already used.
 
 ## Step 3 - write every joke into $OUT/copy.json
 
+If `league-memory/drafts/week-N.json` exists, the commissioner has already
+approved a draft for this week: copy it to `$OUT/copy.json` and start from it.
+Only change a line if `check` rejects it or this week's data contradicts it.
+
 Format is in `league-memory/README.md`.
 
 - `paper`: headline `{kicker, head, sub}`, jabs `{flop, benched, lowball, steal, hoarder}`
