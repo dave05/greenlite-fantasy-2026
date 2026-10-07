@@ -34,12 +34,20 @@ not the ceiling. Before writing, gather material from all of these:
 3. **Previous issues** - every joke already published is in the briefing and
    `league-memory/jokes.jsonl`; past papers are in `gazettes/`. Never repeat a
    bit. Callbacks to earlier issues are encouraged; reruns are not.
-4. **The waiver wire** - `gazette.json` has every bid with the bidder's team,
-   amount, `budgetLeft`, and whether it won; `faab.rosters` has each team's
-   spent, remaining, this week's points and `rank` (of `of` teams still
-   scoring). Look for who bid what, how much they have left, and how their
-   team actually did. Big bids on fumes, panic buys after a bad week, and
-   losing bids that were never close are all material.
+4. **The waiver wire** - two runs, two stories. Cover both every week:
+   - **The bidding war (the run that just processed)** - `freshContests`:
+     for each contested player, who won, what they paid, who was the next
+     highest bidder and by how much (`gap`). $1 margins, $100+ overpays, and
+     one manager bidding on everything are the headlines. `freshMoney` has
+     every winning claim.
+   - **The verdict (last week's run, now played)** - `contests`, `topBids`
+     and the awards: who paid what, what the player actually scored for them,
+     and whether they even started him. Name the biggest winner (best points
+     for the money - `awards.steal`) and the biggest loser (most money for the
+     least - `awards.flop`, and `awards.benched`).
+   Every bid carries `budgetLeft`; `faab.rosters` has each team's spent,
+   remaining, this week's points and `rank` (of `of` teams still scoring).
+   Big bids on fumes and panic buys after a bad week are material.
 5. **The non-participants** - troll the managers who have not used their
    FAAB (`awards.hoarder`), hardest of all the ones whose team is mediocre
    or worse (`faab.rosters[].rank` in the bottom half). Sitting on $1,000

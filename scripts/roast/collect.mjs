@@ -176,35 +176,44 @@ async function main() {
     .sort((a, b) => b.points / Math.max(1, b.bid) - a.points / Math.max(1, a.bid))[0] ?? null;
 
   // Contested players: someone won, others lost. The gap is the joke.
-  const contests = [];
-  const byPlayer = new Map();
-  for (const b of bids) {
-    const arr = byPlayer.get(b.playerId) ?? [];
-    arr.push(b);
-    byPlayer.set(b.playerId, arr);
-  }
-  for (const [playerId, group] of byPlayer) {
-    const winner = group.find((g) => g.won);
-    // A manager often submits several bids on one player at different
-    // priorities; losing to yourself is not a rivalry.
-    // A failed claim for MORE than the winning bid was never valid (see the
-    // note on `legit` below), so it is not a runner-up either - leaving it in
-    // printed "next highest: $88" under a $52 winner, which reads as a lower
-    // bid beating a higher one.
-    const losers = group
-      .filter((g) => !g.won && g.rosterId !== winner?.rosterId && g.bid <= (winner?.bid ?? Infinity))
-      .sort((a, b) => b.bid - a.bid);
-    if (winner && losers.length) {
-      contests.push({
-        player: playerName(playerId),
-        meta: playerMeta(playerId),
-        winner,
-        losers,
-        gap: winner.bid - losers[0].bid,
-        points: winner.points,
-      });
+  const contestsOf = (pool) => {
+    const out = [];
+    const byPlayer = new Map();
+    for (const b of pool) {
+      const arr = byPlayer.get(b.playerId) ?? [];
+      arr.push(b);
+      byPlayer.set(b.playerId, arr);
     }
-  }
+    for (const [playerId, group] of byPlayer) {
+      const winner = group.find((g) => g.won);
+      // A manager often submits several bids on one player at different
+      // priorities; losing to yourself is not a rivalry. A failed claim for
+      // MORE than the winning bid was never valid (see the note on `legit`
+      // below), so it is not a runner-up either - leaving it in printed "next
+      // highest: $88" under a $52 winner, which reads as a lower bid beating a
+      // higher one.
+      const losers = group
+        .filter((g) => !g.won && g.rosterId !== winner?.rosterId && g.bid <= (winner?.bid ?? Infinity))
+        .sort((a, b) => b.bid - a.bid)
+        // One row per rival manager: their best bid.
+        .filter((g, i, all) => all.findIndex((x) => x.rosterId === g.rosterId) === i);
+      if (winner && losers.length) {
+        out.push({
+          player: playerName(playerId),
+          meta: playerMeta(playerId),
+          winner,
+          losers,
+          gap: winner.bid - losers[0].bid,
+          points: winner.points,
+        });
+      }
+    }
+    return out;
+  };
+  const contests = contestsOf(bids);
+  // The run that just processed: who paid what, and who came closest. No
+  // points yet - these players have not played for their new teams.
+  const freshContests = contestsOf(freshBids).sort((a, b) => b.winner.bid - a.winner.bid);
   // Highest valid bid always wins - that is the whole mechanic. A FAILED claim
   // carrying a larger number than the winner was never a valid claim: it had no
   // drop designated against a full roster, or was otherwise rejected before the
@@ -312,6 +321,7 @@ async function main() {
         contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
         topBids: byBidDesc.slice(0, 10),
         freshMoney: freshBids.filter((b) => b.won).sort((a, b) => b.bid - a.bid).slice(0, 8),
+        freshContests,
         scores,
         chopped,
         faab: { budget, rosters: faab },
