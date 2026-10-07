@@ -8,6 +8,14 @@
 // A4 page at Chrome's default print scale. A few subtle animations are included
 // for the on-screen version; they simply don't fire in the PDF.
 
+import { readFileSync } from "node:fs";
+import { resolveCopy } from "./copy.mjs";
+
+// --copy=path/to/copy.json swaps in this week's freshly written jokes (see
+// league-memory/README.md). Without it the paper uses the canned lines.
+const COPY_PATH = (process.argv.find((a) => a.startsWith("--copy=")) ?? "").slice("--copy=".length);
+const copyOverride = COPY_PATH ? JSON.parse(readFileSync(COPY_PATH, "utf8")).paper ?? null : null;
+
 const read = async () => {
   const chunks = [];
   for await (const c of process.stdin) chunks.push(c);
@@ -18,41 +26,6 @@ const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const money = (n) => `$${Number(n ?? 0).toLocaleString("en-US")}`;
 const pts = (n) => (n == null ? "—" : Number(n).toFixed(1));
-
-// Rotating jabs so a weekly paper doesn't read identically every week. Seeded
-// by week number, so the same week always renders the same paper.
-const pick = (arr, seed) => arr[seed % arr.length];
-
-function headline(d) {
-  const { awards: a, week } = d;
-  // Lead with the most absurd thing available, in descending order of shame.
-  if (a.overkill && a.overkill.gap >= 50) {
-    return {
-      kicker: "PROFLIGACY",
-      head: `${money(a.overkill.winner.bid)} WHEN THE NEXT BID WAS ${money(a.overkill.losers[0].bid)}`,
-      sub: `${a.overkill.winner.team} went ${money(a.overkill.gap)} clear of the field for ${a.overkill.player}. Only the winner pays, and the winner paid.`,
-    };
-  }
-  if (a.benched) {
-    return {
-      kicker: "SELF-INFLICTED",
-      head: `PAID ${money(a.benched.bid)}. STARTED SOMEONE ELSE.`,
-      sub: `${a.benched.team} bought ${a.benched.player}, watched him post ${pts(a.benched.points)}, and did it from the bench.`,
-    };
-  }
-  if (a.flop) {
-    return {
-      kicker: "BUYER'S REMORSE",
-      head: `${money(a.flop.bid)} BUYS ${pts(a.flop.points)} POINTS`,
-      sub: `${a.flop.team} on ${a.flop.player}. The receipts are public. The shame is permanent.`,
-    };
-  }
-  return {
-    kicker: `WEEK ${week}`,
-    head: "A QUIET WEEK FOR ONCE",
-    sub: "No one distinguished themselves. Try harder.",
-  };
-}
 
 // --fonts=system builds the emailed PDF from fonts every PDF reader already
 // has (Times/Helvetica), which takes the file from ~440KB to ~30KB. --fonts=web
@@ -71,32 +44,10 @@ const bodyStack = webFonts ? `"Roboto Condensed", system-ui, sans-serif` : `Helv
 
 function page(d) {
   const { awards: a, totals: t, week } = d;
-  const h = headline(d);
+  const copy = resolveCopy(d, copyOverride);
+  const h = copy.headline;
   const top = d.scores?.[0];
   const bottom = d.scores?.[d.scores.length - 1];
-
-  const jab = {
-    overkill: [
-      "An auction is not a charity gala.",
-      "The second-highest bid was the price. You paid the tip on top.",
-      "Someone explain sealed bids to this man.",
-    ],
-    flop: [
-      "Refunds are not a feature of this league.",
-      "That is real money, spent on a real person, who did really nothing.",
-      "A dollar a point would have been a bargain by comparison.",
-    ],
-    benched: [
-      "BRO. WHY.",
-      "Bought the man. Benched the man. Bold.",
-      "The most expensive bench warmer in the league.",
-    ],
-    lowball: [
-      "Bold of you to think that would clear.",
-      "That is not a bid, that is a rounding error.",
-      "Somewhere, a waiver processor laughed.",
-    ],
-  };
 
   const card = (cls, tag, title, body, foot) => `
     <article class="card ${cls}">
@@ -114,8 +65,8 @@ function page(d) {
         "bad",
         "The Flop",
         `${esc(a.flop.team)}`,
-        `${money(a.flop.bid)} on <b>${esc(a.flop.player)}</b> ${a.flop.meta?.pos ? `(${esc(a.flop.meta.pos)})` : ""} returned <b>${pts(a.flop.points)}</b> points. That is <b>${money((a.flop.bid / Math.max(0.1, a.flop.points)).toFixed(0))}</b> per point.`,
-        pick(jab.flop, week),
+        `${money(a.flop.bid)} on <b>${esc(a.flop.player)}</b> ${a.flop.meta?.pos ? `(${esc(a.flop.meta.pos)})` : ""} returned <b>${pts(a.flop.points)}</b> points. ${a.flop.points > 0 ? `That is <b>${money((a.flop.bid / a.flop.points).toFixed(0))}</b> per point.` : "That is infinity dollars per point."}`,
+        copy.jabs.flop,
       ),
     );
 
@@ -126,7 +77,7 @@ function page(d) {
         "Bench Warmer",
         `${esc(a.benched.team)}`,
         `Won <b>${esc(a.benched.player)}</b> for ${money(a.benched.bid)}, then left him on the bench while he scored <b>${pts(a.benched.points)}</b>.`,
-        pick(jab.benched, week),
+        copy.jabs.benched,
       ),
     );
 
@@ -139,7 +90,7 @@ function page(d) {
         `Offered <b>${money(a.lowball.bid)}</b> for ${esc(a.lowball.player)}. It went for ${money(
           (d.contests.find((c) => c.player === a.lowball.player)?.winner?.bid) ?? "—",
         )}.`,
-        pick(jab.lowball, week),
+        copy.jabs.lowball,
       ),
     );
 
@@ -150,9 +101,26 @@ function page(d) {
         "Actual Genius",
         `${esc(a.steal.team)}`,
         `Paid ${money(a.steal.bid)} for <b>${esc(a.steal.player)}</b>, got <b>${pts(a.steal.points)}</b>. The only defensible transaction of the week.`,
-        "Credit where it is due. Do not get used to it.",
+        copy.jabs.steal,
       ),
     );
+
+  if (a.hoarder) {
+    const and = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}` : xs[0]);
+    const list = and(a.hoarder.hoarders.map((h) => `<b>${esc(h.team)}</b>`));
+    const buried = a.hoarder.buriedRich?.length
+      ? ` ${and(a.hoarder.buriedRich.map((h) => esc(h.team)))} took the whole budget to the grave.`
+      : "";
+    cards.push(
+      card(
+        "odd wide",
+        "The Mattress Fund",
+        `${a.hoarder.hoarders.length} ${a.hoarder.hoarders.length === 1 ? "manager" : "managers"}, ${money(a.hoarder.budget)} each, $0 spent`,
+        `${list} ${a.hoarder.hoarders.length === 1 ? "has" : "have"} not placed a single winning bid. The full ${money(a.hoarder.budget)} is still in the mattress.${buried}`,
+        copy.jabs.hoarder,
+      ),
+    );
+  }
 
   const contestRows = (d.contests ?? [])
     .slice(0, 6)
@@ -165,6 +133,28 @@ function page(d) {
         <td class="l">${esc(c.losers[0]?.team ?? "—")}</td>
         <td class="n">${c.losers[0] ? money(c.losers[0].bid) : "—"}</td>
         <td class="n">${pts(c.points)}</td>
+      </tr>`,
+    )
+    .join("");
+
+  // This week's run has already cleared - the same "Just In" table the live
+  // Gazette tab shows. No points yet, but an overpay is funny the moment it
+  // lands.
+  const overBy = (c) => {
+    const mult = c.winner.bid / Math.max(1, c.losers[0].bid);
+    return mult >= 2 ? `${Math.round(mult)}x` : `+${money(c.gap)}`;
+  };
+  const freshRows = (d.freshContests ?? [])
+    .slice(0, 6)
+    .map(
+      (c) => `
+      <tr>
+        <td class="p">${esc(c.player)}</td>
+        <td class="w">${esc(c.winner.team)}</td>
+        <td class="n win">${money(c.winner.bid)}</td>
+        <td class="l">${esc(c.losers[0].team)}</td>
+        <td class="n">${money(c.losers[0].bid)}</td>
+        <td class="n">${overBy(c)}</td>
       </tr>`,
     )
     .join("");
@@ -247,6 +237,7 @@ ${fontLink}
   .card.good .tag { background: #1d5c33; }
   .card.cheap .tag { background: #6b5b1f; }
   .card.odd .tag { background: #3b3563; }
+  .card.wide { grid-column: 1 / -1; }
   .card h3 { font-family: ${condStack}; font-size: 12.5pt; margin: 0 0 1mm; text-transform: uppercase; }
   .card p { font-size: 8.6pt; line-height: 1.32; margin: 0; }
   .card .jab {
@@ -330,6 +321,16 @@ ${fontLink}
     <tbody>${contestRows || `<tr><td colspan="6" style="text-align:center;font-style:italic">No contested claims. A peaceful, cowardly week.</td></tr>`}</tbody>
   </table>
 
+  ${
+    freshRows
+      ? `<h4 class="sec">Just In · Week ${week} claims, verdict pending</h4>
+  <table>
+    <thead><tr><th>Player</th><th>Bought by</th><th style="text-align:right">Paid</th><th>Next highest</th><th style="text-align:right">Bid (unpaid)</th><th style="text-align:right">Over</th></tr></thead>
+    <tbody>${freshRows}</tbody>
+  </table>`
+      : ""
+  }
+
   <div class="bottom">
     <div>
       <h4 class="sec">The Scoreboard</h4>
@@ -349,7 +350,7 @@ ${fontLink}
                <div class="rip">R · I · P</div>
                <h3>${esc(d.chopped.team)}</h3>
                <div class="meta">Chopped in Week ${week} · ${pts(d.chopped.points)} points</div>
-               <div class="meta">Lowest score. No appeal. No mercy.</div>
+               <div class="meta">${esc(copy.obituary)}</div>
                <div class="stone"></div>
              </div>`
           : `<div class="obit"><div class="rip">R · I · P</div><h3>Nobody</h3><div class="meta">All survived Week ${week}. Disappointing.</div><div class="stone"></div></div>`

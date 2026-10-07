@@ -1,0 +1,18 @@
+{"week":2,"kind":"big_spender","ownerId":"1258801794037862400","team":"Vladimir Tuten","player":"James Cook","pos":"RB","bid":503,"points":20.9}
+{"week":2,"kind":"flop","ownerId":"1138704096498597888","team":"kaelanzm","player":"Jeremiyah Love","pos":"RB","bid":200,"points":7.5}
+{"week":2,"kind":"benched","ownerId":"1260968498360758272","team":"Always Safe","player":"Mike Evans","pos":"WR","bid":125,"points":8.4}
+{"week":2,"kind":"steal","ownerId":"1396677940267216896","team":"PumpUpTheJam32","player":"Kendrick Bourne","pos":"WR","bid":2,"points":3.1}
+{"week":2,"kind":"lowball","ownerId":"558675356280602624","team":"KRogo5","player":"Brock Purdy","pos":"QB","bid":5,"points":null}
+{"week":2,"kind":"overkill","ownerId":"1258801794037862400","team":"Vladimir Tuten","player":"James Cook","pos":"RB","bid":503,"points":20.9,"nextBid":400,"gap":103}
+{"week":2,"kind":"heartbreak","ownerId":"558675356280602624","team":"KRogo5","player":"Brock Purdy","bid":5,"winningBid":25,"winner":"Always Safe"}
+{"week":2,"kind":"top_score","ownerId":"741512280193261568","team":"maruniak","points":140.02}
+{"week":2,"kind":"chopped","ownerId":"728447224970866688","team":"elifelber","points":65.7}
+{"week":3,"kind":"big_spender","ownerId":"1396537478361387008","team":"Sdobens4","player":"Ja'Marr Chase","pos":"WR","bid":485,"points":24.8}
+{"week":3,"kind":"flop","ownerId":"741512280193261568","team":"maruniak","player":"A.J. Brown","pos":"WR","bid":52,"points":0}
+{"week":3,"kind":"benched","ownerId":"1259206671360610305","team":"BDALOHA","player":"Tony Pollard","pos":"RB","bid":299,"points":13.6}
+{"week":3,"kind":"steal","ownerId":"1134198407096147968","team":"riguy101","player":"Michael Mayer","pos":"TE","bid":0,"points":12.2}
+{"week":3,"kind":"lowball","ownerId":"1399167043244204032","team":"sergioflores98","player":"Ladd McConkey","pos":"WR","bid":0,"points":null}
+{"week":3,"kind":"overkill","ownerId":"1259206671360610305","team":"BDALOHA","player":"Tony Pollard","pos":"RB","bid":299,"points":13.6,"nextBid":5,"gap":294}
+{"week":3,"kind":"heartbreak","ownerId":"1396537478361387008","team":"Sdobens4","player":"A.J. Brown","bid":42,"winningBid":52,"winner":"maruniak"}
+{"week":3,"kind":"top_score","ownerId":"1258801794037862400","team":"Vladimir Tuten","points":163.9}
+{"week":3,"kind":"chopped","ownerId":"558675356280602624","team":"KRogo5","points":50.98}

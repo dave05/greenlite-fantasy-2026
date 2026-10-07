@@ -57,6 +57,16 @@ async function loadPlayers() {
   return slim;
 }
 
+async function liveStorylines(week) {
+  const { readFile } = await import("node:fs/promises");
+  try {
+    const all = JSON.parse(await readFile(new URL("../../league-memory/storylines.json", import.meta.url), "utf8"));
+    return all.filter((s) => (s.from_week ?? 0) <= week && week <= (s.until_week ?? Infinity));
+  } catch {
+    return [];
+  }
+}
+
 const arg = (flag) => {
   const i = process.argv.indexOf(flag);
   return i === -1 ? null : process.argv[i + 1];
@@ -68,7 +78,8 @@ async function main() {
   const state = await get("/state/nfl");
   const week = Number(arg("--week") ?? Math.max(1, (state.week ?? 1) - 1));
 
-  const [users, rosters, priorRun, thisRun, matchups, players] = await Promise.all([
+  const [league, users, rosters, priorRun, thisRun, matchups, players] = await Promise.all([
+    get(`/league/${LEAGUE}`),
     get(`/league/${LEAGUE}/users`),
     get(`/league/${LEAGUE}/rosters`),
     // The run that DELIVERED this week's players - the one we can now judge.
@@ -86,6 +97,9 @@ async function main() {
     const u = r?.owner_id ? userById.get(r.owner_id) : null;
     return u?.metadata?.team_name?.trim() || u?.display_name || `Roster ${rosterId}`;
   };
+  // Team names change mid-season; the Sleeper user_id does not. Everything the
+  // memory layer (memory.mjs) remembers about a manager is keyed by this.
+  const ownerOf = (rosterId) => rosters.find((x) => x.roster_id === rosterId)?.owner_id ?? null;
   const playerName = (id) => players[id]?.name ?? `Player ${id}`;
   const playerMeta = (id) => players[id] ?? { name: `Player ${id}`, pos: "", team: "" };
 
@@ -119,6 +133,7 @@ async function main() {
         const wonIt = t.status === "complete";
         out.push({
           rosterId,
+          ownerId: ownerOf(rosterId),
           team: teamOf(rosterId),
           playerId,
           player: playerName(playerId),
@@ -161,31 +176,44 @@ async function main() {
     .sort((a, b) => b.points / Math.max(1, b.bid) - a.points / Math.max(1, a.bid))[0] ?? null;
 
   // Contested players: someone won, others lost. The gap is the joke.
-  const contests = [];
-  const byPlayer = new Map();
-  for (const b of bids) {
-    const arr = byPlayer.get(b.playerId) ?? [];
-    arr.push(b);
-    byPlayer.set(b.playerId, arr);
-  }
-  for (const [playerId, group] of byPlayer) {
-    const winner = group.find((g) => g.won);
-    // A manager often submits several bids on one player at different
-    // priorities; losing to yourself is not a rivalry.
-    const losers = group
-      .filter((g) => !g.won && g.rosterId !== winner?.rosterId)
-      .sort((a, b) => b.bid - a.bid);
-    if (winner && losers.length) {
-      contests.push({
-        player: playerName(playerId),
-        meta: playerMeta(playerId),
-        winner,
-        losers,
-        gap: winner.bid - losers[0].bid,
-        points: winner.points,
-      });
+  const contestsOf = (pool) => {
+    const out = [];
+    const byPlayer = new Map();
+    for (const b of pool) {
+      const arr = byPlayer.get(b.playerId) ?? [];
+      arr.push(b);
+      byPlayer.set(b.playerId, arr);
     }
-  }
+    for (const [playerId, group] of byPlayer) {
+      const winner = group.find((g) => g.won);
+      // A manager often submits several bids on one player at different
+      // priorities; losing to yourself is not a rivalry. A failed claim for
+      // MORE than the winning bid was never valid (see the note on `legit`
+      // below), so it is not a runner-up either - leaving it in printed "next
+      // highest: $88" under a $52 winner, which reads as a lower bid beating a
+      // higher one.
+      const losers = group
+        .filter((g) => !g.won && g.rosterId !== winner?.rosterId && g.bid <= (winner?.bid ?? Infinity))
+        .sort((a, b) => b.bid - a.bid)
+        // One row per rival manager: their best bid.
+        .filter((g, i, all) => all.findIndex((x) => x.rosterId === g.rosterId) === i);
+      if (winner && losers.length) {
+        out.push({
+          player: playerName(playerId),
+          meta: playerMeta(playerId),
+          winner,
+          losers,
+          gap: winner.bid - losers[0].bid,
+          points: winner.points,
+        });
+      }
+    }
+    return out;
+  };
+  const contests = contestsOf(bids);
+  // The run that just processed: who paid what, and who came closest. No
+  // points yet - these players have not played for their new teams.
+  const freshContests = contestsOf(freshBids).sort((a, b) => b.winner.bid - a.winner.bid);
   // Highest valid bid always wins - that is the whole mechanic. A FAILED claim
   // carrying a larger number than the winner was never a valid claim: it had no
   // drop designated against a full roster, or was otherwise rejected before the
@@ -209,7 +237,7 @@ async function main() {
 
   // ── Scores and the chop ────────────────────────────────────────────────────
   const scores = [...scoreByRoster.entries()]
-    .map(([rosterId, points]) => ({ rosterId, team: teamOf(rosterId), points }))
+    .map(([rosterId, points]) => ({ rosterId, ownerId: ownerOf(rosterId), team: teamOf(rosterId), points }))
     .filter((s) => s.points > 0)
     .sort((a, b) => b.points - a.points);
 
@@ -220,10 +248,55 @@ async function main() {
   const chopped = choppedRosterId
     ? {
         rosterId: choppedRosterId,
+        ownerId: ownerOf(choppedRosterId),
         team: teamOf(choppedRosterId),
         points: scoreByRoster.get(choppedRosterId) ?? null,
       }
     : null;
+
+  // ── The mattress fund ──────────────────────────────────────────────────────
+  // Managers still alive who have not spent a cent. waiver_budget_used is the
+  // roster's running total as of NOW, so re-rendering an old week shows today's
+  // hoarders, not that week's - fine for a paper that only looks forward.
+  const budget = league?.settings?.waiver_budget ?? 0;
+  const choppedSoFar = new Set();
+  const runs = await Promise.all(
+    Array.from({ length: week }, (_, i) => (i + 1 === week ? Promise.resolve(thisRun) : get(`/league/${LEAGUE}/transactions/${i + 1}`))),
+  );
+  for (const run of runs)
+    for (const t of run ?? [])
+      if (t.type === "chopped") for (const r of Object.values(t.drops ?? {})) choppedSoFar.add(Number(r));
+  // This week's finish, so a hoarder can be measured against how badly they
+  // need help: $1,000 in the bank and a bottom-four team is its own story.
+  const ranked = [...scoreByRoster.entries()].filter(([, p]) => p > 0).sort((a, b) => b[1] - a[1]);
+  const rankOf = (rosterId) => {
+    const i = ranked.findIndex(([id]) => id === rosterId);
+    return i === -1 ? null : i + 1;
+  };
+  const faab = rosters.map((r) => {
+    const spent = r.settings?.waiver_budget_used ?? 0;
+    return {
+      rosterId: r.roster_id,
+      ownerId: r.owner_id ?? null,
+      team: teamOf(r.roster_id),
+      spent,
+      remaining: budget - spent,
+      alive: !choppedSoFar.has(r.roster_id),
+      points: scoreByRoster.get(r.roster_id) ?? null,
+      rank: rankOf(r.roster_id),
+      of: ranked.length,
+    };
+  });
+  // Every bid gets the bidder's budget left, so the writer can see who is
+  // bidding big on fumes and who is sitting on a fortune.
+  const leftOf = new Map(faab.map((f) => [f.rosterId, f.remaining]));
+  for (const b of [...bids, ...freshBids]) b.budgetLeft = budget ? leftOf.get(b.rosterId) ?? null : null;
+  const hoarders = budget
+    ? faab.filter((f) => f.alive && f.spent === 0).sort((a, b) => a.team.localeCompare(b.team))
+    : [];
+  // Chopped without ever bidding: buried with the full budget.
+  const buriedRich = budget ? faab.filter((f) => !f.alive && f.spent === 0) : [];
+  const hoarder = hoarders.length ? { budget, hoarders, buriedRich } : null;
 
   // Total FAAB actually SPENT: winning claims only. A losing bid costs the
   // bidder nothing, so failed claims must never be added into a spend figure.
@@ -244,12 +317,21 @@ async function main() {
           bidsLost: lost.length,
           contested: contests.length,
         },
-        awards: { bigSpender, flop, steal, benched, heartbreak, overkill, lowball },
+        awards: { bigSpender, flop, steal, benched, heartbreak, overkill, lowball, hoarder },
         contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
         topBids: byBidDesc.slice(0, 10),
         freshMoney: freshBids.filter((b) => b.won).sort((a, b) => b.bid - a.bid).slice(0, 8),
+        freshContests,
         scores,
         chopped,
+        faab: { budget, rosters: faab },
+        // Group-chat material from league-memory/storylines.json that covers
+        // this week, so it reaches whoever reads this file.
+        storylines: await liveStorylines(week),
+        managers: rosters.map((r) => {
+          const u = r.owner_id ? userById.get(r.owner_id) : null;
+          return { rosterId: r.roster_id, ownerId: r.owner_id ?? null, displayName: u?.display_name ?? null, team: teamOf(r.roster_id) };
+        }),
       },
       null,
       2,
