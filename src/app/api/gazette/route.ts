@@ -29,9 +29,12 @@ export async function GET(req: Request) {
     const asked = Number(new URL(req.url).searchParams.get("week"));
     const week = Number.isInteger(asked) && asked > 0 ? asked : lastCompleted;
 
+    // The written edition is fetched outside the 10-minute cache (it keeps its
+    // own one-minute cache), so edits to it show up quickly.
     const hit = cache.get(week);
     if (hit && Date.now() - hit.at < TTL_MS) {
-      return NextResponse.json(hit.body, { headers: { "Cache-Control": "no-store" } });
+      const issue = await getIssue(week);
+      return NextResponse.json({ ...(hit.body as object), issue }, { headers: { "Cache-Control": "no-store" } });
     }
 
     // The written edition (if the routine has published one) rides along.

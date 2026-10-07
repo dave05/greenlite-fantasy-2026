@@ -104,23 +104,23 @@
   "comic": [
     {
       "who": "a",
-      "mood": "talk",
-      "text": "Sergio made five moves Monday."
+      "mood": "yell",
+      "text": "BREAKING: Sergio makes five moves Monday."
     },
     {
       "who": "b",
-      "mood": "react",
-      "text": "So bro finally set his lineup?"
+      "mood": "talk",
+      "text": "Any of them make the lineup?"
     },
     {
       "who": "a",
-      "mood": "yell",
-      "text": "Bro set NOTHING. Commish lives by 3.6."
+      "mood": "react",
+      "text": "Sources say no."
     },
     {
       "who": "b",
       "mood": "smug",
-      "text": "Then buys Sergio's TE for $222. Tampering? Never heard of her."
+      "text": "Sources also say the commish now owns his tight end."
     }
   ]
 }

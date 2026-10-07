@@ -58,11 +58,21 @@ function clean(raw: unknown, week: number): Issue | null {
   };
 }
 
+// A minute of caching here, and a per-minute cache-buster on the URL, so an
+// edit to the issue shows on the site within about a minute (GitHub's raw CDN
+// otherwise holds a file for five).
+const cache = new Map<number, { at: number; issue: Issue | null }>();
+const TTL_MS = 60 * 1000;
+
 export async function getIssue(week: number): Promise<Issue | null> {
+  const hit = cache.get(week);
+  if (hit && Date.now() - hit.at < TTL_MS) return hit.issue;
   try {
-    const res = await fetch(`${BASE}/week-${week}.json`, { cache: "no-store" });
-    if (!res.ok) return null;
-    return clean(await res.json(), week);
+    const v = Math.floor(Date.now() / TTL_MS);
+    const res = await fetch(`${BASE}/week-${week}.json?v=${v}`, { cache: "no-store" });
+    const issue = res.ok ? clean(await res.json(), week) : null;
+    cache.set(week, { at: Date.now(), issue });
+    return issue;
   } catch {
     return null;
   }

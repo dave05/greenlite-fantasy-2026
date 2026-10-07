@@ -45,6 +45,10 @@
 {"week": 4, "slot": "email", "target": null, "premise": "discourse undefeated", "source": "email", "text": "Maye Defenders finally ate: 27.16, three TDs, a W in Buffalo. Nix Believers point at the season total (60.26 to 54.76) and Maye's 7 INTs. The discourse remains undefeated."}
 {"week": 4, "slot": "email", "target": null, "premise": "Browns cautiously terrified", "source": "email", "text": "The Browns are 3-1 and first in the AFC North off a 56-yard walk-off. Cleveland is cautiously terrified."}
 {"week": 4, "slot": "email", "target": null, "premise": "Watson nod, no further questions", "source": "email", "text": "Watson reportedly found a new masseuse in town. No further questions."}
+{"week": 4, "slot": "comic", "target": null, "source": "site", "text": "BREAKING: Sergio makes five moves Monday."}
+{"week": 4, "slot": "comic", "target": null, "source": "site", "text": "Any of them make the lineup?"}
+{"week": 4, "slot": "comic", "target": null, "source": "site", "text": "Sources say no."}
+{"week": 4, "slot": "comic", "target": null, "source": "site", "text": "Sources also say the commish now owns his tight end."}
 {"week": 4, "slot": "comic", "target": null, "source": "site", "text": "Sergio made five moves Monday."}
 {"week": 4, "slot": "comic", "target": null, "source": "site", "text": "So bro finally set his lineup?"}
 {"week": 4, "slot": "comic", "target": null, "source": "site", "text": "Bro set NOTHING. Commish lives by 3.6."}
