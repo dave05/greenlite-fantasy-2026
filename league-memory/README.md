@@ -11,6 +11,8 @@ old crimes and never tell the same joke twice. Read and written by
 | `jokes.jsonl` | `record` only | every joke published, paper and email |
 | `storylines.json` | **you**, by hand | what the group chat is talking about this week |
 | `issues/week-N.json` | the routine (or you, as a draft) | each week's finished copy; the website's Gazette tab shows it |
+| `archive/week-N-email.txt` | kept by hand | every edition exactly as it was emailed, with corrected mistakes flagged |
+| `EDITORIAL.md` | the editor (you or the routine) | the editor-in-chief handbook: voice, corrected facts, what landed and flopped, research sources, running storylines |
 
 ## Filling in profiles
 

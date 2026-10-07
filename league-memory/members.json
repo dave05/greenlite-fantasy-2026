@@ -1,16 +1,25 @@
 {
   "994362778142011392": {
     "display_name": "dawit21",
-    "real_name": "",
-    "nicknames": [],
+    "real_name": "Dawit (the commissioner)",
+    "nicknames": [
+      "the commish"
+    ],
     "teams": [
       "JSN - Just Survive Now"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "spends real FAAB: $653 used by week 4",
+      "wk4: $48 on Dallas Goedert, 0.0 on the bench (the Flop)",
+      "wk4 waivers: bid on four of Sergio's starters the night Sergio was chopped; won Kittle ($222, $104 over the next bid) and Pickens ($96); lost Harvey by $1"
+    ],
+    "running_gags": [
+      "the collusion/tampering rumor: survived wk4 by 3.6 only because Sergio never set his lineup, then bought Sergio's TE and WR. Keep it a rumor - 'sources', 'the league office investigated itself'",
+      "team name is literally 'Just Survive Now', and that is exactly what happened"
+    ],
     "off_limits": [],
-    "notes": "League commissioner. Team name: JSN - Just Survive Now.",
+    "notes": "League commissioner and the Gazette's owner. Roasting him is encouraged; he asked for it.",
     "status": "alive"
   },
   "860959579746484224": {
@@ -21,8 +30,13 @@
       "matthewmongelli"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "sat on the full $1,000 through week 3; first spend was $70 on RJ Harvey (wk4 run), leaving $930",
+      "finished 10th of 13 in wk4 - a so-so team with a full wallet"
+    ],
+    "running_gags": [
+      "the Mattress Fund: FAAB is not a 401(k), there is no employer match"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"
@@ -35,7 +49,10 @@
       "Sdobens4"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "wk3: $485 on Ja'Marr Chase (24.8 pts) - the biggest winning bid that week",
+      "wk3: lost A.J. Brown with a $42 bid to maruniak's $52 (unpaid)"
+    ],
     "running_gags": [],
     "off_limits": [],
     "notes": "",
@@ -49,11 +66,15 @@
       "jayabg"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "first one chopped: week 1, 70.8 points, $1,000 of FAAB never touched"
+    ],
+    "running_gags": [
+      "patient zero of the Guillotine"
+    ],
     "off_limits": [],
     "notes": "",
-    "status": "alive"
+    "status": "chopped week 1"
   },
   "1396677940267216896": {
     "display_name": "PumpUpTheJam32",
@@ -63,10 +84,14 @@
       "PumpUpTheJam32"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "wk2: $2 for Kendrick Bourne (3.1) - a steal",
+      "wk4: $135 on Omarion Hampton when the next bid was $21 ($114 clear) for 13.3 pts",
+      "wk4 run: a $88 claim on Quinshon Judkins failed against a $52 winner - an INVALID claim, never frame it as being outbid"
+    ],
     "running_gags": [],
     "off_limits": [],
-    "notes": "",
+    "notes": "Team label is just the Sleeper username (no custom team name); no 'team named' jokes.",
     "status": "alive"
   },
   "1258801794037862400": {
@@ -77,10 +102,17 @@
       "Vladimir Tuten"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "the league's biggest spender: $721 used by week 4",
+      "wk2: $503 on James Cook, $103 over the next bid ($400)",
+      "wk3: top score of the week, 163.9",
+      "wk4: paid $62 for Devaughn Vele and benched him while he scored 17.4; won Waddle by $1 ($23 vs $22)"
+    ],
+    "running_gags": [
+      "'Overpaid in Week 2, under-started in Week 4' - scouting elite, coaching questionable"
+    ],
     "off_limits": [],
-    "notes": "",
+    "notes": "Sleeper handle artgriff; team name 'Vladimir Tuten'.",
     "status": "alive"
   },
   "1138704096498597888": {
@@ -91,7 +123,11 @@
       "kaelanzm"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "wk2: $200 on Jeremiyah Love, 7.5 pts (~$27 a point)",
+      "wk4: top score of the week, 159.56",
+      "wk5: had Tetairoa McMillan (CAR, on bye) in the starting lineup as of Wednesday"
+    ],
     "running_gags": [],
     "off_limits": [],
     "notes": "",
@@ -105,10 +141,12 @@
       "elifelber"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "chopped week 2 at 65.7 with $1,000 of FAAB unspent"
+    ],
     "running_gags": [],
     "off_limits": [],
-    "notes": "",
+    "notes": "Week 2 email wrongly said elifelber 'blew their budget' - a losing bid costs nothing. Never repeat that framing.",
     "status": "chopped week 2"
   },
   "558675356280602624": {
@@ -119,7 +157,10 @@
       "KRogo5"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "wk2: offered $5 for Brock Purdy, who went for $25 and scored 28.48",
+      "chopped week 3 at 50.98, the lowest score of the season so far, with $1,000 unspent"
+    ],
     "running_gags": [],
     "off_limits": [],
     "notes": "",
@@ -133,8 +174,12 @@
       "kylereckert"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "quiet so far: no awards through week 4; $101 spent; 4th in wk4 (127.3)"
+    ],
+    "running_gags": [
+      "the league's witness protection program - nobody has roasted him yet"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"
@@ -147,7 +192,10 @@
       "riguy101"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "wk3: $0 for Michael Mayer (12.2 pts) - the Steal",
+      "wk3: won Ladd McConkey for $175"
+    ],
     "running_gags": [],
     "off_limits": [],
     "notes": "",
@@ -161,8 +209,13 @@
       "jackmccarthy25"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "hoarder who is winning: 2nd in wk4 (142.22) with $941 untouched",
+      "wk4 run: paid $59 for Jalen Coker - the 0.0 that got Sergio chopped - and Coker (CAR) is on bye in wk5"
+    ],
+    "running_gags": [
+      "bought the murder weapon at the estate sale (Coker); 'either iron discipline or he thinks FAAB is a gift card'"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"
@@ -175,10 +228,13 @@
       "Always Safe"
     ],
     "nfl_team": "",
-    "tendencies": [],
+    "tendencies": [
+      "wk2: won Mike Evans for $125 then benched him (8.4)",
+      "wk4 run: lost D'Andre Swift by $1 ($125 vs maruniak's $126)"
+    ],
     "running_gags": [],
     "off_limits": [],
-    "notes": "",
+    "notes": "Sleeper handle jadaniels21; team name 'Always Safe'.",
     "status": "alive"
   },
   "741512280193261568": {
@@ -189,8 +245,17 @@
       "maruniak"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "rosters Drake Maye - the league's Maye camp",
+      "lives on $1 margins: lost Waddle by $1 (wk3 run), won Swift by $1 (wk4 run)",
+      "wk3: $52 on A.J. Brown, 0.0 pts (the Flop)",
+      "wk4 run: put claims on six of Sergio's players, won one (Swift)",
+      "wk5: had Travis Kelce (KC) and Chuba Hubbard (CAR), both on bye, in the starting lineup as of Wednesday"
+    ],
+    "running_gags": [
+      "Ball don't lie: the dollar always comes back",
+      "Maye vs Nix: his QB vs BDALOHA's"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"
@@ -207,7 +272,9 @@
       "does not set his lineup, even when the whole group chat begs him to (week 4: five Monday moves, empty WR slot, none of the pickups started)"
     ],
     "running_gags": [
-      "died with an empty lineup slot and $1,000 of FAAB untouched"
+      "died with an empty lineup slot and $1,000 of FAAB untouched",
+      "five moves on Monday, none of them the move; the Gainwell he needed was on his bench (start him: 98.1, survives)",
+      "the other half of the collusion rumor with the commish"
     ],
     "off_limits": [],
     "notes": "sergioflores98 is just his username, not a team name - never joke about the 'team name'.",
@@ -221,8 +288,16 @@
       "BDALOHA"
     ],
     "nfl_team": "",
-    "tendencies": [],
-    "running_gags": [],
+    "tendencies": [
+      "serial bencher: wk3 benched a $299 Tony Pollard (13.6); wk4 left Tyquan Thornton's 28.1 on the bench, the league's highest bench score",
+      "wk3: $299 on Pollard when the next bid was $5 ($294 clear)",
+      "rosters Bo Nix - the league's Nix camp",
+      "wk5: had Kenneth Walker (KC, on bye) in the starting lineup as of Wednesday; Thornton (KC) is on bye too"
+    ],
+    "running_gags": [
+      "the bench is not a bench, it's a second team / a scheme",
+      "Maye vs Nix: his QB vs maruniak's"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"

@@ -1,0 +1,68 @@
+{
+  "week": 3,
+  "paper": {
+    "headline": {
+      "kicker": "PROFLIGACY",
+      "head": "$299 WHEN THE NEXT BID WAS $5",
+      "sub": "BDALOHA went $294 clear of the field for Tony Pollard. Only the winner pays, and the winner paid."
+    },
+    "obituary": "Lowest score. No appeal. No mercy."
+  },
+  "jokes": [
+    {
+      "section": "Profligacy",
+      "target": "1259206671360610305",
+      "premise": "a fight nobody else was having",
+      "text": "BDALOHA went $294 clear of a fight nobody else was having."
+    },
+    {
+      "section": "Profligacy",
+      "target": "1259206671360610305",
+      "premise": "bidding against nobody and still overpaying",
+      "text": "That's not an auction, that's bidding against nobody and still overpaying."
+    },
+    {
+      "section": "Profligacy",
+      "target": "1259206671360610305",
+      "premise": "points nobody witnessed",
+      "text": "Then BDALOHA benched him. Pollard scored 13.6 points, none of which were witnessed."
+    },
+    {
+      "section": "Profligacy",
+      "target": "1259206671360610305",
+      "premise": "did it to themselves",
+      "text": "Nobody made BDALOHA do this. BDALOHA did this to BDALOHA."
+    },
+    {
+      "section": "The Verdict",
+      "target": "741512280193261568",
+      "premise": "corroborated the zero by never starting him",
+      "text": "Returned 0.0 points, a number maruniak independently corroborated by never starting him."
+    },
+    {
+      "section": "The Verdict",
+      "target": "741512280193261568",
+      "premise": "math they shouldn't be doing",
+      "text": "That's $520 a point, for anyone doing the math they shouldn't be doing."
+    },
+    {
+      "section": "The Verdict",
+      "target": "1399167043244204032",
+      "premise": "a losing bid costs nothing, which is what it was worth",
+      "text": "A losing bid costs nothing, which is convenient, because that's exactly what this one was worth."
+    },
+    {
+      "section": "The Verdict",
+      "target": "1134198407096147968",
+      "premise": "the steal sat on the bench too",
+      "text": "The one defensible transaction of the week, undercut slightly by never making the lineup either."
+    },
+    {
+      "section": "The Ledger",
+      "target": "1259206671360610305",
+      "premise": "runners-up kept their money and dignity",
+      "text": "The runners-up kept their money and their dignity, which is more than can be said for BDALOHA."
+    }
+  ],
+  "_note": "Rebuilt from the emails as sent (league-memory/archive). Lines the commissioner corrected are left out."
+}

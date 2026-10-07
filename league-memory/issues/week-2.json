@@ -1,0 +1,38 @@
+{
+  "week": 2,
+  "paper": {
+    "headline": {
+      "kicker": "PROFLIGACY",
+      "head": "$503 WHEN THE NEXT BID WAS $400",
+      "sub": "Vladimir Tuten went $103 clear of the field for James Cook. Only the winner pays, and the winner paid."
+    },
+    "obituary": "Lowest score. No appeal. No mercy."
+  },
+  "jokes": [
+    {
+      "section": "The Verdict",
+      "target": "1258801794037862400",
+      "premise": "overkill wasn't wasted, just unnecessary",
+      "text": "Cook did return 20.9 points, so at least the overkill wasn't wasted, just unnecessary."
+    },
+    {
+      "section": "The Verdict",
+      "target": "1138704096498597888",
+      "premise": "lighting FAAB on fire",
+      "text": "That's about $27 a point. There are worse ways to light FAAB on fire, but not many."
+    },
+    {
+      "section": "The Verdict",
+      "target": "1260968498360758272",
+      "premise": "scored from the bench out of spite",
+      "text": "He scored 8.4 anyway, from the bench, presumably out of spite."
+    },
+    {
+      "section": "Obituary",
+      "target": "728447224970866688",
+      "premise": "chopped, no appeal no mercy",
+      "text": "elifelber, 65.7 points, lowest in the league. Eliminated. No appeal, no mercy."
+    }
+  ],
+  "_note": "Rebuilt from the emails as sent (league-memory/archive). Lines the commissioner corrected are left out."
+}
