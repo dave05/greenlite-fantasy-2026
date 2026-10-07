@@ -257,7 +257,15 @@ function candidates(d, copy) {
     text: j.text,
     source: "email",
   }));
-  return [...printed, ...extra];
+  // The site's four-panel strip is jokes too.
+  const comic = (copy?.comic ?? []).map((c) => ({
+    slot: "comic",
+    target: null,
+    premise: null,
+    text: c.text,
+    source: "site",
+  }));
+  return [...printed, ...extra, ...comic];
 }
 
 function check(d, copy) {

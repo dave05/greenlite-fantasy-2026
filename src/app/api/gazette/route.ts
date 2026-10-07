@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getGazette, getNflState } from "@/lib/sleeper";
 import { getThursdayGame } from "@/lib/schedule";
 import { choppedLeagueId } from "@/lib/leagues";
+import { getIssue } from "@/lib/issue";
 
 export const dynamic = "force-dynamic";
 
@@ -33,13 +34,14 @@ export async function GET(req: Request) {
       return NextResponse.json(hit.body, { headers: { "Cache-Control": "no-store" } });
     }
 
-    const gazette = await getGazette(leagueId, week);
+    // The written edition (if the routine has published one) rides along.
+    const [gazette, issue] = await Promise.all([getGazette(leagueId, week), getIssue(week)]);
     // Tonight's TNF matchup for the upcoming week, for the kickoff section.
     const tnf =
       state?.season_type === "regular"
         ? await getThursdayGame(current).catch(() => null)
         : null;
-    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette };
+    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette, issue };
     cache.set(week, { at: Date.now(), body });
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {

@@ -75,7 +75,7 @@ week's news, their profile, their rap sheet, and every joke already used.
 
 ## Step 3 - write every joke into $OUT/copy.json
 
-If `league-memory/drafts/week-N.json` exists, the commissioner has already
+If `league-memory/issues/week-N.json` already exists, the commissioner has
 approved a draft for this week: copy it to `$OUT/copy.json` and start from it.
 Only change a line if `check` rejects it or this week's data contradicts it.
 
@@ -86,8 +86,14 @@ Format is in `league-memory/README.md`.
   team). These print on the sheet. Fill every slot that has an award - a
   missing slot falls back to a canned line that has already run.
 - `jokes`: every OTHER joke you will put in the email, one entry each, with
-  `target` (Sleeper user_id or null), a short `premise` label, and the exact
-  `text`.
+  `target` (Sleeper user_id or null), a short `premise` label, the exact
+  `text`, and a `section` (e.g. "The Estate Sale", "The Verdict", "The Great
+  Debate"). The website's Gazette tab prints them in order under these
+  section names, so keep each section's lines together. Lines in section
+  "Obituary" go on the chopped team's memorial instead.
+- `comic`: four panels for the website's comic strip, about this week's
+  actual story - `[{"who": "a"|"b", "mood": "talk"|"yell"|"smug"|"react",
+  "text": "..."}]` x4, alternating speakers, short enough for a speech bubble.
 
 Jokes come from `gazette.json` - `awards`, `chopped`, `scores`, `totals` - plus
 the memory. A callback to someone's earlier offence ("second benching in three
@@ -143,6 +149,7 @@ contains the whole sheet and nothing more.
 So the image URL resolves when the email is opened:
 
     node scripts/roast/memory.mjs record $OUT/gazette.json $OUT/copy.json
+    cp $OUT/copy.json league-memory/issues/week-N.json   # the website reads this
     git add gazettes league-memory && git commit -m "gazette: week N" && git push origin <current branch>
 
 URLs (substitute the branch you pushed to):

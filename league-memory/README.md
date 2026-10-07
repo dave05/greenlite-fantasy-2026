@@ -10,6 +10,7 @@ old crimes and never tell the same joke twice. Read and written by
 | `rap-sheet.jsonl` | `record` only | every award and chop, straight from Sleeper data |
 | `jokes.jsonl` | `record` only | every joke published, paper and email |
 | `storylines.json` | **you**, by hand | what the group chat is talking about this week |
+| `issues/week-N.json` | the routine (or you, as a draft) | each week's finished copy; the website's Gazette tab shows it |
 
 ## Filling in profiles
 
@@ -72,7 +73,13 @@ git add league-memory gazettes && git commit -m "gazette: week N"
     "obituary": "..."
   },
   "jokes": [
-    { "target": "<user_id or null>", "premise": "short label for the bit", "text": "the line as it appears in the email" }
+    { "section": "The Estate Sale", "target": "<user_id or null>", "premise": "short label for the bit", "text": "the line as it appears in the email" }
+  ],
+  "comic": [
+    { "who": "a", "mood": "talk", "text": "panel 1" },
+    { "who": "b", "mood": "react", "text": "panel 2" },
+    { "who": "a", "mood": "yell", "text": "panel 3" },
+    { "who": "b", "mood": "smug", "text": "panel 4" }
   ]
 }
 ```

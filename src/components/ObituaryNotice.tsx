@@ -67,11 +67,15 @@ export default function ObituaryNotice({
   points,
   week,
   avatar,
+  text,
 }: {
   name: string;
   points: number;
   week: number;
   avatar: string | null;
+  // The written edition's obituary, when there is one - it knows what actually
+  // happened, the canned paragraph only knows the score.
+  text?: string[];
 }) {
   const initial = name.trim().charAt(0).toUpperCase() || "?";
   return (
@@ -117,7 +121,7 @@ export default function ObituaryNotice({
               🪓 Chopped · Week {week} · {points.toFixed(1)} pts
             </p>
             <p className="mt-2 font-serif text-[13px] leading-snug text-[#221d15]/90">
-              {obituary(name, points, week)}
+              {text?.length ? text.join(" ") : obituary(name, points, week)}
             </p>
             {/* messages from the surviving league - the condolences column */}
             <div className="mt-3 border-t border-[#221d15]/25 pt-2">

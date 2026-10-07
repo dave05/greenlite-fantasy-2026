@@ -5,6 +5,7 @@ import type { Gazette as GazetteData, GazetteBid, GazetteContest, TxnPlayer } fr
 import ComicStrip, { type ComicLine } from "./ComicStrip";
 import ObituaryNotice from "./ObituaryNotice";
 import { profileFor } from "@/lib/leagueProfiles";
+import type { Issue } from "@/lib/issue";
 
 // The Guillotine Gazette, rendered live rather than shipped as a flat image.
 // Rendering in the browser is why this looks sharp: no JPEG compression, no
@@ -24,6 +25,8 @@ type Payload = {
   currentWeek: number;
   tnf: Tnf | null;
   gazette: GazetteData | null;
+  // The written edition for this week, when the routine has published one.
+  issue?: Issue | null;
 };
 
 const money = (n: number | null | undefined) =>
@@ -504,7 +507,10 @@ export default function Gazette() {
   // Lead with the week's loudest overpay - biggest raw blowout or wildest
   // multiple, whichever the league will actually talk about (see leadCopy).
   const abs = a.mostAbsurd;
-  const lead = abs
+  const written = data.issue?.paper?.headline;
+  const lead = written?.head
+    ? { kicker: written.kicker ?? `Week ${g.week}`, head: written.head, sub: written.sub ?? "" }
+    : abs
     ? leadCopy(abs)
     : a.benched
       ? {
@@ -530,6 +536,22 @@ export default function Gazette() {
   // week about to start. Announces the upcoming week + TNF, nudges lineups (witty),
   // and uses last week's biggest start/sit miss as the cautionary tale - without
   // scolding, just trolling. `data.currentWeek` is the live NFL week (upcoming).
+  // The written edition: its obituary lines go on the memorial, everything else
+  // runs in the Editor's Desk, grouped by the section the writer gave it.
+  const issueJokes = data.issue?.jokes ?? [];
+  const obitLines = issueJokes.filter((j) => j.section === "Obituary").map((j) => j.text);
+  const obituaryText = obitLines.length
+    ? [...obitLines, ...(data.issue?.paper?.obituary ? [data.issue.paper.obituary] : [])]
+    : undefined;
+  const desk: { section: string; lines: string[] }[] = [];
+  for (const j of issueJokes) {
+    if (j.section === "Obituary") continue;
+    const section = j.section ?? "From the Editor";
+    const last = desk[desk.length - 1];
+    if (last?.section === section) last.lines.push(j.text);
+    else desk.push({ section, lines: [j.text] });
+  }
+
   const isLatest = g.week === data.lastCompleted;
   const nextWeek = data.currentWeek;
   const tnf = data.tnf;
@@ -692,6 +714,25 @@ export default function Gazette() {
           </div>
         )}
 
+        {desk.length > 0 && (
+          <section className="my-4 border-y-2 border-[#14110d] py-3">
+            <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
+              The Editor&apos;s Desk
+            </p>
+            <h3 className="font-serif text-2xl font-black leading-none">This week, in full</h3>
+            <div className="mt-3 space-y-3 text-[13px] leading-snug">
+              {desk.map((d, i) => (
+                <div key={`${d.section}-${i}`}>
+                  <p className="font-display text-[10px] uppercase tracking-[0.18em]">{d.section}</p>
+                  {d.lines.map((line, k) => (
+                    <p key={k} className="mt-1">{line}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="my-4 border-y-2 border-[#14110d] py-3">
           <div className="flex items-end justify-between gap-3">
             <div>
@@ -757,7 +798,15 @@ export default function Gazette() {
                   tone="cheap"
                   tag="Cheapest Offer"
                   team={a.lowball.team}
-                  jab="Bidding is a participation sport. You, notably, did not participate."
+                  jab={pick(
+                    [
+                      "A losing bid costs nothing. This one also bought nothing.",
+                      "Somewhere, a waiver processor is still laughing.",
+                      "Lowballing a player everyone wants is a bold negotiating position.",
+                      "Price discovery: complete. Player: elsewhere.",
+                    ],
+                    a.lowball.bid,
+                  )}
                 >
                   Offered <b>{money(a.lowball.bid)}</b> for{" "}
                   <b>{a.lowball.player.name}</b> and lost. It cost nothing, which is
@@ -911,6 +960,7 @@ export default function Gazette() {
               points={g.chopped.points ?? 0}
               week={g.week}
               avatar={g.chopped.avatar}
+              text={obituaryText}
             />
           ) : (
             <p className="text-center text-[12px] italic text-[#14110d]/70">
@@ -920,7 +970,7 @@ export default function Gazette() {
           )}
         </div>
 
-        <ComicStrip lines={comic} />
+        <ComicStrip lines={data.issue?.comic ?? comic} />
 
         <p className="mt-4 text-center text-[8px] uppercase tracking-[0.12em] text-[#14110d]/55">
           The numbers are Sleeper&apos;s. The disrespect is ours.
