@@ -137,6 +137,28 @@ function page(d) {
     )
     .join("");
 
+  // This week's run has already cleared - the same "Just In" table the live
+  // Gazette tab shows. No points yet, but an overpay is funny the moment it
+  // lands.
+  const overBy = (c) => {
+    const mult = c.winner.bid / Math.max(1, c.losers[0].bid);
+    return mult >= 2 ? `${Math.round(mult)}x` : `+${money(c.gap)}`;
+  };
+  const freshRows = (d.freshContests ?? [])
+    .slice(0, 6)
+    .map(
+      (c) => `
+      <tr>
+        <td class="p">${esc(c.player)}</td>
+        <td class="w">${esc(c.winner.team)}</td>
+        <td class="n win">${money(c.winner.bid)}</td>
+        <td class="l">${esc(c.losers[0].team)}</td>
+        <td class="n">${money(c.losers[0].bid)}</td>
+        <td class="n">${overBy(c)}</td>
+      </tr>`,
+    )
+    .join("");
+
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>The Guillotine Gazette - Week ${week}</title>
@@ -298,6 +320,16 @@ ${fontLink}
     <thead><tr><th>Player</th><th>Winner</th><th style="text-align:right">Paid</th><th>Next highest</th><th style="text-align:right">Bid (unpaid)</th><th style="text-align:right">Pts</th></tr></thead>
     <tbody>${contestRows || `<tr><td colspan="6" style="text-align:center;font-style:italic">No contested claims. A peaceful, cowardly week.</td></tr>`}</tbody>
   </table>
+
+  ${
+    freshRows
+      ? `<h4 class="sec">Just In · Week ${week} claims, verdict pending</h4>
+  <table>
+    <thead><tr><th>Player</th><th>Bought by</th><th style="text-align:right">Paid</th><th>Next highest</th><th style="text-align:right">Bid (unpaid)</th><th style="text-align:right">Over</th></tr></thead>
+    <tbody>${freshRows}</tbody>
+  </table>`
+      : ""
+  }
 
   <div class="bottom">
     <div>
