@@ -84,6 +84,10 @@ export type NewsCategory = "injury" | "suspension" | "benched" | "trade" | "bigG
 // the most roastable (and specific) categories win.
 export function classify(title: string): NewsCategory {
   const t = title.toLowerCase();
+  // Good injury news ("received good news on ankle", "cleared to play") is not an
+  // injury story - roasting it as one says the opposite of the headline.
+  if (/(good news|cleared|returns?\b|return to|back at practice|full practice|no structural|avoids|expected to play|upgraded|healthy)/.test(t))
+    return "other";
   if (/(injur|\bacl\b|\bmcl\b|torn|tear|hamstring|knee|ankle|concuss|carted|placed on ir|\bir\b|out for the season|ruled out|high-ankle|achilles|fracture|broken)/.test(t))
     return "injury";
   if (/(suspend|suspension|banned)/.test(t)) return "suspension";

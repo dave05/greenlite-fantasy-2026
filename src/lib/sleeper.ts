@@ -1022,6 +1022,7 @@ export type Gazette = {
   // knee AND you got chopped"). null when nothing matched.
   newsHook: {
     team: string;
+    paidFor: boolean;
     player: string;
     position: string;
     nflTeam: string;
@@ -1038,6 +1039,8 @@ export type Gazette = {
     topSpender: { team: string; used: number } | null;
     cheapest: { team: string; used: number } | null;
   } | null;
+  // Team labels that are just a Sleeper username (no custom team name).
+  plainNames: string[];
 };
 
 type RawTxn = {
@@ -1119,7 +1122,8 @@ export async function getGazette(
   // points, so the freshest performers surface regardless of when they were
   // claimed. `started === true` guarantees the player was actually in this
   // weekend's lineup (so a brand-new claim that has not played can't sneak in).
-  const bids = [...bidsFrom(priorRun, true), ...bidsFrom(thisRun, true)];
+  const priorBids = bidsFrom(priorRun, true); // last week's run - the one this week judges
+  const bids = [...priorBids, ...bidsFrom(thisRun, true)];
   const fresh = bidsFrom(thisRun, false); // this morning's run, for the marquee + "just in"
   const freshLost = fresh.filter((b) => !b.won);
   const won = bids.filter((b) => b.won);
@@ -1191,7 +1195,9 @@ export async function getGazette(
   // Cheapest offer: the stingiest LOSING bid from this morning's fresh run, on a
   // player someone actually won. Fresh, and about the just-cleared run.
   const lowball =
-    [...freshLost].filter((b) => fresh.some((w) => w.won && w.playerId === b.playerId))
+    // Someone ELSE must have won him: a manager's own backup claim on a player
+    // they won at the same price is not a lowball, it is a duplicate.
+    [...freshLost].filter((b) => fresh.some((w) => w.won && w.playerId === b.playerId && w.rosterId !== b.rosterId))
       .sort((a, b) => a.bid - b.bid)[0] ?? null;
 
   // Bench gem: the highest-scoring player left OUT of a starting lineup this
@@ -1281,6 +1287,9 @@ export async function getGazette(
             bestScore = score;
             best = {
               team: teamOf(rid),
+              // The role belongs to the TEAM; only say they "spent real money on"
+              // this player when they actually won a claim for him.
+              paidFor: won.some((b) => b.rosterId === rid && b.playerId === id),
               player: name,
               position: p?.position ?? "",
               nflTeam: p?.team ?? "",
@@ -1326,12 +1335,15 @@ export async function getGazette(
     week,
     generatedAt: new Date().toISOString(),
     totals: {
-      // Winners only. A losing bid is never charged.
-      spend: won.reduce((s, b) => s + b.bid, 0),
+      // Winners only. A losing bid is never charged. These count LAST week's run
+      // only: `bids` also pools this morning's run for the awards, and adding it
+      // here printed the fresh money twice ("$930 paid" next to "$586 fresh",
+      // when $930 was $344 + the same $586).
+      spend: priorBids.filter((b) => b.won).reduce((s, b) => s + b.bid, 0),
       freshSpend: fresh.filter((b) => b.won).reduce((s, b) => s + b.bid, 0),
-      bidsPlaced: bids.length,
-      bidsWon: won.length,
-      bidsLost: bids.filter((b) => !b.won).length,
+      bidsPlaced: priorBids.length,
+      bidsWon: priorBids.filter((b) => b.won).length,
+      bidsLost: priorBids.filter((b) => !b.won).length,
     },
     awards: { bigSpender, flop, steal, benched, overkill, heartbreak, lowball, mostAbsurd, benchGem },
     contests: contests.sort((a, b) => b.winner.bid - a.winner.bid).slice(0, 8),
@@ -1347,5 +1359,10 @@ export async function getGazette(
       : null,
     newsHook,
     spending,
+    // Teams whose "name" is just the manager's Sleeper username (no custom team
+    // name set) - the copy must not joke about a team "literally named" that.
+    plainNames: (rosters ?? [])
+      .filter((r) => r.owner_id && !userById.get(r.owner_id)?.metadata?.team_name?.trim())
+      .map((r) => teamOf(r.roster_id)),
   };
 }

@@ -59,6 +59,11 @@ const NAME_JABS: { match: string; jabs: string[] }[] = [
   { match: "burrowed", jabs: ["Borrowed time, borrowed money, same energy."] },
 ];
 
+// Teams whose label is just the manager's Sleeper username. Set from each
+// payload before rendering (see Gazette below); a username is not a team name,
+// so "a team literally named sergioflores98" is not a joke.
+const plainNames = new Set<string>();
+
 const teamPun = (team: string): string => {
   const key = team.toLowerCase();
   // First: a real dossier jab (fandom / identity) from the in-app profiles, so
@@ -68,6 +73,15 @@ const teamPun = (team: string): string => {
   if (prof && prof.jabs.length) return pick(prof.jabs, team.length);
   const hit = NAME_JABS.find((n) => key.includes(n.match));
   if (hit) return pick(hit.jabs, team.length);
+  if (plainNames.has(team))
+    return pick(
+      [
+        "The group chat has been notified.",
+        "Screenshots have already been taken.",
+        "This one goes in the league's permanent record.",
+      ],
+      team.length,
+    );
   return pick(
     [
       `Bold move for a team literally named “${team}.”`,
@@ -198,7 +212,10 @@ type NewsHook = NonNullable<GazetteData["newsHook"]>;
 const wireRoast = (n: NewsHook): string => {
   const { team, player, position, nflTeam, category, role } = n;
   const doomed = role === "chopped" || role === "bottom";
-  const spender = role === "marquee" || role === "flop" || role === "bigSpender" || role === "benched";
+  // The role is the TEAM's; the spender lines say they paid for THIS player, so
+  // they need a real winning claim on him.
+  const spender =
+    n.paidFor && (role === "marquee" || role === "flop" || role === "bigSpender" || role === "benched");
   const lane = doomed ? "doomed" : spender ? "spender" : "base";
   const pos = position ? `${position} ` : "";
   const nfl = nflTeam ? ` (${nflTeam})` : "";
@@ -413,6 +430,8 @@ export default function Gazette() {
   }
 
   const g = data.gazette;
+  plainNames.clear();
+  for (const n of g.plainNames ?? []) plainNames.add(n);
   // Advance the joke rotation to this issue BEFORE any copy is built, so every
   // pick() below lands on a different line than last week's edition.
   ISSUE_SHIFT = g.week;
@@ -514,23 +533,38 @@ export default function Gazette() {
   const isLatest = g.week === data.lastCompleted;
   const nextWeek = data.currentWeek;
   const tnf = data.tnf;
+  // When TNF actually is, relative to the reader's own clock: "tonight" printed
+  // on a Wednesday is wrong.
+  const when = (() => {
+    if (!tnf) return { lc: "on Thursday", uc: "THURSDAY" };
+    // Count calendar days in US Eastern time, where the NFL keeps its clock: an
+    // 8:15pm ET Thursday kickoff is already Friday in UTC and further east.
+    const k = new Date(tnf.kickoff);
+    const etDay = (d: Date) =>
+      Date.parse(d.toLocaleDateString("en-CA", { timeZone: "America/New_York" }));
+    const days = Math.round((etDay(k) - etDay(new Date())) / 86_400_000);
+    if (days <= 0) return { lc: "tonight", uc: "TONIGHT" };
+    if (days === 1) return { lc: "tomorrow night", uc: "TOMORROW NIGHT" };
+    const wd = k.toLocaleDateString("en-US", { weekday: "long", timeZone: "America/New_York" });
+    return { lc: `${wd} night`, uc: `${wd.toUpperCase()} NIGHT` };
+  })();
   const kickoff = (() => {
-    // Name tonight's actual TNF matchup when we have it, so the nudge is specific.
+    // Name the actual TNF matchup when we have it, so the nudge is specific.
     const game = tnf ? `${tnf.away} at ${tnf.home}` : null;
     const nudge = game
       ? pick(
           [
-            `${game} (${tnf!.short}) kicks off Week ${nextWeek} tonight. Fix your lineups before kickoff or become next week's headline.`,
-            `Week ${nextWeek} opens TONIGHT with ${game}. Set your lineups. The Roast Desk is watching.`,
-            `${tnf!.short} tonight, then the wire closes for Week ${nextWeek}. Fix your lineups now, cope later.`,
+            `${game} (${tnf!.short}) kicks off Week ${nextWeek} ${when.lc}. Fix your lineups before kickoff or become next week's headline.`,
+            `Week ${nextWeek} opens ${when.uc} with ${game}. Set your lineups. The Roast Desk is watching.`,
+            `${tnf!.short} ${when.lc}, then the wire closes for Week ${nextWeek}. Fix your lineups now, cope later.`,
             `TNF is ${game}. Get your starters set before it kicks or forever hold your excuses.`,
           ],
           nextWeek,
         )
       : pick(
           [
-            `Thursday Night Football kicks off Week ${nextWeek} tonight. Fix your lineups before then or become next week's headline.`,
-            `Week ${nextWeek} starts TODAY on TNF. Set your lineups. The Roast Desk is watching.`,
+            `Thursday Night Football kicks off Week ${nextWeek} ${when.lc}. Fix your lineups before then or become next week's headline.`,
+            `Week ${nextWeek} starts ${when.uc} on TNF. Set your lineups. The Roast Desk is watching.`,
             `The wire's closed, the games are here. Fix your lineups before TNF or forever hold your excuses.`,
           ],
           nextWeek,
@@ -539,7 +573,7 @@ export default function Gazette() {
     const miss = benchGem
       ? pick(
           [
-            `Cautionary tale: last week ${benchGem.team} left ${benchGem.player.name} (${pts(benchGem.points)}) on the pine. Could be you tonight. Won't be, right? ...Right?`,
+            `Cautionary tale: last week ${benchGem.team} left ${benchGem.player.name} (${pts(benchGem.points)}) on the pine. Could be you ${when.lc}. Won't be, right? ...Right?`,
             `Remember: ${benchGem.team} benched ${pts(benchGem.points)} points last week. TNF starts soon. Don't pull a ${benchGem.team}.`,
             `Last week ${benchGem.team} started the wrong guy and ate ${benchGem.player.name}'s ${pts(benchGem.points)} from the bench. History is free to repeat. Check your lineup.`,
           ],
@@ -586,7 +620,7 @@ export default function Gazette() {
             players they bought played THIS week. Saying so up front, because
             "Week 2" next to a bid placed in week 1 reads as an error. */}
         <p className="pb-1 text-center text-[9px] italic text-[#14110d]/60">
-          Bids placed in the Week {Math.max(1, g.week - 1)} waiver run · scored in Week {g.week}
+          Verdict: Week {Math.max(1, g.week - 1)} claims, scored in Week {g.week} · Just in: Week {g.week} claims, not yet played
         </p>
         <div className="border-t border-[#14110d]" />
 
@@ -602,7 +636,7 @@ export default function Gazette() {
         {isLatest && (
           <section className="my-3 border-y-2 border-[#14110d] py-2.5 text-center">
             <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
-              Kickoff Bulletin · Week {nextWeek} starts today
+              Kickoff Bulletin · Week {nextWeek} starts {when.lc === "tonight" ? "today" : when.lc.replace(" night", "")}
             </p>
             <p className="mx-auto mt-1.5 max-w-xl text-[13px] font-semibold leading-snug">
               {kickoff.nudge}
