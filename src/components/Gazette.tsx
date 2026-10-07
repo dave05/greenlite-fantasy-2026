@@ -686,32 +686,6 @@ export default function Gazette() {
             <p className="mx-auto mt-1 max-w-xl text-[11px] italic leading-snug text-[#14110d]/60">
               {kickoff.miss}
             </p>
-            {byes.length > 0 && (
-              <div className="mx-auto mt-2.5 max-w-xl border-t border-dashed border-[#14110d]/40 pt-2">
-                <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
-                  Bye Week · {byes.map((b) => b.name).join(" & ")}
-                </p>
-                {byeWatch.length > 0 ? (
-                  <>
-                    <p className="mt-1 text-[12px] leading-snug">
-                      Currently starting a player who is not playing:{" "}
-                      {byeWatch.map((w, i) => (
-                        <span key={w.team}>
-                          {i > 0 && "; "}
-                          <b>{w.team}</b> ({w.starting.map((p) => p.name).join(", ")})
-                        </span>
-                      ))}
-                      .
-                    </p>
-                    <p className="mt-0.5 text-[11px] italic text-[#14110d]/60">{byeCloser}</p>
-                  </>
-                ) : (
-                  <p className="mt-1 text-[12px] italic leading-snug">
-                    Nobody is starting a player on bye. Yet.
-                  </p>
-                )}
-              </div>
-            )}
           </section>
         )}
 
@@ -1017,6 +991,30 @@ export default function Gazette() {
         </div>
 
         <ComicStrip lines={data.issue?.comic ?? comic} />
+
+        {isLatest && byes.length > 0 && (
+          <section className="mt-4 border-t-2 border-[#14110d] pt-2.5 text-[12px] leading-snug">
+            <p>
+              <b className="font-display uppercase tracking-[0.15em] text-[#8c1c13]">P.S.</b>{" "}
+              Bye week: {byes.map((b) => b.name).join(" & ")}.{" "}
+              {byeWatch.length > 0 ? (
+                <>
+                  Still starting a player who is not playing:{" "}
+                  {byeWatch.map((w, i) => (
+                    <span key={w.team}>
+                      {i > 0 && "; "}
+                      <b>{w.team}</b> ({w.starting.map((p) => p.name).join(", ")})
+                    </span>
+                  ))}
+                  . <i className="text-[#14110d]/65">{byeCloser}</i>
+                </>
+              ) : (
+                <i>Nobody is starting a player on bye. Yet.</i>
+              )}
+            </p>
+          </section>
+        )}
+
 
         <p className="mt-4 text-center text-[8px] uppercase tracking-[0.12em] text-[#14110d]/55">
           The numbers are Sleeper&apos;s. The disrespect is ours.
