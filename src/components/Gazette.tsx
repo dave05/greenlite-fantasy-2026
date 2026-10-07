@@ -556,6 +556,10 @@ export default function Gazette() {
     else desk.push({ section, lines: [j.text] });
   }
 
+  // With a written edition, the Editor's Desk already covers the week's crimes;
+  // the Roast Desk keeps only what it does not (top score, spread, escape).
+  const hasDesk = desk.length > 0;
+
   const isLatest = g.week === data.lastCompleted;
   const byes = data.byes ?? [];
   const byeWatch = data.byeWatch ?? [];
@@ -761,7 +765,7 @@ export default function Gazette() {
             <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
               The Editor&apos;s Desk
             </p>
-            <h3 className="font-serif text-2xl font-black leading-none">This week, in full</h3>
+            <h3 className="font-serif text-2xl font-black leading-none">Hot takes, cold facts</h3>
             <div className="mt-3 space-y-3 text-[13px] leading-snug">
               {desk.map((d, i) => (
                 <div key={`${d.section}-${i}`}>
@@ -790,25 +794,25 @@ export default function Gazette() {
             </span>
           </div>
           <div className="mt-3 grid gap-x-5 gap-y-3 text-[13px] leading-snug sm:grid-cols-2">
-            {benchGem && <p><b>Started the wrong guy:</b> {roastBenchGem(benchGem)}</p>}
-            {a.benched && <p><b>Clipboard criminal:</b> {roastBench(a.benched)}</p>}
-            {a.flop && <p><b>Financial misconduct:</b> {roastFlop(a.flop)}</p>}
-            {freshRoast && <p><b>Fresh from the panic room:</b> {roastContest(freshRoast)}</p>}
+            {!hasDesk && benchGem && <p><b>Started the wrong guy:</b> {roastBenchGem(benchGem)}</p>}
+            {!hasDesk && a.benched && <p><b>Clipboard criminal:</b> {roastBench(a.benched)}</p>}
+            {!hasDesk && a.flop && <p><b>Financial misconduct:</b> {roastFlop(a.flop)}</p>}
+            {!hasDesk && freshRoast && <p><b>Fresh from the panic room:</b> {roastContest(freshRoast)}</p>}
             {top && <p><b>Victory-lap department:</b> {roastScore(top.team, top.points, "first")}</p>}
-            {bottom && <p><b>Basement watch:</b> {roastScore(bottom.team, bottom.points, "last")}</p>}
+            {!hasDesk && bottom && <p><b>Basement watch:</b> {roastScore(bottom.team, bottom.points, "last")}</p>}
             {beatdownGap != null && beatdownGap > 0 && top && bottom && (
               <p><b>The spread:</b> {roastBeatdown(top.team, bottom.team, beatdownGap)}</p>
             )}
             {escapeMargin != null && escapeMargin >= 0 && secondLast && (
               <p><b>Closest escape:</b> {roastEscape(secondLast.team, escapeMargin)}</p>
             )}
-            {g.chopped && (
+            {!hasDesk && g.chopped && (
               <p><b>Final notice:</b> {g.chopped.team} scored {pts(g.chopped.points)}, got chopped, and is now available for unsolicited lineup advice.</p>
             )}
-            {g.spending?.topSpender && g.spending.topSpender.used > 0 && (
+            {!hasDesk && g.spending?.topSpender && g.spending.topSpender.used > 0 && (
               <p><b>Biggest wallet:</b> {g.spending.topSpender.team} has torched {money(g.spending.topSpender.used)} in FAAB this season and is somehow still not running the league. Spending like the budget expires at midnight. {teamPun(g.spending.topSpender.team)}</p>
             )}
-            {g.spending?.cheapest && (
+            {!hasDesk && g.spending?.cheapest && (
               <p><b>Tightest wallet:</b> {g.spending.cheapest.team} has spent {money(g.spending.cheapest.used)} in FAAB all year. {g.spending.cheapest.used === 0 ? "Zero. Nada. Surviving on vibes and other people's funerals." : "Coupon-clipping their way through a survival pool."} {teamPun(g.spending.cheapest.team)}</p>
             )}
           </div>

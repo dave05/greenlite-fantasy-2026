@@ -53,6 +53,23 @@ not the ceiling. Before writing, gather material from all of these:
    or worse (`faab.rosters[].rank` in the bottom half). Sitting on $1,000
    with a so-so roster is a choice, and the Gazette has opinions about it.
 
+## Voice
+
+NFL Twitter, not a newspaper column. The commissioner's notes: shorter, with
+better punchlines, cleverly witty, sports slang all over.
+
+- One idea per line, punchline LAST. 25 words or fewer (the obituary may run
+  longer). Never explain the joke.
+- Lean on football and sports-media slang where it fits the fact: "🚨 Sources:",
+  "the league office investigated itself", tampering, cap casualty, fumbled
+  the bag, film don't lie, ball don't lie, cooked, washed, fraud watch, he's
+  HIM, levels to this, ate, no notes, Mt. Rushmore, scheme, decoy, garbage
+  time, pick-six, two-minute drill. Vary it - the joke log catches repeats.
+- The Editor's Desk (the `jokes` list) is 5-6 sections, 1-4 lines each, about
+  12-15 lines total. Cut anything that is a fact with no punchline.
+- Slang never bends a number. Every figure comes from `gazette.json`, Sleeper
+  or a cited source.
+
 ## Step 1 - find Chrome
 
 The sandbox already ships Playwright's Chromium:
