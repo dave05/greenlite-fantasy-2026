@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getGazette, getNflState } from "@/lib/sleeper";
-import { getThursdayGame } from "@/lib/schedule";
+import { getByeWatch, getGazette, getNflState } from "@/lib/sleeper";
+import { getByeTeams, getThursdayGame } from "@/lib/schedule";
 import { choppedLeagueId } from "@/lib/leagues";
 import { getIssue } from "@/lib/issue";
 
@@ -41,7 +41,13 @@ export async function GET(req: Request) {
       state?.season_type === "regular"
         ? await getThursdayGame(current).catch(() => null)
         : null;
-    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette, issue };
+    // The upcoming week's byes, and who is currently starting a player on one.
+    const byes =
+      state?.season_type === "regular" ? await getByeTeams(current).catch(() => []) : [];
+    const byeWatch = byes.length
+      ? await getByeWatch(leagueId, current, byes.map((b) => b.abbr)).catch(() => [])
+      : [];
+    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette, issue, byes, byeWatch };
     cache.set(week, { at: Date.now(), body });
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {

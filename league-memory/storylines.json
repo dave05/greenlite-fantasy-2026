@@ -31,5 +31,12 @@
     "topic": "The great Drake Maye vs Bo Nix debate: the league is split into Nix Believers and Maye Defenders.",
     "angle": "Cover it like a bitter political race or a holy war - polling, campaign ads, defectors. The Gazette pretends to be neutral and obviously is not. Maye is on maruniak's team, Nix is on BDALOHA's, so each side has a candidate in the league.",
     "notes": "Runs all season: refresh the numbers each week from Sleeper (https://api.sleeper.app/v1/stats/nfl/regular/<season>/<week>, field pts_ppr; Nix id 11563, Maye id 11564). Week 4, verified: Maye 27.16 (269 pass yds, 3 TD, 1 INT, 54 rush yds) vs Nix 13.56 (214 yds, 1 TD). Season through week 4: Nix 60.26, Maye 54.76; interceptions Maye 7, Nix 4. So Maye finally showed up, but Nix still leads on the season."
+  },
+  {
+    "from_week": 5,
+    "until_week": 5,
+    "topic": "Bye week: the Kansas City Chiefs and Carolina Panthers are off in Week 5.",
+    "angle": "In a league where the lowest score is eliminated, starting a player on bye is how you die. Name anyone who did it (check each roster's week-5 starters against KC/CAR) and what it cost them; if the chopped team started a bye player, that is the headline. If everyone cleaned it up, say the league learned from Sergio.",
+    "notes": "As of Wednesday Oct 7, Sleeper showed these lineups starting bye players: maruniak (Travis Kelce, Chuba Hubbard), kaelanzm (Tetairoa McMillan), BDALOHA (Kenneth Walker). Lineups could still change - verify against the final week-5 starters before writing. Also: jackmccarthy25's $59 Jalen Coker (the 'murder weapon' from the estate sale) plays for Carolina and is on bye; BDALOHA's Week 4 bench star Tyquan Thornton is on KC and on bye too. The live site's Kickoff Bulletin shows this list in real time."
   }
 ]

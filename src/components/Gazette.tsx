@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { Gazette as GazetteData, GazetteBid, GazetteContest, TxnPlayer } from "@/lib/sleeper";
+import type { ByeWatch, Gazette as GazetteData, GazetteBid, GazetteContest, TxnPlayer } from "@/lib/sleeper";
+import type { ByeTeam } from "@/lib/schedule";
 import ComicStrip, { type ComicLine } from "./ComicStrip";
 import ObituaryNotice from "./ObituaryNotice";
 import { profileFor } from "@/lib/leagueProfiles";
@@ -27,6 +28,9 @@ type Payload = {
   gazette: GazetteData | null;
   // The written edition for this week, when the routine has published one.
   issue?: Issue | null;
+  // The upcoming week's byes, and who is starting a player on one right now.
+  byes?: ByeTeam[];
+  byeWatch?: ByeWatch;
 };
 
 const money = (n: number | null | undefined) =>
@@ -553,6 +557,18 @@ export default function Gazette() {
   }
 
   const isLatest = g.week === data.lastCompleted;
+  const byes = data.byes ?? [];
+  const byeWatch = data.byeWatch ?? [];
+  // Live lineups, so this changes as people fix them before kickoff.
+  const byeCloser = pick(
+    [
+      "Last week an empty slot got someone chopped. Just saying.",
+      "There is still time. There was still time last week, too.",
+      "In a league where the lowest score dies, a bye week is a trap door.",
+      "Fix it now, or the Gazette writes your obituary next Wednesday.",
+    ],
+    byeWatch.length + (data.currentWeek ?? 0),
+  );
   const nextWeek = data.currentWeek;
   const tnf = data.tnf;
   // When TNF actually is, relative to the reader's own clock: "tonight" printed
@@ -666,6 +682,32 @@ export default function Gazette() {
             <p className="mx-auto mt-1 max-w-xl text-[11px] italic leading-snug text-[#14110d]/60">
               {kickoff.miss}
             </p>
+            {byes.length > 0 && (
+              <div className="mx-auto mt-2.5 max-w-xl border-t border-dashed border-[#14110d]/40 pt-2">
+                <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
+                  Bye Week · {byes.map((b) => b.name).join(" & ")}
+                </p>
+                {byeWatch.length > 0 ? (
+                  <>
+                    <p className="mt-1 text-[12px] leading-snug">
+                      Currently starting a player who is not playing:{" "}
+                      {byeWatch.map((w, i) => (
+                        <span key={w.team}>
+                          {i > 0 && "; "}
+                          <b>{w.team}</b> ({w.starting.map((p) => p.name).join(", ")})
+                        </span>
+                      ))}
+                      .
+                    </p>
+                    <p className="mt-0.5 text-[11px] italic text-[#14110d]/60">{byeCloser}</p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-[12px] italic leading-snug">
+                    Nobody is starting a player on bye. Yet.
+                  </p>
+                )}
+              </div>
+            )}
           </section>
         )}
 

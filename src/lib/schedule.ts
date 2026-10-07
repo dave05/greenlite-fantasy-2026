@@ -71,3 +71,38 @@ export async function getThursdayGame(
     return null;
   }
 }
+
+// ESPN and Sleeper disagree on a couple of team codes; the site speaks Sleeper.
+const ESPN_TO_SLEEPER: Record<string, string> = { WSH: "WAS" };
+
+export type ByeTeam = { abbr: string; name: string };
+const byeCache = new Map<string, { at: number; teams: ByeTeam[] }>();
+
+// The NFL teams on bye in a given week, from the same ESPN scoreboard. A bye
+// in a league where the lowest score is eliminated is a trap worth printing.
+export async function getByeTeams(week: number, seasonType = 2): Promise<ByeTeam[]> {
+  const key = `${seasonType}-${week}`;
+  const now = Date.now();
+  const hit = byeCache.get(key);
+  if (hit && now - hit.at < TTL_MS) return hit.teams;
+  try {
+    const res = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=${seasonType}&week=${week}`,
+      { cache: "no-store", signal: AbortSignal.timeout(6000) },
+    );
+    if (!res.ok) return [];
+    const data = (await res.json()) as {
+      week?: { teamsOnBye?: { abbreviation?: string; displayName?: string }[] };
+    };
+    const teams = (data.week?.teamsOnBye ?? [])
+      .filter((t) => t.abbreviation)
+      .map((t) => ({
+        abbr: ESPN_TO_SLEEPER[t.abbreviation!] ?? t.abbreviation!,
+        name: t.displayName ?? t.abbreviation!,
+      }));
+    byeCache.set(key, { at: now, teams });
+    return teams;
+  } catch {
+    return [];
+  }
+}

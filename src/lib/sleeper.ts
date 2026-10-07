@@ -1043,6 +1043,41 @@ export type Gazette = {
   plainNames: string[];
 };
 
+// Who is STARTING a player whose NFL team is on bye this week, from each
+// roster's current lineup. Lineups change until kickoff, so this is computed
+// live on every request rather than written into the paper. Chopped rosters
+// are emptied by Sleeper, so they drop out on their own.
+export type ByeWatch = {
+  team: string;
+  starting: { name: string; position: string; nfl: string }[];
+}[];
+
+export async function getByeWatch(
+  leagueId: string,
+  week: number,
+  byeTeams: string[],
+  year = "2026",
+): Promise<ByeWatch> {
+  if (!byeTeams.length) return [];
+  const [users, rosters, proj] = await Promise.all([
+    getLeagueUsers(leagueId),
+    getRosters(leagueId),
+    getWeeklyProjMap(year, week),
+  ]);
+  const bye = new Set(byeTeams);
+  const userById = new Map((users ?? []).map((u) => [u.user_id, u]));
+  const out: ByeWatch = [];
+  for (const r of rosters ?? []) {
+    if (!r.owner_id || !r.players?.length) continue;
+    const starting = (r.starters ?? [])
+      .map((id) => proj.get(id))
+      .filter((p): p is ProjPlayer => !!p && bye.has(p.team))
+      .map((p) => ({ name: p.name, position: p.position, nfl: p.team }));
+    if (starting.length) out.push({ team: teamName(r, userById), starting });
+  }
+  return out.sort((a, b) => b.starting.length - a.starting.length);
+}
+
 type RawTxn = {
   type?: string;
   status?: string;
