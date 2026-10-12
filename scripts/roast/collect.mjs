@@ -161,8 +161,11 @@ async function main() {
 
   // Worst value: paid real money, got nothing. Only judge bids with a pulse,
   // otherwise a $1 pickup that blanked wins "worst" every week.
+  // ...and STARTED. A benched pickup is a stash, not a flop: an injured A.J.
+  // Brown parked on the bench was a smart buy, and the commissioner has ruled
+  // it must never be roasted as one. Same rule as the site's Gazette tab.
   const flop = [...won]
-    .filter((b) => b.bid >= 20 && b.points != null)
+    .filter((b) => b.bid >= 20 && b.points != null && b.started === true)
     .sort((a, b) => a.points / a.bid - b.points / b.bid)[0] ?? null;
 
   // Paid real money, then started someone else. The purest form of self-harm.

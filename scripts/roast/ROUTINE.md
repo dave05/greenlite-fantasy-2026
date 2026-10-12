@@ -36,8 +36,9 @@ Export `CHROME` to that path. Only if nothing is there, install with
 
 No arguments = the last COMPLETED NFL week; note N. Then read, in this order:
 the briefing (storylines first), `members.json` for everyone in the news, the
-last two `issues/week-*.json` and `archive/week-*-email.txt`, and the running
-storylines in EDITORIAL.md section 6.
+last two `issues/week-*.json` and `archive/week-*-email.txt`, `LEAGUE_INTEL.md`
+(real names, fandoms, chat lore), and the running storylines in EDITORIAL.md
+section 6.
 
 ## Step 3 - research (EDITORIAL.md section 4)
 
@@ -72,6 +73,9 @@ section 5:
   `target`, a short `premise` and the exact `text`. Section "Obituary" goes on
   the chopped team's memorial.
 - `comic` - four panels: setup, setup, turn, payoff.
+- `photo` - if a storyline carries a photo (or the commissioner sent one, in
+  `league-memory/issues/img/`), run it as the Photo of the Week:
+  `{"src": "<file name>", "caption": "<joke>", "credit": "<source>"}`.
 
 Then:
 

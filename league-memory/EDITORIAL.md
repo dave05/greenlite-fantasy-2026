@@ -14,6 +14,8 @@ commissioner has taught the desk so far; read all of it before writing.
 | `issues/week-*.json` | every published edition as the site shows it |
 | `archive/week-*-email.txt` | every edition as it was actually sent, incl. corrected mistakes |
 | `jokes.jsonl` | the full joke log; `memory.mjs check` enforces it |
+| `/LEAGUE_INTEL.md` (repo root) | the commissioner's raw intel log from the site-building sessions: real names, NFL fandoms, chat lore ("Maye = the Schedule"). Keep it and `members.json` in sync - append new intel to both |
+| `issues/img/` | photos the commissioner sends for the Photo of the Week |
 
 Continue stories, don't restart them: "second benching in three weeks" beats a
 fresh benching joke. Callbacks to a past issue are encouraged; reruns are not.
@@ -83,6 +85,13 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 - **Good news is not injury news.** "Received good news on ankle" is not a
   crutches joke. Read the whole headline.
 - **Don't say someone "paid for" a player** unless they won a claim on him.
+- **A benched pickup is not a flop.** A flop is paid for AND started. An injured
+  stud stashed on the bench (maruniak's A.J. Brown, wk3) was a smart buy - the
+  commissioner ruled it must never be roasted.
+- **Check the brother.** The wk5 photo is TREVON Diggs (Seahawks CB), not Stefon
+  (Commanders WR). Same surname, different player - confirm which one.
+- **Recount season stats every time.** Week 4 said Nix had 4 INTs; it was 3.
+  Sum the weekly Sleeper stats, don't carry a number forward from memory.
 - **Totals count one run.** Don't add the fresh run into "FAAB paid".
 - **"Would X have survived?"** Do the lineup math with the real bench and slot
   rules (QB, RB, RB, WR, WR, TE, FLEX, FLEX; FLEX = RB/WR/TE). Week 4: the new
@@ -127,6 +136,7 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 | `jokes[]` with `section` | the site's Editor's Desk, grouped by section | 15-20 lines that all land, 5-6 sections |
 | `jokes[]` section "Obituary" | the site's memorial for the chopped team | the death, with the real lineup math |
 | `comic` (4 panels) | the site's Peanut Gallery strip | setup, setup, turn, payoff |
+| `photo` `{src, caption, credit}` | the site's Photo of the Week, above the Editor's Desk | `src` is a file name in `issues/img/`; the caption is a joke (logged like any other) |
 | bye watch | site P.S. at the bottom (live, automatic) | nothing to write |
 
 Publishing: the site reads `issues/week-N.json` from GitHub within about a
@@ -136,8 +146,11 @@ minute of the push, with no redeploy. The commissioner said email is not needed.
 
 - **The collusion rumor**: the commish survived wk4 by 3.6 because Sergio never set
   a lineup, then bought Sergio's Kittle and Pickens. Keep it a rumor.
-- **Maye vs Nix**: maruniak rosters Maye, BDALOHA rosters Nix. Update the season
-  totals every week.
+- **Maye vs Nix is Sam vs Ben**: Sam (Sdobens4, Patriots) is a huge Maye
+  defender; Ben (BDALOHA, Saints) hates Maye and trolls Sam ("Maye = the
+  Schedule"). After wk5 Maye leads the season 94.22 to 68.18 (39.46 vs 7.92 that
+  week: Maye hung 45 on a 3-1 Raiders team, Nix struggled past the 0-5 Chargers).
+  Update the totals every week.
 - **BDALOHA's bench**: Pollard (wk3), Thornton 28.1 (wk4). The bench is a scheme.
 - **maruniak's dollar**: lost Waddle by $1, won Swift by $1.
 - **The Mattress Fund**: hoarders, especially with mediocre teams (matthewmongelli

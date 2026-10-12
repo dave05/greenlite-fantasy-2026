@@ -1,5 +1,6 @@
 SENT 2026-10-07 ~10:00 UTC - "The Guillotine Gazette - Week 4" (sent by hand from the
 cloud session; the commissioner said email is no longer needed after this one).
+CORRECTION: the email said Nix had 4 interceptions; he had 3 through week 4 (Maye 7). The site was fixed.
 The website's Week 4 edition (issues/week-4.json) was later rewritten shorter and punchier;
 both versions are logged in jokes.jsonl.
 

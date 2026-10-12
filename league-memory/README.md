@@ -82,7 +82,8 @@ git add league-memory gazettes && git commit -m "gazette: week N"
     { "who": "b", "mood": "react", "text": "panel 2" },
     { "who": "a", "mood": "yell", "text": "panel 3" },
     { "who": "b", "mood": "smug", "text": "panel 4" }
-  ]
+  ],
+  "photo": { "src": "week-5-who-are-you.jpg", "caption": "the joke under the photo", "credit": "via FOX broadcast" }
 }
 ```
 

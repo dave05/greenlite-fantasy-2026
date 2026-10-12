@@ -734,6 +734,29 @@ export default function Gazette() {
           </div>
         )}
 
+        {data.issue?.photo && (
+          <figure className="my-4">
+            <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
+              Photo of the Week
+            </p>
+            {/* eslint-disable-next-line @next/next/no-img-element -- remote, per-issue image */}
+            <img
+              src={data.issue.photo.src}
+              alt={data.issue.photo.caption}
+              className="mt-1.5 w-full border-2 border-[#14110d] grayscale-[0.15]"
+              loading="lazy"
+            />
+            <figcaption className="mt-1.5 font-serif text-[14px] italic leading-snug">
+              {data.issue.photo.caption}
+              {data.issue.photo.credit && (
+                <span className="ml-1 not-italic text-[9px] uppercase tracking-[0.12em] text-[#14110d]/50">
+                  {data.issue.photo.credit}
+                </span>
+              )}
+            </figcaption>
+          </figure>
+        )}
+
         {desk.length > 0 && (
           <section className="my-4 border-y-2 border-[#14110d] py-3">
             <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">

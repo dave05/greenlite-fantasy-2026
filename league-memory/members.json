@@ -12,7 +12,8 @@
     "tendencies": [
       "spends real FAAB: $653 used by week 4",
       "wk4: $48 on Dallas Goedert, 0.0 on the bench (the Flop)",
-      "wk4 waivers: bid on four of Sergio's starters the night Sergio was chopped; won Kittle ($222, $104 over the next bid) and Pickens ($96); lost Harvey by $1"
+      "wk4 waivers: bid on four of Sergio's starters the night Sergio was chopped; won Kittle ($222, $104 over the next bid) and Pickens ($96); lost Harvey by $1",
+      "buy-high-drop-low: paid ~$50 for a Titans player, dropped him the next week"
     ],
     "running_gags": [
       "the collusion/tampering rumor: survived wk4 by 3.6 only because Sergio never set his lineup, then bought Sergio's TE and WR. Keep it a rumor - 'sources', 'the league office investigated itself'",
@@ -24,12 +25,12 @@
   },
   "860959579746484224": {
     "display_name": "matthewmongelli",
-    "real_name": "",
+    "real_name": "Matt",
     "nicknames": [],
     "teams": [
       "matthewmongelli"
     ],
-    "nfl_team": "",
+    "nfl_team": "Giants (tentative - confirm)",
     "tendencies": [
       "sat on the full $1,000 through week 3; first spend was $70 on RJ Harvey (wk4 run), leaving $930",
       "finished 10th of 13 in wk4 - a so-so team with a full wallet"
@@ -43,17 +44,21 @@
   },
   "1396537478361387008": {
     "display_name": "Sdobens4",
-    "real_name": "",
+    "real_name": "Sam (Sam Dobbens)",
     "nicknames": [],
     "teams": [
       "Sdobens4"
     ],
-    "nfl_team": "",
+    "nfl_team": "Patriots",
     "tendencies": [
       "wk3: $485 on Ja'Marr Chase (24.8 pts) - the biggest winning bid that week",
-      "wk3: lost A.J. Brown with a $42 bid to maruniak's $52 (unpaid)"
+      "wk3: lost A.J. Brown with a $42 bid to maruniak's $52 (unpaid)",
+      "huge Drake Maye defender; contender-level team"
     ],
-    "running_gags": [],
+    "running_gags": [
+      "Drake Maye = 'the Schedule' (Ben's troll: great last year on an easy schedule, chucking picks now)",
+      "Maye vs Nix is Sam vs Ben: Sam defends Maye, Ben hates Maye and trolls Sam for it"
+    ],
     "off_limits": [],
     "notes": "",
     "status": "alive"
@@ -78,12 +83,12 @@
   },
   "1396677940267216896": {
     "display_name": "PumpUpTheJam32",
-    "real_name": "",
+    "real_name": "Peter",
     "nicknames": [],
     "teams": [
       "PumpUpTheJam32"
     ],
-    "nfl_team": "",
+    "nfl_team": "Eagles",
     "tendencies": [
       "wk2: $2 for Kendrick Bourne (3.1) - a steal",
       "wk4: $135 on Omarion Hampton when the next bid was $21 ($114 clear) for 13.3 pts",
@@ -135,14 +140,15 @@
   },
   "728447224970866688": {
     "display_name": "elifelber",
-    "real_name": "",
+    "real_name": "Eli",
     "nicknames": [],
     "teams": [
       "elifelber"
     ],
-    "nfl_team": "",
+    "nfl_team": "Giants",
     "tendencies": [
-      "chopped week 2 at 65.7 with $1,000 of FAAB unspent"
+      "chopped week 2 at 65.7 with $1,000 of FAAB unspent",
+      "rostered Jaxson Dart, who tore his knee on the Giants' opening drive - lost his fantasy QB and his franchise QB on the same snap"
     ],
     "running_gags": [],
     "off_limits": [],
@@ -151,15 +157,16 @@
   },
   "558675356280602624": {
     "display_name": "KRogo5",
-    "real_name": "",
+    "real_name": "Kevin ('Rogo')",
     "nicknames": [],
     "teams": [
       "KRogo5"
     ],
-    "nfl_team": "",
+    "nfl_team": "Vikings",
     "tendencies": [
       "wk2: offered $5 for Brock Purdy, who went for $25 and scored 28.48",
-      "chopped week 3 at 50.98, the lowest score of the season so far, with $1,000 unspent"
+      "chopped week 3 at 50.98, the lowest score of the season so far, with $1,000 unspent",
+      "chopped wk3 when Jaylen Waddle underproduced on SNF - his chop saved Jack"
     ],
     "running_gags": [],
     "off_limits": [],
@@ -168,12 +175,12 @@
   },
   "1397960075913486336": {
     "display_name": "kylereckert",
-    "real_name": "",
+    "real_name": "Kyle",
     "nicknames": [],
     "teams": [
       "kylereckert"
     ],
-    "nfl_team": "",
+    "nfl_team": "Vikings",
     "tendencies": [
       "quiet so far: no awards through week 4; $101 spent; 4th in wk4 (127.3)"
     ],
@@ -203,7 +210,7 @@
   },
   "1398840738464215040": {
     "display_name": "jackmccarthy25",
-    "real_name": "",
+    "real_name": "Jack",
     "nicknames": [],
     "teams": [
       "jackmccarthy25"
@@ -211,7 +218,8 @@
     "nfl_team": "",
     "tendencies": [
       "hoarder who is winning: 2nd in wk4 (142.22) with $941 untouched",
-      "wk4 run: paid $59 for Jalen Coker - the 0.0 that got Sergio chopped - and Coker (CAR) is on bye in wk5"
+      "wk4 run: paid $59 for Jalen Coker - the 0.0 that got Sergio chopped - and Coker (CAR) is on bye in wk5",
+      "wk3: benched Sam Darnold's 29.66 and only survived because Rogo was chopped instead"
     ],
     "running_gags": [
       "bought the murder weapon at the estate sale (Coker); 'either iron discipline or he thinks FAAB is a gift card'"
@@ -222,7 +230,7 @@
   },
   "1260968498360758272": {
     "display_name": "jadaniels21",
-    "real_name": "",
+    "real_name": "Jalijah",
     "nicknames": [],
     "teams": [
       "Always Safe"
@@ -230,9 +238,13 @@
     "nfl_team": "",
     "tendencies": [
       "wk2: won Mike Evans for $125 then benched him (8.4)",
-      "wk4 run: lost D'Andre Swift by $1 ($125 vs maruniak's $126)"
+      "wk4 run: lost D'Andre Swift by $1 ($125 vs maruniak's $126)",
+      "starts injured players (started Puka Nacua while OUT) and still wins",
+      "rosters Mike Evans (SF) and now starts him - the same Evans he benched after paying $125 in wk2"
     ],
-    "running_gags": [],
+    "running_gags": [
+      "Mike Evans 'Who are you?' (wk5) - Evans spun Trevon Diggs around to read his jersey; Jalijah benched Evans in wk2 like he didn't know who he was"
+    ],
     "off_limits": [],
     "notes": "Sleeper handle jadaniels21; team name 'Always Safe'.",
     "status": "alive"
@@ -246,15 +258,14 @@
     ],
     "nfl_team": "",
     "tendencies": [
-      "rosters Drake Maye - the league's Maye camp",
       "lives on $1 margins: lost Waddle by $1 (wk3 run), won Swift by $1 (wk4 run)",
-      "wk3: $52 on A.J. Brown, 0.0 pts (the Flop)",
       "wk4 run: put claims on six of Sergio's players, won one (Swift)",
-      "wk5: had Travis Kelce (KC) and Chuba Hubbard (CAR), both on bye, in the starting lineup as of Wednesday"
+      "wk5: had Travis Kelce (KC) and Chuba Hubbard (CAR), both on bye, in the starting lineup as of Wednesday",
+      "rosters Drake Maye (as a player - the Maye argument is Sam vs Ben)",
+      "wk3: $52 on an injured A.J. Brown and stashed him on the bench - a SMART stash, not a flop; never roast it"
     ],
     "running_gags": [
-      "Ball don't lie: the dollar always comes back",
-      "Maye vs Nix: his QB vs BDALOHA's"
+      "Ball don't lie: the dollar always comes back"
     ],
     "off_limits": [],
     "notes": "",
@@ -282,21 +293,22 @@
   },
   "1259206671360610305": {
     "display_name": "BDALOHA",
-    "real_name": "",
+    "real_name": "Ben ('Bain')",
     "nicknames": [],
     "teams": [
       "BDALOHA"
     ],
-    "nfl_team": "",
+    "nfl_team": "Saints",
     "tendencies": [
       "serial bencher: wk3 benched a $299 Tony Pollard (13.6); wk4 left Tyquan Thornton's 28.1 on the bench, the league's highest bench score",
       "wk3: $299 on Pollard when the next bid was $5 ($294 clear)",
-      "rosters Bo Nix - the league's Nix camp",
-      "wk5: had Kenneth Walker (KC, on bye) in the starting lineup as of Wednesday; Thornton (KC) is on bye too"
+      "wk5: had Kenneth Walker (KC, on bye) in the starting lineup as of Wednesday; Thornton (KC) is on bye too",
+      "hates Drake Maye and trolls Sam about him; rosters Bo Nix"
     ],
     "running_gags": [
       "the bench is not a bench, it's a second team / a scheme",
-      "Maye vs Nix: his QB vs maruniak's"
+      "Maye vs Nix is Sam vs Ben - Ben is the Maye hater",
+      "treats FAAB like the Saints treat the salary cap"
     ],
     "off_limits": [],
     "notes": "",

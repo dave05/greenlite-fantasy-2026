@@ -28,9 +28,9 @@
   },
   {
     "from_week": 4,
-    "topic": "The great Drake Maye vs Bo Nix debate: the league is split into Nix Believers and Maye Defenders.",
-    "angle": "Cover it like a bitter political race or a holy war - polling, campaign ads, defectors. The Gazette pretends to be neutral and obviously is not. Maye is on maruniak's team, Nix is on BDALOHA's, so each side has a candidate in the league.",
-    "notes": "Runs all season: refresh the numbers each week from Sleeper (https://api.sleeper.app/v1/stats/nfl/regular/<season>/<week>, field pts_ppr; Nix id 11563, Maye id 11564). Week 4, verified: Maye 27.16 (269 pass yds, 3 TD, 1 INT, 54 rush yds) vs Nix 13.56 (214 yds, 1 TD). Season through week 4: Nix 60.26, Maye 54.76; interceptions Maye 7, Nix 4. So Maye finally showed up, but Nix still leads on the season."
+    "topic": "The great Drake Maye vs Bo Nix debate is SAM vs BEN: Sam (Sdobens4, Patriots fan) is a huge Maye defender; Ben (BDALOHA, Saints fan) hates Maye and trolls Sam about him ('Maye = the Schedule').",
+    "angle": "Cover it like a holy war between two named men. Ben's line is that Maye only feasts on easy schedules. The Gazette pretends to be neutral and is not. Note: maruniak rosters Maye and BDALOHA rosters Nix, but the argument is Sam vs Ben.",
+    "notes": "Runs all season: refresh numbers each week (Sleeper /stats/nfl/regular/<season>/<week>, pts_ppr; Maye 11564, Nix 11563). Week 4: Maye 27.16 vs Nix 13.56. WEEK 5 (verified): Maye 39.46 (374 pass yds, 4 TD, 0 INT, 25 rush) in a 45-17 win over the Raiders, who came in 3-1; Nix 7.92 (123 yds, 1 TD) in a 23-17 win over the 0-5 Chargers. Season through wk5: Maye 94.22, Nix 68.18 - Maye now leads. INTs: Maye 7, Nix 3. So 'the Schedule' just hung 45 on a 3-1 team while Nix needed the 0-5 Chargers to look ordinary: Sam's week, Ben's troll backfired."
   },
   {
     "from_week": 5,
@@ -38,5 +38,12 @@
     "topic": "Bye week: the Kansas City Chiefs and Carolina Panthers are off in Week 5.",
     "angle": "In a league where the lowest score is eliminated, starting a player on bye is how you die. Name anyone who did it (check each roster's week-5 starters against KC/CAR) and what it cost them; if the chopped team started a bye player, that is the headline. If everyone cleaned it up, say the league learned from Sergio.",
     "notes": "As of Wednesday Oct 7, Sleeper showed these lineups starting bye players: maruniak (Travis Kelce, Chuba Hubbard), kaelanzm (Tetairoa McMillan), BDALOHA (Kenneth Walker). Lineups could still change - verify against the final week-5 starters before writing. Also: jackmccarthy25's $59 Jalen Coker (the 'murder weapon' from the estate sale) plays for Carolina and is on bye; BDALOHA's Week 4 bench star Tyquan Thornton is on KC and on bye too. The live site's Kickoff Bulletin shows this list in real time."
+  },
+  {
+    "from_week": 5,
+    "until_week": 5,
+    "topic": "Photo of the Week: Mike Evans (49ers) grabbed Seahawks CB Trevon Diggs and spun him around to read the name on his jersey. Evans: 'Who are you? I looked to make sure.'",
+    "angle": "Run it as the Photo of the Week: copy.json 'photo': {\"src\": \"week-5-who-are-you.jpg\", \"caption\": \"...\", \"credit\": \"via FOX broadcast\"} (image already in league-memory/issues/img/). Best tie-in: Mike Evans is on Jalijah's (Always Safe) roster - the same Evans Jalijah paid $125 for in wk2 and then benched like he didn't know who he was. Alternate: the whole league reading 'kylereckert' in the standings (Kyle, nobody has roasted him yet).",
+    "notes": "It is TREVON Diggs (Seahawks CB, Stefon's younger brother) in the photo, NOT Stefon - do not mix them up. 49ers won (still undefeated). Stefon Diggs (WAS, hamstring, out wk5) sits on Peter's (PumpUpTheJam32) bench - optional brother bit. Sources: CBS Sports / Yahoo Sports, Oct 11 2026."
   }
 ]

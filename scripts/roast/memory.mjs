@@ -265,7 +265,11 @@ function candidates(d, copy) {
     text: c.text,
     source: "site",
   }));
-  return [...printed, ...extra, ...comic];
+  // So is the photo caption.
+  const photo = copy?.photo?.caption
+    ? [{ slot: "photo", target: null, premise: null, text: copy.photo.caption, source: "site" }]
+    : [];
+  return [...printed, ...extra, ...comic, ...photo];
 }
 
 function check(d, copy) {

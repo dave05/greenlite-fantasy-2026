@@ -19,6 +19,9 @@ export type Issue = {
   };
   jokes: IssueJoke[];
   comic?: ComicLine[];
+  // Photo of the week: an image committed next to the issue (issues/img/),
+  // with the paper's caption under it.
+  photo?: { src: string; caption: string; credit?: string };
 };
 
 const BASE =
@@ -55,7 +58,19 @@ function clean(raw: unknown, week: number): Issue | null {
     },
     jokes,
     comic: comic.length === 4 ? comic : undefined,
+    photo: cleanPhoto(r.photo),
   };
+}
+
+// Only a bare file name from issues/img/ is accepted, so a hand-edited issue
+// can't point the page at an arbitrary URL.
+function cleanPhoto(raw: unknown): Issue["photo"] {
+  if (!raw || typeof raw !== "object") return undefined;
+  const p = raw as Record<string, unknown>;
+  const file = str(p.src);
+  const caption = str(p.caption);
+  if (!file || !caption || !/^[\w.-]+\.(jpe?g|png|webp)$/i.test(file)) return undefined;
+  return { src: `${BASE}/img/${file}`, caption, credit: str(p.credit) };
 }
 
 // A minute of caching here, and a per-minute cache-buster on the URL, so an
