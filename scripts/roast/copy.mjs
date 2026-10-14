@@ -98,7 +98,10 @@ export function resolveCopy(d, override) {
   const o = override ?? {};
   const week = d.week;
   const h = defaultHeadline(d);
-  const headline = o.headline
+  // headline: false = the editor ran the issue without a lead.
+  const headline = o.headline === false
+    ? null
+    : o.headline
     ? { kicker: o.headline.kicker ?? h.kicker, head: o.headline.head ?? h.head, sub: o.headline.sub ?? h.sub, target: o.headline.target ?? h.target }
     : h;
   const line = (slot) => o.jabs?.[slot] ?? pick(JABS[slot], week);
@@ -119,9 +122,9 @@ export function resolveCopy(d, override) {
 // whose card is not on the paper (no award that week) are left out.
 export function printedJokes(d, copy) {
   const a = d.awards ?? {};
-  const rows = [
-    { slot: "headline", target: copy.headline.target ?? null, text: `${copy.headline.head} — ${copy.headline.sub}` },
-  ];
+  const rows = copy.headline
+    ? [{ slot: "headline", target: copy.headline.target ?? null, text: `${copy.headline.head} — ${copy.headline.sub}` }]
+    : [];
   for (const slot of ["flop", "benched", "lowball", "steal"]) {
     if (a[slot]) rows.push({ slot, target: targetOf(d, slot), text: copy.jabs[slot] });
   }

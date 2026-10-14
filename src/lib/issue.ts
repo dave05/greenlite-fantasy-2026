@@ -14,7 +14,8 @@ export type IssueJoke = { section?: string; target?: string | null; premise?: st
 export type Issue = {
   week: number;
   paper?: {
-    headline?: { kicker?: string; head?: string; sub?: string };
+    // false = this issue runs without a lead headline.
+    headline?: { kicker?: string; head?: string; sub?: string } | false;
     obituary?: string;
   };
   jokes: IssueJoke[];
@@ -53,7 +54,7 @@ function clean(raw: unknown, week: number): Issue | null {
   return {
     week,
     paper: {
-      headline: str(h.head) ? { kicker: str(h.kicker), head: str(h.head), sub: str(h.sub) } : undefined,
+      headline: paper.headline === false ? false : str(h.head) ? { kicker: str(h.kicker), head: str(h.head), sub: str(h.sub) } : undefined,
       obituary: str(paper.obituary),
     },
     jokes,

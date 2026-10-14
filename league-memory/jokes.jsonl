@@ -78,7 +78,6 @@
 {"week":4,"slot":"comic","target":null,"source":"site","text":"None. The commissioner survived by 3.6."}
 {"week":4,"slot":"comic","target":null,"source":"site","text":"Then bought Sergio's tight end for $222. Normal league."}
 {"week":4,"slot":"email","target":"1398840738464215040","premise":"bought the murder weapon","source":"email","text":"jackmccarthy25 paid $59 for Jalen Coker, the 0.0 that ended the previous owner. Bold to buy the murder weapon at the estate sale."}
-{"week":5,"slot":"headline","target":"1396537478361387008","source":"paper","text":"WHO ARE YOU? — Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, and maruniak collected the points."}
 {"week":5,"slot":"flop","target":"860959579746484224","source":"paper","text":"It's called strategy. (It was not.)"}
 {"week":5,"slot":"lowball","target":"860959579746484224","source":"paper","text":"$39 for a man who went for $96 and scored 28. The mattress wins again."}
 {"week":5,"slot":"steal","target":"994362778142011392","source":"paper","text":"Ninety-six dollars, twenty-eight points. The commish finally bought something that works."}
@@ -104,6 +103,7 @@
 {"week":5,"slot":"email","target":null,"premise":"Sergio did not die in vain","source":"email","text":"Nobody started a player on bye. Sergio did not die in vain."}
 {"week":5,"slot":"email","target":null,"premise":"order restored in Ohio","source":"email","text":"The Browns lost 17-12 to the Jets. Order has been restored in Ohio."}
 {"week":5,"slot":"photo","target":null,"source":"site","text":"Sam, walking Ben through the Raiders' 3-1 record."}
+{"week":5,"slot":"headline","target":"1396537478361387008","source":"paper","text":"WHO ARE YOU? — Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, and maruniak collected the points."}
 {"week":5,"slot":"headline","target":"1396537478361387008","source":"paper","text":"WHO ARE YOU? — Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, his loudest hater benched his own Bo Nix, and maruniak collected the points."}
 {"week":5,"slot":"email","target":"1259206671360610305","premise":"Ben benched his own Nix","source":"email","text":"Ben, the league's loudest Maye hater, benched his own Bo Nix. Nix scored 7.92. Ben hates Maye so much he stopped believing in quarterbacks."}
 {"week":5,"slot":"photo","target":null,"source":"site","text":"Sam explains strength of schedule to Ben."}

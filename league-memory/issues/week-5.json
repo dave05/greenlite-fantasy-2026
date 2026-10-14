@@ -1,12 +1,7 @@
 {
   "week": 5,
   "paper": {
-    "headline": {
-      "kicker": "IDENTITY CRISIS",
-      "head": "WHO ARE YOU?",
-      "sub": "Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, and maruniak collected the points.",
-      "target": "1396537478361387008"
-    },
+    "headline": false,
     "jabs": {
       "flop": "It's called strategy. (It was not.)",
       "lowball": "$39 for a man who went for $96 and scored 28. The mattress wins again.",

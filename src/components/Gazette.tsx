@@ -511,7 +511,8 @@ export default function Gazette() {
   // Lead with the week's loudest overpay - biggest raw blowout or wildest
   // multiple, whichever the league will actually talk about (see leadCopy).
   const abs = a.mostAbsurd;
-  const written = data.issue?.paper?.headline;
+  const noLead = data.issue?.paper?.headline === false;
+  const written = data.issue?.paper?.headline || undefined;
   const lead = written?.head
     ? { kicker: written.kicker ?? `Week ${g.week}`, head: written.head, sub: written.sub ?? "" }
     : abs
@@ -678,6 +679,7 @@ export default function Gazette() {
           </section>
         )}
 
+        {!noLead && (
         <section className="px-1 pb-2 pt-4 text-center">
           <p className="font-display text-[10px] uppercase tracking-[0.3em] text-[#8c1c13]">
             {lead.kicker}
@@ -689,6 +691,7 @@ export default function Gazette() {
             {lead.sub}
           </p>
         </section>
+        )}
 
 
         {/* numbers strip */}

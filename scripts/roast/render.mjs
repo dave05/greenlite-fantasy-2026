@@ -334,11 +334,15 @@ ${fontLink}
   </header>
   <div class="rule"></div>
 
-  <section class="lead">
+  ${
+    h
+      ? `<section class="lead">
     <div class="kicker">${esc(h.kicker)}</div>
     <h2>${esc(h.head)}</h2>
     <p class="drop">${esc(h.sub)}</p>
-  </section>
+  </section>`
+      : ""
+  }
 
   <div class="strip">
     <div><div class="n">${money(t.spend)}</div><div class="k">FAAB Judged</div></div>
