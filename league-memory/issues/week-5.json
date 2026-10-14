@@ -10,7 +10,7 @@
     "jabs": {
       "flop": "It's called strategy. (It was not.)",
       "lowball": "$39 for a man who went for $96 and scored 28. The mattress wins again.",
-      "steal": "The one piece of the estate sale that actually paid off."
+      "steal": "Ninety-six dollars, twenty-eight points. The commish finally bought something that works."
     },
     "obituary": "Started a ghost, benched a touchdown. Survived by Kyle Pitts, who did his job."
   },
@@ -64,19 +64,19 @@
       "text": "Riley's own review: \"the bills scored 37 and Kincaid couldn't get 13 points \ud83d\udc80\". Accurate, Riley. You also started him."
     },
     {
-      "section": "The Estate Sale, Part 2",
+      "section": "Buyer's Remorse",
       "target": "994362778142011392",
-      "premise": "thank-you card had bad ROI",
-      "text": "The commish's $222 thank-you card for Kittle bought 7.4 points. Pickens, the $96 add-on, dropped 28. Even the alleged collusion has bad ROI."
+      "premise": "alleged collusion, bad ROI",
+      "text": "The commish's $222 Kittle bought 7.4 points. The $96 Pickens dropped 28. Even the alleged collusion has bad ROI."
     },
     {
-      "section": "The Estate Sale, Part 2",
+      "section": "Buyer's Remorse",
       "target": "1398840738464215040",
-      "premise": "cursed object took PTO",
-      "text": "Jack's $59 murder weapon, Jalen Coker, spent the week on bye. Even the cursed object took PTO."
+      "premise": "paid for a man's vacation",
+      "text": "Jack's $59 Jalen Coker spent the week on bye. Jack has officially paid for a man's vacation."
     },
     {
-      "section": "The Estate Sale, Part 2",
+      "section": "Buyer's Remorse",
       "target": "994362778142011392",
       "premise": "losing Harvey by $1 was his best move",
       "text": "The commish lost RJ Harvey to Matt by $1 last week. Harvey scored 0.7. Losing by a dollar is the best move the commish has made all year."
@@ -120,8 +120,8 @@
     {
       "section": "Elsewhere",
       "target": null,
-      "premise": "Browns lost to the Jets, Cleveland is home",
-      "text": "The Browns lost 17-12 to the Jets. Cleveland is no longer cautiously terrified. Cleveland is home."
+      "premise": "order restored in Ohio",
+      "text": "The Browns lost 17-12 to the Jets. Order has been restored in Ohio."
     }
   ],
   "photo": {

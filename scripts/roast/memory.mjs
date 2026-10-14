@@ -87,6 +87,38 @@ function similarity(a, b) {
   return both / (A.size + B.size - both);
 }
 
+// Signature phrases. A punchline can be recycled inside an otherwise new
+// sentence ("thank-you card", "murder weapon", "cursed object" all came back a
+// week later), which the whole-line test above misses. So any two adjacent
+// content words written in lowercase - not names, teams or numbers - that a
+// past joke already used count as a repeat. Plain football vocabulary is exempt.
+const PLAIN = new Set(
+  [
+    "next bid", "next highest", "highest bid", "losing bid", "winning bid", "bid unpaid",
+    "waiver run", "waiver wire", "fresh money", "top score", "bench points", "points bench",
+    "empty slot", "starting lineup", "group chat", "league office", "season total",
+  ].map((p) => p.replace(" ", "|")),
+);
+// Everyday football words carry no joke on their own.
+const COMMON = new Set(
+  "bench benched scored score points week weeks lives started start starting paid bid bids lineup player players team roster season game games last".split(" "),
+);
+const phrases = (s) => {
+  const toks = String(s ?? "").split(/[^A-Za-z0-9']+/).filter(Boolean);
+  const content = toks.filter((w) => /^[a-z]/.test(w) && w.length > 2 && !STOP.has(w) && !/\d/.test(w));
+  const out = new Set();
+  for (let i = 1; i < content.length; i++) {
+    const p = `${content[i - 1]}|${content[i]}`;
+    if (!PLAIN.has(p) && !COMMON.has(content[i - 1]) && !COMMON.has(content[i])) out.add(p);
+  }
+  return out;
+};
+const sharedPhrase = (a, b) => {
+  const B = phrases(b);
+  for (const p of phrases(a)) if (B.has(p)) return p.replace("|", " ");
+  return null;
+};
+
 // ── Rap sheet: the facts behind every award ─────────────────────────────────
 function offences(d) {
   const a = d.awards ?? {};
@@ -286,6 +318,11 @@ function check(d, copy) {
       const s = similarity(j.text, p.text);
       if (s >= SIMILAR) {
         problems.push(`[${j.slot}] "${j.text}"\n    repeats wk ${p.week} [${p.slot}] "${p.text}" (${Math.round(s * 100)}% same)`);
+        break;
+      }
+      const phrase = sharedPhrase(j.text, p.text);
+      if (phrase) {
+        problems.push(`[${j.slot}] reuses "${phrase}" from wk ${p.week}: "${p.text}"`);
         break;
       }
       if (j.premise && p.premise && j.target && j.target === p.target && norm(j.premise) === norm(p.premise)) {

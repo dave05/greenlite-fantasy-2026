@@ -78,6 +78,11 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 - Lines that assert something false about a person ("you did not participate"
   at a manager who won a claim that same night).
 - Canned lines repeated week after week ("No appeal. No mercy." ran twice).
+- **Recycled punchlines.** Week 5 reused Week 4's "thank-you card", "murder
+  weapon", "cursed object", "estate sale" and "cautiously terrified" inside new
+  sentences. The commissioner: "please don't repeat jokes." A callback names the
+  EVENT ("the $222 Kittle"), never reuses the old PHRASE. `memory.mjs check` now
+  rejects any distinctive two-word phrase a past joke used.
 - Over-correcting: a 14-line desk that cut the commissioner's own line and the
   best punchlines. Aim for 15-20 lines that all land.
 
