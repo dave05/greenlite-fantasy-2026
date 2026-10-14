@@ -63,9 +63,10 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
   strip ("keep that up").
   Make memes with ImageMagick (DejaVu Sans Bold, black bars top and bottom,
   yellow name tags); save to `issues/img/`.
-- Quoting the chat back at people: Matt's "its called strategy" under his 0.7.
+- Quoting the chat back at people: Matt's "its called strategy" under his 0.7
+  (from a screenshot the commissioner shared).
 - The twist that both sides of an argument are wrong (Sam doesn't roster Maye,
-  Ben benched his own Nix, Alex collected the points).
+  Ben benched his own Nix, maruniak collected the points).
 
 ### What flopped - never again
 - A headline that just summarizes ("JSN saved by 3.6 and picked up two players").
@@ -142,13 +143,11 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
    wildest moments" result described a 2022 game). Only state what a source
    says, and cite sources when reporting back to the commissioner.
    Best hooks are real news about a player someone in the league rosters.
-4. **The group chat** is on the company Slack (#fantasy-football-202), which is
-   OFF LIMITS to the routine - it runs on the commissioner's personal account.
-   The commissioner pastes the good lines into `chat/week-N.md` and
-   `storylines.json`; screenshots go in `issues/img/`. Quote league members word
-   for word - their own lines are the best material ("its called strategy",
-   "Drake Maye didn't throw an Interception", Riley's Kincaid eulogy). Lead with
-   them when they're good.
+4. **The group chat: Sleeper's league chat only.** Source material from the
+   Sleeper app, never from the company Slack. Sleeper's public API has no chat
+   endpoint, so the commissioner pastes or screenshots the good lines from the
+   Sleeper league chat into `chat/week-N.md` (screenshots in `issues/img/`).
+   Quote league members word for word - their own lines are the best material.
 
 ## 5. The edition, and where each piece goes
 
