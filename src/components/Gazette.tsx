@@ -701,6 +701,7 @@ export default function Gazette() {
           </p>
         </section>
 
+
         {/* numbers strip */}
         <div className="my-3 grid grid-cols-3 border-2 border-[#14110d] sm:grid-cols-5">
           {[
@@ -732,29 +733,6 @@ export default function Gazette() {
               Real headline: &ldquo;{g.newsHook.headline}&rdquo;
             </p>
           </div>
-        )}
-
-        {data.issue?.photo && (
-          <figure className="my-4">
-            <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
-              Photo of the Week
-            </p>
-            {/* eslint-disable-next-line @next/next/no-img-element -- remote, per-issue image */}
-            <img
-              src={data.issue.photo.src}
-              alt={data.issue.photo.caption}
-              className="mt-1.5 w-full border-2 border-[#14110d] grayscale-[0.15]"
-              loading="lazy"
-            />
-            <figcaption className="mt-1.5 font-serif text-[14px] italic leading-snug">
-              {data.issue.photo.caption}
-              {data.issue.photo.credit && (
-                <span className="ml-1 not-italic text-[9px] uppercase tracking-[0.12em] text-[#14110d]/50">
-                  {data.issue.photo.credit}
-                </span>
-              )}
-            </figcaption>
-          </figure>
         )}
 
         {desk.length > 0 && (
@@ -1013,7 +991,33 @@ export default function Gazette() {
           )}
         </div>
 
-        <ComicStrip lines={data.issue?.comic ?? comic} />
+        {/* The Peanut Gallery: the week's meme when the editor made one (it is
+            the better joke), otherwise the four-panel strip. */}
+        {data.issue?.photo ? (
+          <section className="mt-6">
+            <h4 className="font-display border-b-2 border-[#14110d] pb-1 text-[10px] uppercase tracking-[0.22em] text-[#14110d]">
+              The Peanut Gallery
+            </h4>
+            <figure className="mt-3">
+              {/* eslint-disable-next-line @next/next/no-img-element -- remote, per-issue image */}
+              <img
+                src={data.issue.photo.src}
+                alt={data.issue.photo.caption}
+                className="w-full border-2 border-[#14110d]"
+              />
+              <figcaption className="mt-1.5 text-center font-serif text-[14px] italic leading-snug">
+                {data.issue.photo.caption}
+                {data.issue.photo.credit && (
+                  <span className="block text-[9px] not-italic uppercase tracking-[0.12em] text-[#14110d]/50">
+                    {data.issue.photo.credit}
+                  </span>
+                )}
+              </figcaption>
+            </figure>
+          </section>
+        ) : (
+          <ComicStrip lines={data.issue?.comic ?? comic} />
+        )}
 
         {isLatest && byes.length > 0 && (
           <section className="mt-4 border-t-2 border-[#14110d] pt-2.5 text-[12px] leading-snug">

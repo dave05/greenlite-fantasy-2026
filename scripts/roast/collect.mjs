@@ -169,8 +169,10 @@ async function main() {
     .sort((a, b) => a.points / a.bid - b.points / b.bid)[0] ?? null;
 
   // Paid real money, then started someone else. The purest form of self-harm.
+  // He has to have actually scored: a player on bye or out who sat on the
+  // bench scored nothing to leave there (same rule as the site).
   const benched = [...won]
-    .filter((b) => b.bid >= 25 && b.started === false)
+    .filter((b) => b.bid >= 25 && b.started === false && b.points != null && b.points >= 8)
     .sort((a, b) => b.bid - a.bid)[0] ?? null;
 
   // Best value: the opposite, and the one person who gets praised.
@@ -235,7 +237,8 @@ async function main() {
   // Lowball: the cheapest failed bid on a player somebody else actually paid for.
   const lowball =
     [...lost]
-      .filter((b) => won.some((w) => w.playerId === b.playerId))
+      // Someone ELSE won him - losing to your own duplicate claim is not a lowball.
+      .filter((b) => won.some((w) => w.playerId === b.playerId && w.rosterId !== b.rosterId))
       .sort((a, b) => a.bid - b.bid)[0] ?? null;
 
   // ── Scores and the chop ────────────────────────────────────────────────────

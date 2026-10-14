@@ -51,6 +51,9 @@ section 6.
   slots) and transactions (late adds, timestamps). Do the "would they have
   survived" math with the real slot rules.
 - Byes: who started a player on bye (ESPN `week.teamsOnBye` vs starters).
+- The group chat: read Slack #fantasy-football-202 (C0BQKDLF4BC) since last
+  Wednesday with the Slack connector (EDITORIAL.md section 4). The routine needs
+  the Slack connector attached; if it isn't, say so and rely on storylines.json.
 - The weekend's NFL news and viral moments: web search in extended mode
   (queries in EDITORIAL.md). Verify the season of every result. Tie at least
   one bit to real news, ideally about a player someone in the league rosters.
@@ -73,9 +76,10 @@ section 5:
   `target`, a short `premise` and the exact `text`. Section "Obituary" goes on
   the chopped team's memorial.
 - `comic` - four panels: setup, setup, turn, payoff.
-- `photo` - if a storyline carries a photo (or the commissioner sent one, in
-  `league-memory/issues/img/`), run it as the Photo of the Week:
-  `{"src": "<file name>", "caption": "<joke>", "credit": "<source>"}`.
+- `photo` - if the commissioner sent a photo (storyline or `league-memory/issues/img/`),
+  turn it into a MEME about the league (EDITORIAL.md, "What landed (week 5)") and
+  run it as the Peanut Gallery: `{"src": "<file name>", "caption": "<joke>", "credit": "<source>"}`.
+  It replaces the comic strip that week; write a `comic` only when there's no meme.
 
 Then:
 

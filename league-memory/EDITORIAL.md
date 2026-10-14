@@ -54,6 +54,19 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 - Comic: "BREAKING: Sergio makes five moves Monday." / "Any of them make the lineup?" /
   "Sources say no." / "Sources also say the commish now owns his tight end."
 
+### What landed (week 5)
+- **A meme as front-page art**: the commissioner's Evans/Diggs photo, relabelled
+  SAM and BEN with meme text ("BEN: MAYE IS JUST THE SCHEDULE" / "SAM, AFTER
+  39.46: 'WHO ARE YOU?'"), run as the Peanut Gallery under the headline WHO ARE
+  YOU?. A plain "Photo of the Week" box was rejected as basic - turn every photo
+  into a joke about the league. When there is a good meme, it replaces the comic
+  strip ("keep that up").
+  Make memes with ImageMagick (DejaVu Sans Bold, black bars top and bottom,
+  yellow name tags); save to `issues/img/`.
+- Quoting the chat back at people: Matt's "its called strategy" under his 0.7.
+- The twist that both sides of an argument are wrong (Sam doesn't roster Maye,
+  Ben benched his own Nix, Alex collected the points).
+
 ### What flopped - never again
 - A headline that just summarizes ("JSN saved by 3.6 and picked up two players").
   The commissioner: "what's funny about it?" Headlines need a turn or a pun
@@ -124,7 +137,14 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
    wildest moments" result described a 2022 game). Only state what a source
    says, and cite sources when reporting back to the commissioner.
    Best hooks are real news about a player someone in the league rosters.
-4. **The group chat** (`storylines.json`): lead with it when it's good.
+4. **The group chat lives in Slack: #fantasy-football-202 (channel C0BQKDLF4BC).**
+   With the Slack connector, read the week's messages (`slack_read_channel`,
+   `oldest` = last Wednesday) and threads. Quote league members word for word -
+   their own lines are the best material ("its called strategy", "Drake Maye
+   didn't throw an Interception", Riley's Kincaid eulogy). Only use messages from
+   Guillotine managers; others in the channel (Carly, Maddy, Ava, ...) are in other
+   leagues. Never quote anything that isn't about fantasy football or the NFL.
+   The commissioner also relays material through `storylines.json` - lead with it.
 
 ## 5. The edition, and where each piece goes
 
@@ -135,8 +155,8 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 | `paper.obituary` | epitaph on the paper and site memorial | one line |
 | `jokes[]` with `section` | the site's Editor's Desk, grouped by section | 15-20 lines that all land, 5-6 sections |
 | `jokes[]` section "Obituary" | the site's memorial for the chopped team | the death, with the real lineup math |
-| `comic` (4 panels) | the site's Peanut Gallery strip | setup, setup, turn, payoff |
-| `photo` `{src, caption, credit}` | the site's Photo of the Week, above the Editor's Desk | `src` is a file name in `issues/img/`; the caption is a joke (logged like any other) |
+| `comic` (4 panels) | the site's Peanut Gallery strip, only when there is no meme | setup, setup, turn, payoff |
+| `photo` `{src, caption, credit}` | the Peanut Gallery (replaces the comic strip) | a MEME, not a plain photo - the commissioner prefers it to the strip; `src` is a file name in `issues/img/`; the caption is a joke (logged like any other) |
 | bye watch | site P.S. at the bottom (live, automatic) | nothing to write |
 
 Publishing: the site reads `issues/week-N.json` from GitHub within about a
@@ -156,4 +176,7 @@ minute of the push, with no redeploy. The commissioner said email is not needed.
 - **The Mattress Fund**: hoarders, especially with mediocre teams (matthewmongelli
   10th with $930; jackmccarthy25 2nd with $941).
 - **The cursed object**: Jalen Coker, the 0.0 that killed Sergio, now jackmccarthy25's.
-- **The Browns**: 3-1 in week 4. Track whether the impossible continues.
+- **The Browns**: 3-1 in week 4, then lost 17-12 to the Jets in week 5 ("Cleveland is home").
+- **"its called strategy"** (Matt): quote it whenever the Mattress Fund fails.
+- **Riley's ghost lineup** (wk5 chop): started a player listed OUT, benched Pitts.
+- **Peter, the chat's roaster**: his own Eagles lost the week he roasted Riley.

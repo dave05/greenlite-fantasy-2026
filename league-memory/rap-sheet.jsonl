@@ -30,3 +30,11 @@
 {"week":4,"kind":"heartbreak","ownerId":"741512280193261568","team":"maruniak","player":"Jaylen Waddle","bid":22,"winningBid":23,"winner":"Vladimir Tuten"}
 {"week":4,"kind":"top_score","ownerId":"1138704096498597888","team":"kaelanzm","points":159.56}
 {"week":4,"kind":"chopped","ownerId":"1399167043244204032","team":"sergioflores98","points":87.42}
+{"week":5,"kind":"big_spender","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"George Kittle","pos":"TE","bid":222,"points":7.4}
+{"week":5,"kind":"flop","ownerId":"860959579746484224","team":"matthewmongelli","player":"RJ Harvey","pos":"RB","bid":70,"points":0.7}
+{"week":5,"kind":"steal","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"George Pickens","pos":"WR","bid":96,"points":28}
+{"week":5,"kind":"lowball","ownerId":"860959579746484224","team":"matthewmongelli","player":"George Pickens","pos":"WR","bid":39,"points":null}
+{"week":5,"kind":"overkill","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"George Kittle","pos":"TE","bid":222,"points":7.4,"nextBid":118,"gap":104}
+{"week":5,"kind":"heartbreak","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"RJ Harvey","bid":69,"winningBid":70,"winner":"matthewmongelli"}
+{"week":5,"kind":"top_score","ownerId":"1260968498360758272","team":"Always Safe","points":159.76}
+{"week":5,"kind":"chopped","ownerId":"1134198407096147968","team":"riguy101","points":71.24}
