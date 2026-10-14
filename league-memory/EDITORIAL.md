@@ -142,14 +142,13 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
    wildest moments" result described a 2022 game). Only state what a source
    says, and cite sources when reporting back to the commissioner.
    Best hooks are real news about a player someone in the league rosters.
-4. **The group chat lives in Slack: #fantasy-football-202 (channel C0BQKDLF4BC).**
-   With the Slack connector, read the week's messages (`slack_read_channel`,
-   `oldest` = last Wednesday) and threads. Quote league members word for word -
-   their own lines are the best material ("its called strategy", "Drake Maye
-   didn't throw an Interception", Riley's Kincaid eulogy). Only use messages from
-   Guillotine managers; others in the channel (Carly, Maddy, Ava, ...) are in other
-   leagues. Never quote anything that isn't about fantasy football or the NFL.
-   The commissioner also relays material through `storylines.json` - lead with it.
+4. **The group chat** is on the company Slack (#fantasy-football-202), which is
+   OFF LIMITS to the routine - it runs on the commissioner's personal account.
+   The commissioner pastes the good lines into `chat/week-N.md` and
+   `storylines.json`; screenshots go in `issues/img/`. Quote league members word
+   for word - their own lines are the best material ("its called strategy",
+   "Drake Maye didn't throw an Interception", Riley's Kincaid eulogy). Lead with
+   them when they're good.
 
 ## 5. The edition, and where each piece goes
 

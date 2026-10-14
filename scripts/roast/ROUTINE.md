@@ -51,9 +51,9 @@ section 6.
   slots) and transactions (late adds, timestamps). Do the "would they have
   survived" math with the real slot rules.
 - Byes: who started a player on bye (ESPN `week.teamsOnBye` vs starters).
-- The group chat: read Slack #fantasy-football-202 (C0BQKDLF4BC) since last
-  Wednesday with the Slack connector (EDITORIAL.md section 4). The routine needs
-  the Slack connector attached; if it isn't, say so and rely on storylines.json.
+- The group chat: read `league-memory/chat/week-N.md` (the commissioner pastes
+  chat quotes there) and `storylines.json`. Do NOT try to read Slack - the chat
+  is on the company workspace and is off limits to this routine.
 - The weekend's NFL news and viral moments: web search in extended mode
   (queries in EDITORIAL.md). Verify the season of every result. Tie at least
   one bit to real news, ideally about a player someone in the league rosters.
