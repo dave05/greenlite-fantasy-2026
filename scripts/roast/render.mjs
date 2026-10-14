@@ -14,7 +14,24 @@ import { resolveCopy } from "./copy.mjs";
 // --copy=path/to/copy.json swaps in this week's freshly written jokes (see
 // league-memory/README.md). Without it the paper uses the canned lines.
 const COPY_PATH = (process.argv.find((a) => a.startsWith("--copy=")) ?? "").slice("--copy=".length);
-const copyOverride = COPY_PATH ? JSON.parse(readFileSync(COPY_PATH, "utf8")).paper ?? null : null;
+const copyFile = COPY_PATH ? JSON.parse(readFileSync(COPY_PATH, "utf8")) : null;
+const copyOverride = copyFile?.paper ?? null;
+
+// The week's meme (copy.photo), inlined so the PDF and screenshot need no
+// file next to the HTML. Same rule as the site: a bare file name from
+// league-memory/issues/img/, anything else is ignored.
+const IMG_DIR = new URL("../../league-memory/issues/img/", import.meta.url);
+const meme = (() => {
+  const p = copyFile?.photo;
+  if (!p?.src || !p?.caption || !/^[\w.-]+\.(jpe?g|png|webp)$/i.test(p.src)) return null;
+  try {
+    const ext = p.src.split(".").pop().toLowerCase().replace("jpg", "jpeg");
+    const data = readFileSync(new URL(p.src, IMG_DIR)).toString("base64");
+    return { uri: `data:image/${ext};base64,${data}`, caption: p.caption, credit: p.credit };
+  } catch {
+    return null;
+  }
+})();
 
 const read = async () => {
   const chunks = [];
@@ -120,6 +137,21 @@ function page(d) {
         copy.jabs.hoarder,
       ),
     );
+  }
+
+  // The week's meme fills the empty half of the card grid (or takes a row of
+  // its own when the cards already pair up).
+  if (meme) {
+    const halves = cards.filter((c) => !c.includes("card odd wide")).length;
+    const gallery = `
+    <article class="card gallery${halves % 2 ? "" : " wide"}">
+      <div class="tag">The Peanut Gallery</div>
+      <img src="${meme.uri}" alt="">
+      <div class="jab">${esc(meme.caption)}</div>
+      ${meme.credit ? `<div class="credit">${esc(meme.credit)}</div>` : ""}
+    </article>`;
+    const firstWide = cards.findIndex((c) => c.includes("card odd wide"));
+    cards.splice(firstWide < 0 ? cards.length : firstWide, 0, gallery);
   }
 
   const contestRows = (d.contests ?? [])
@@ -275,6 +307,9 @@ ${fontLink}
     font-family: ${condStack}; font-size: 7.5pt; letter-spacing: 1.5pt;
     color: rgba(255,255,255,0.55);
   }
+  /* ── peanut gallery (the week's meme) ─────────────────────── */
+  .card.gallery img { max-width: 100%; max-height: 35mm; display: block; margin: 1mm auto 0; border: 1px solid #14110d; }
+  .card.gallery .credit { font-size: 6pt; letter-spacing: 1pt; text-transform: uppercase; color: rgba(20,17,13,0.55); margin-top: 0.8mm; }
   .scores li { display: flex; justify-content: space-between; font-size: 7.8pt; padding: 0.5mm 0; border-bottom: 1px dotted rgba(20,17,13,0.25); }
   .scores { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 4mm; }
   .scores li { break-inside: avoid; }

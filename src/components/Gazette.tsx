@@ -562,17 +562,6 @@ export default function Gazette() {
 
   const isLatest = g.week === data.lastCompleted;
   const byes = data.byes ?? [];
-  const byeWatch = data.byeWatch ?? [];
-  // Live lineups, so this changes as people fix them before kickoff.
-  const byeCloser = pick(
-    [
-      "Last week an empty slot got someone chopped. Just saying.",
-      "There is still time. There was still time last week, too.",
-      "In a league where the lowest score dies, a bye week is a trap door.",
-      "Fix it now, or the Gazette writes your obituary next Wednesday.",
-    ],
-    byeWatch.length + (data.currentWeek ?? 0),
-  );
   const nextWeek = data.currentWeek;
   const tnf = data.tnf;
   // When TNF actually is, relative to the reader's own clock: "tonight" printed
@@ -1023,21 +1012,11 @@ export default function Gazette() {
           <section className="mt-4 border-t-2 border-[#14110d] pt-2.5 text-[12px] leading-snug">
             <p>
               <b className="font-display uppercase tracking-[0.15em] text-[#8c1c13]">P.S.</b>{" "}
-              Bye week: {byes.map((b) => b.name).join(" & ")}.{" "}
-              {byeWatch.length > 0 ? (
-                <>
-                  Still starting a player who is not playing:{" "}
-                  {byeWatch.map((w, i) => (
-                    <span key={w.team}>
-                      {i > 0 && "; "}
-                      <b>{w.team}</b> ({w.starting.map((p) => p.name).join(", ")})
-                    </span>
-                  ))}
-                  . <i className="text-[#14110d]/65">{byeCloser}</i>
-                </>
-              ) : (
-                <i>Nobody is starting a player on bye. Yet.</i>
-              )}
+              On bye in Week {nextWeek}:{" "}
+              {byes.length > 1
+                ? `${byes.slice(0, -1).map((b) => b.name).join(", ")} & ${byes[byes.length - 1].name}`
+                : byes[0].name}
+              .
             </p>
           </section>
         )}
