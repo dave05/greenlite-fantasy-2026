@@ -78,12 +78,12 @@
 {"week":4,"slot":"comic","target":null,"source":"site","text":"None. The commissioner survived by 3.6."}
 {"week":4,"slot":"comic","target":null,"source":"site","text":"Then bought Sergio's tight end for $222. Normal league."}
 {"week":4,"slot":"email","target":"1398840738464215040","premise":"bought the murder weapon","source":"email","text":"jackmccarthy25 paid $59 for Jalen Coker, the 0.0 that ended the previous owner. Bold to buy the murder weapon at the estate sale."}
-{"week":5,"slot":"headline","target":"1396537478361387008","source":"paper","text":"WHO ARE YOU? — Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, his loudest hater benched his own Bo Nix, and maruniak collected the points."}
+{"week":5,"slot":"headline","target":"1396537478361387008","source":"paper","text":"WHO ARE YOU? — Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, and maruniak collected the points."}
 {"week":5,"slot":"flop","target":"860959579746484224","source":"paper","text":"It's called strategy. (It was not.)"}
 {"week":5,"slot":"lowball","target":"860959579746484224","source":"paper","text":"$39 for a man who went for $96 and scored 28. The mattress wins again."}
 {"week":5,"slot":"steal","target":"994362778142011392","source":"paper","text":"Ninety-six dollars, twenty-eight points. The commish finally bought something that works."}
 {"week":5,"slot":"obituary","target":"1134198407096147968","source":"paper","text":"Started a ghost, benched a touchdown. Survived by Kyle Pitts, who did his job."}
-{"week":5,"slot":"email","target":"1259206671360610305","premise":"Ben benched his own Nix","source":"email","text":"Ben, the league's loudest Maye hater, benched his own Bo Nix. Nix scored 7.92. Ben hates Maye so much he stopped believing in quarterbacks."}
+{"week":5,"slot":"email","target":"1259206671360610305","premise":"Ben benched the QB he argues for","source":"email","text":"Ben has spent all season arguing Bo Nix is better than Maye. Then he benched Bo Nix. Nix scored 7.92. Even Ben has stopped believing Ben."}
 {"week":5,"slot":"email","target":"1398840738464215040","premise":"doomsday prepper opens the bunker","source":"email","text":"Jack sat on $941 for five weeks like a doomsday prepper, then dropped $562 on Jonathan Taylor at 3am. $206 over Jalijah's $356. The bunker is open."}
 {"week":5,"slot":"email","target":"1398840738464215040","premise":"five weeks of silence, then a franchise tag","source":"email","text":"That clears Vladimir Tuten's Week 1 record ($503, James Cook) as the biggest bid of the season. Five weeks of silence, then a franchise tag."}
 {"week":5,"slot":"email","target":"860959579746484224","premise":"Matt shops the clearance rack","source":"email","text":"Matt finally put real numbers up: $330 for Taylor, $220 for Nabers. Lost both. Came home with Ladd McConkey ($45) and Kendrick Bourne ($19). The clearance rack sends its thanks."}
@@ -104,6 +104,8 @@
 {"week":5,"slot":"email","target":null,"premise":"Sergio did not die in vain","source":"email","text":"Nobody started a player on bye. Sergio did not die in vain."}
 {"week":5,"slot":"email","target":null,"premise":"order restored in Ohio","source":"email","text":"The Browns lost 17-12 to the Jets. Order has been restored in Ohio."}
 {"week":5,"slot":"photo","target":null,"source":"site","text":"Sam, walking Ben through the Raiders' 3-1 record."}
+{"week":5,"slot":"headline","target":"1396537478361387008","source":"paper","text":"WHO ARE YOU? — Maye hung 39.46 on a 3-1 team. His loudest defender doesn't roster him, his loudest hater benched his own Bo Nix, and maruniak collected the points."}
+{"week":5,"slot":"email","target":"1259206671360610305","premise":"Ben benched his own Nix","source":"email","text":"Ben, the league's loudest Maye hater, benched his own Bo Nix. Nix scored 7.92. Ben hates Maye so much he stopped believing in quarterbacks."}
 {"week":5,"slot":"photo","target":null,"source":"site","text":"Sam explains strength of schedule to Ben."}
 {"week":5,"slot":"email","target":null,"premise":"the Schedule scheduled a beating","source":"email","text":"🚨 Maye: 39.46, 374 yards, 4 TDs, zero picks, 45-17 over a Raiders team that came in 3-1. 'The Schedule' just scheduled a beating."}
 {"week":5,"slot":"email","target":"1396537478361387008","premise":"Sam defends a QB he doesn't roster","source":"email","text":"Sam has defended Drake Maye all season. Sam does not roster Drake Maye. maruniak does, started him, and finished 3rd."}
