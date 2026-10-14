@@ -86,7 +86,16 @@ Then:
     node scripts/roast/memory.mjs check $OUT/gazette.json $OUT/copy.json
 
 Rewrite anything it rejects with a genuinely new angle (not a rewording) until
-it prints ok. Before moving on, re-read every line against EDITORIAL.md
+it prints ok.
+
+Then do the **editor's review** - the check only catches reused wording, not a
+reused idea. Open every past `issues/week-*.json` and `archive/week-*-email.txt`
+and, for each of your lines, ask: has this league already read this joke, in
+any words? Same premise on the same person, the same comparison, the same
+callback punchline? If yes, write a new joke - a callback should name the old
+event ("the $222 Kittle") and land a NEW punchline on top of it. Write down,
+in your final message, which past lines you checked against and anything you
+cut. Before moving on, re-read every line against EDITORIAL.md
 section 3 (the corrected facts) and section 2 (what flopped). Cut any line
 that is a fact without a punchline - but do not cut a line that lands just to
 hit a length.
