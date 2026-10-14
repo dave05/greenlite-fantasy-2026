@@ -79,6 +79,9 @@ spirit: shorter, better punchlines, cleverly witty, sports slang all over.
 - Lines that assert something false about a person ("you did not participate"
   at a manager who won a claim that same night).
 - Canned lines repeated week after week ("No appeal. No mercy." ran twice).
+- **Non-events.** "Nobody claimed Kyle Pitts" (the TE Riley benched) was
+  rejected as "not good content". Write about what people DID - bids, overpays,
+  lineup calls - not about players nobody touched.
 - **Recycled punchlines.** Week 5 reused Week 4's "thank-you card", "murder
   weapon", "cursed object", "estate sale" and "cautiously terrified" inside new
   sentences. The commissioner: "please don't repeat jokes." A callback names the
