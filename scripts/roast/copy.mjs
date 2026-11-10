@@ -112,6 +112,14 @@ export function resolveCopy(d, override) {
       hoarder: line("hoarder"),
     },
     obituary: o.obituary ?? pick(JABS.obituary, week),
+    // The modern-format sections the editor writes (web-researched Off the Wire,
+    // the Kickoff Bulletin, the Roast Desk one-liners, the Peanut Gallery comic).
+    // render.mjs prints them; printedJokes() below feeds the written burns into
+    // the no-repeat checker. All optional - a missing section just doesn't print.
+    offWire: o.offWire ?? null,
+    kickoff: o.kickoff ?? null,
+    roast: o.roast ?? null,
+    comic: Array.isArray(o.comic) ? o.comic : null,
   };
 }
 
@@ -128,5 +136,15 @@ export function printedJokes(d, copy) {
   // Aimed at a group, so no single target.
   if (a.hoarder) rows.push({ slot: "hoarder", target: null, text: copy.jabs.hoarder });
   if (d.chopped) rows.push({ slot: "obituary", target: targetOf(d, "obituary"), text: copy.obituary });
+  // Modern-format written burns - checked and recorded so they never repeat
+  // either. Off the Wire is a real joke about real news; the Roast Desk lines
+  // are the heart of the paper. The comic is visual filler, so it is left out of
+  // the no-repeat net on purpose (two "A win is a win!" bubbles are not a crime).
+  if (copy.offWire?.text) rows.push({ slot: "offWire", target: null, text: copy.offWire.text });
+  if (copy.roast && typeof copy.roast === "object") {
+    for (const [slot, text] of Object.entries(copy.roast)) {
+      if (typeof text === "string" && text.trim()) rows.push({ slot: `roast.${slot}`, target: null, text });
+    }
+  }
   return rows;
 }

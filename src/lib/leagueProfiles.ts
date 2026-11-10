@@ -115,8 +115,9 @@ export const LEAGUE_PROFILES: LeagueProfile[] = [
     match: "jackmccarthy",
     person: "Jack",
     jabs: [
-      "Jack has spent $0 in FAAB all season and is somehow still alive. Survival by other people's funerals.",
-      "Jack didn't earn Week 3, he inherited it. $0 spent, one Rogo sacrificed.",
+      "Jack spent $0 in FAAB for a month, then dropped a league-record $562 on Jonathan Taylor, who is ruled out. From miser to arsonist in one click.",
+      "The man hoarded his budget all season and spent his first real dollar on an injured RB. Patience, rewarded with a walking boot.",
+      "Jack survived weeks on other people's funerals, then bought himself one for $562.",
     ],
   },
 ];

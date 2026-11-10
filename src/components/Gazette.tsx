@@ -17,6 +17,27 @@ import { profileFor } from "@/lib/leagueProfiles";
 //     that merely carried a larger number, so nothing here can imply an upset.
 
 type Tnf = { short: string; away: string; home: string; kickoff: number };
+
+// Curated copy the weekly editor routine writes (public/league-copy/week-N.json,
+// the `paper` object). Every field optional: a present field is Claude's hand-
+// written, web-researched line and overrides the deterministic generator below;
+// a missing field falls back to the auto copy. The same file the no-repeat
+// checker reads, so the site and the guard never show different words.
+type CuratedCopy = {
+  headline?: { kicker?: string; head?: string; sub?: string };
+  offWire?: { source?: string; headline?: string; text?: string };
+  kickoff?: { nudge?: string; miss?: string };
+  roast?: Partial<
+    Record<
+      "benched" | "flop" | "fresh" | "top" | "bottom" | "spread" | "escape" | "chopped" | "bigWallet" | "tightWallet",
+      string
+    >
+  >;
+  value?: { stealJab?: string; lowballJab?: string };
+  comic?: ComicLine[];
+  obituary?: string;
+};
+
 type Payload = {
   connected: boolean;
   week: number;
@@ -24,6 +45,7 @@ type Payload = {
   currentWeek: number;
   tnf: Tnf | null;
   gazette: GazetteData | null;
+  copy?: CuratedCopy | null;
 };
 
 const money = (n: number | null | undefined) =>
@@ -254,13 +276,30 @@ const wireRoast = (n: NewsHook): string => {
 // $500 blowout is a different crime than a 40x ghost-auction, so each tier gets
 // its own pool of analogies. ISSUE_SHIFT rotates the pick every edition, so
 // back-to-back weeks never open with the same line - readers notice when you don't.
-const leadCopy = (abs: GazetteContest) => {
+const leadCopy = (abs: GazetteContest, marqueeNews?: GazetteData["marqueeNews"]) => {
   const bid = abs.winner.bid;
   const next = abs.runnerUp?.bid ?? 0;
   const mult = Math.round(bid / Math.max(1, next));
   const team = abs.winner.team;
   const who = abs.player.name;
   const s = bid + next;
+
+  // The jackpot twist: the guy they just overpaid for is already hurt/benched/etc.
+  // Fact-forward (the real headline does the work), with one short punch.
+  const twist = (() => {
+    if (!marqueeNews) return "";
+    const punch: Record<string, string> = {
+      injury: `${money(bid)} for a walking boot.`,
+      benched: `${money(bid)} for a clipboard.`,
+      suspension: `${money(bid)} for a guy the league benched for free.`,
+      legal: `${money(bid)} for a court date.`,
+      trade: `${money(bid)} for a guy already packing his bags.`,
+      bigGame: `At least this one paid off. For once.`,
+      other: "",
+    };
+    const p = punch[marqueeNews.category] ?? "";
+    return ` Plot twist, straight off the wire: "${marqueeNews.headline}" (${marqueeNews.source}). ${p}`;
+  })();
 
   // Tiered analogies - the "Ferrari money, Craigslist futon" energy, but the
   // right flavour for the crime. "Ferrari/futon" lives in exactly one pool.
@@ -334,7 +373,7 @@ const leadCopy = (abs: GazetteContest) => {
     ],
     s + 3,
   );
-  return { kicker, head, sub };
+  return { kicker, head, sub: sub + twist };
 };
 
 function Card({
@@ -371,10 +410,19 @@ function Card({
   );
 }
 
-export default function Gazette() {
+export default function Gazette({
+  fixedWeek = null,
+  bare = false,
+}: {
+  // The print route renders <Gazette fixedWeek={N} bare /> - same component, no
+  // week picker, so the Wednesday routine can screenshot exactly what the site
+  // shows and email that image.
+  fixedWeek?: number | null;
+  bare?: boolean;
+} = {}) {
   const [data, setData] = useState<Payload | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [week, setWeek] = useState<number | null>(null);
+  const [week, setWeek] = useState<number | null>(fixedWeek);
 
   const load = useCallback(async (w: number | null) => {
     try {
@@ -413,6 +461,9 @@ export default function Gazette() {
   }
 
   const g = data.gazette;
+  // Claude's curated copy for this week, if the editor routine pushed one. Each
+  // field, when present, overrides the auto-generated line below.
+  const cc = data.copy ?? null;
   // Advance the joke rotation to this issue BEFORE any copy is built, so every
   // pick() below lands on a different line than last week's edition.
   ISSUE_SHIFT = g.week;
@@ -433,6 +484,8 @@ export default function Gazette() {
   // psychology, the blown budget, bidding against nobody, the pile of denied bids.
   // One bro plays the delusional bidder, the other has no mercy. Rotates by issue.
   const comic: ComicLine[] = (() => {
+    // Claude's curated strip wins outright when present.
+    if (cc?.comic?.length) return cc.comic.slice(0, 4);
     const marq = a.mostAbsurd;
     const spender = a.bigSpender;
     const bits: ComicLine[][] = [];
@@ -485,8 +538,8 @@ export default function Gazette() {
   // Lead with the week's loudest overpay - biggest raw blowout or wildest
   // multiple, whichever the league will actually talk about (see leadCopy).
   const abs = a.mostAbsurd;
-  const lead = abs
-    ? leadCopy(abs)
+  const autoLead = abs
+    ? leadCopy(abs, g.marqueeNews)
     : a.benched
       ? {
           kicker: "Held for questioning",
@@ -504,6 +557,14 @@ export default function Gazette() {
             head: "A suspiciously competent week",
             sub: "No wild overpays, no benched stars, no crimes to prosecute. Cowardly, frankly - the Roast Desk expects better.",
           };
+  // Claude's curated headline wins when it has a head; kicker/sub fall back.
+  const lead = cc?.headline?.head
+    ? {
+        kicker: cc.headline.kicker ?? autoLead.kicker,
+        head: cc.headline.head,
+        sub: cc.headline.sub ?? autoLead.sub,
+      }
+    : autoLead;
 
   const weeks = Array.from({ length: data.lastCompleted }, (_, i) => i + 1).reverse();
 
@@ -546,13 +607,13 @@ export default function Gazette() {
           benchGem.team.length + nextWeek,
         )
       : `Somebody always forgets a starter. Statistically, it's about to be one of you. Don't.`;
-    return { nudge, miss };
+    return { nudge: cc?.kickoff?.nudge ?? nudge, miss: cc?.kickoff?.miss ?? miss };
   })();
 
   return (
     <div className="mx-auto max-w-3xl px-3 pb-16">
-      {/* week picker - the archive is half the fun */}
-      <div className="mb-4 flex flex-wrap items-center justify-center gap-1.5">
+      {/* week picker - the archive is half the fun (hidden in print/screenshot mode) */}
+      <div className={`mb-4 flex-wrap items-center justify-center gap-1.5 ${bare ? "hidden" : "flex"}`}>
         {weeks.map((w) => (
           <button
             key={w}
@@ -644,7 +705,23 @@ export default function Gazette() {
           ))}
         </div>
 
-        {g.newsHook && (
+        {/* Off the Wire: Claude's curated, web-researched tie-in wins; otherwise
+            the auto hook from the RSS feeds. */}
+        {cc?.offWire?.text ? (
+          <div className="my-3 border-l-4 border-[#8c1c13] bg-[#8c1c13]/[0.06] px-3 py-2">
+            <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
+              Off the wire{cc.offWire.source ? ` · ${cc.offWire.source}` : ""}
+            </p>
+            <p className="mt-1 text-[13px] font-semibold leading-snug">
+              {cc.offWire.text}
+            </p>
+            {cc.offWire.headline && (
+              <p className="mt-1 text-[10px] italic text-[#14110d]/55">
+                Real headline: &ldquo;{cc.offWire.headline}&rdquo;
+              </p>
+            )}
+          </div>
+        ) : g.newsHook ? (
           <div className="my-3 border-l-4 border-[#8c1c13] bg-[#8c1c13]/[0.06] px-3 py-2">
             <p className="font-display text-[9px] uppercase tracking-[0.25em] text-[#8c1c13]">
               Off the wire · {g.newsHook.source}
@@ -656,7 +733,7 @@ export default function Gazette() {
               Real headline: &ldquo;{g.newsHook.headline}&rdquo;
             </p>
           </div>
-        )}
+        ) : null}
 
         <section className="my-4 border-y-2 border-[#14110d] py-3">
           <div className="flex items-end justify-between gap-3">
@@ -674,25 +751,25 @@ export default function Gazette() {
           </div>
           <div className="mt-3 grid gap-x-5 gap-y-3 text-[13px] leading-snug sm:grid-cols-2">
             {benchGem && <p><b>Started the wrong guy:</b> {roastBenchGem(benchGem)}</p>}
-            {a.benched && <p><b>Clipboard criminal:</b> {roastBench(a.benched)}</p>}
-            {a.flop && <p><b>Financial misconduct:</b> {roastFlop(a.flop)}</p>}
-            {freshRoast && <p><b>Fresh from the panic room:</b> {roastContest(freshRoast)}</p>}
-            {top && <p><b>Victory-lap department:</b> {roastScore(top.team, top.points, "first")}</p>}
-            {bottom && <p><b>Basement watch:</b> {roastScore(bottom.team, bottom.points, "last")}</p>}
+            {a.benched && <p><b>Clipboard criminal:</b> {cc?.roast?.benched ?? roastBench(a.benched)}</p>}
+            {a.flop && <p><b>Financial misconduct:</b> {cc?.roast?.flop ?? roastFlop(a.flop)}</p>}
+            {freshRoast && <p><b>Fresh from the panic room:</b> {cc?.roast?.fresh ?? roastContest(freshRoast)}</p>}
+            {top && <p><b>Victory-lap department:</b> {cc?.roast?.top ?? roastScore(top.team, top.points, "first")}</p>}
+            {bottom && <p><b>Basement watch:</b> {cc?.roast?.bottom ?? roastScore(bottom.team, bottom.points, "last")}</p>}
             {beatdownGap != null && beatdownGap > 0 && top && bottom && (
-              <p><b>The spread:</b> {roastBeatdown(top.team, bottom.team, beatdownGap)}</p>
+              <p><b>The spread:</b> {cc?.roast?.spread ?? roastBeatdown(top.team, bottom.team, beatdownGap)}</p>
             )}
             {escapeMargin != null && escapeMargin >= 0 && secondLast && (
-              <p><b>Closest escape:</b> {roastEscape(secondLast.team, escapeMargin)}</p>
+              <p><b>Closest escape:</b> {cc?.roast?.escape ?? roastEscape(secondLast.team, escapeMargin)}</p>
             )}
             {g.chopped && (
-              <p><b>Final notice:</b> {g.chopped.team} scored {pts(g.chopped.points)}, got chopped, and is now available for unsolicited lineup advice.</p>
+              <p><b>Final notice:</b> {cc?.roast?.chopped ?? `${g.chopped.team} scored ${pts(g.chopped.points)}, got chopped, and is now available for unsolicited lineup advice.`}</p>
             )}
             {g.spending?.topSpender && g.spending.topSpender.used > 0 && (
-              <p><b>Biggest wallet:</b> {g.spending.topSpender.team} has torched {money(g.spending.topSpender.used)} in FAAB this season and is somehow still not running the league. Spending like the budget expires at midnight. {teamPun(g.spending.topSpender.team)}</p>
+              <p><b>Biggest wallet:</b> {cc?.roast?.bigWallet ?? <>{g.spending.topSpender.team} has torched {money(g.spending.topSpender.used)} in FAAB this season and is somehow still not running the league. Spending like the budget expires at midnight. {teamPun(g.spending.topSpender.team)}</>}</p>
             )}
             {g.spending?.cheapest && (
-              <p><b>Tightest wallet:</b> {g.spending.cheapest.team} has spent {money(g.spending.cheapest.used)} in FAAB all year. {g.spending.cheapest.used === 0 ? "Zero. Nada. Surviving on vibes and other people's funerals." : "Coupon-clipping their way through a survival pool."} {teamPun(g.spending.cheapest.team)}</p>
+              <p><b>Tightest wallet:</b> {cc?.roast?.tightWallet ?? <>{g.spending.cheapest.team} has spent {money(g.spending.cheapest.used)} in FAAB all year. {g.spending.cheapest.used === 0 ? "Zero. Nada. Surviving on vibes and other people's funerals." : "Coupon-clipping their way through a survival pool."} {teamPun(g.spending.cheapest.team)}</>}</p>
             )}
           </div>
         </section>
@@ -711,7 +788,7 @@ export default function Gazette() {
                   tone="good"
                   tag="Best Buy"
                   team={a.steal.team}
-                  jab="Exactly one manager in this league owns a calculator. Here they are."
+                  jab={cc?.value?.stealJab ?? "Exactly one manager in this league owns a calculator. Here they are."}
                 >
                   Paid <b>{money(a.steal.bid)}</b> for <b>{a.steal.player.name}</b> and
                   got <b>{pts(a.steal.points)}</b> points out of him. Everyone else
@@ -723,7 +800,7 @@ export default function Gazette() {
                   tone="cheap"
                   tag="Cheapest Offer"
                   team={a.lowball.team}
-                  jab="Bidding is a participation sport. You, notably, did not participate."
+                  jab={cc?.value?.lowballJab ?? "Bidding is a participation sport. You, notably, did not participate."}
                 >
                   Offered <b>{money(a.lowball.bid)}</b> for{" "}
                   <b>{a.lowball.player.name}</b> and lost. It cost nothing, which is
@@ -877,6 +954,7 @@ export default function Gazette() {
               points={g.chopped.points ?? 0}
               week={g.week}
               avatar={g.chopped.avatar}
+              epitaph={cc?.obituary ?? null}
             />
           ) : (
             <p className="text-center text-[12px] italic text-[#14110d]/70">

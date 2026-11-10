@@ -9,6 +9,21 @@ export const dynamic = "force-dynamic";
 const cache = new Map<number, { at: number; body: unknown }>();
 const TTL_MS = 10 * 60 * 1000;
 
+// The editor routine commits curated jokes as a static asset in public/. Read it
+// over a same-origin fetch (public files are served by the deployment, not the
+// function filesystem). Returns the `paper` object, or null if none exists yet.
+async function loadCuratedCopy(req: Request, week: number): Promise<unknown> {
+  try {
+    const url = new URL(`/league-copy/week-${week}.json`, req.url);
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { paper?: unknown } | null;
+    return json?.paper ?? json ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // GET /api/gazette?week=<optional>
 // The Guillotine Gazette: the weekly waiver roast, computed from Sleeper's
 // public record. Defaults to the last COMPLETED week - the current week is
@@ -39,7 +54,14 @@ export async function GET(req: Request) {
       state?.season_type === "regular"
         ? await getThursdayGame(current).catch(() => null)
         : null;
-    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette };
+    // Curated copy for this week, if the weekly editor routine has written and
+    // pushed one. It is a committed static asset at public/league-copy/week-N.json
+    // ({ week, paper: {...} }); when present, Gazette.tsx renders these hand-
+    // written, web-researched, no-repeat jokes instead of the auto-generated
+    // lines. Same file the no-repeat checker (scripts/roast/memory.mjs) reads, so
+    // the site and the guard never disagree. Absent = the deterministic fallback.
+    const copy = await loadCuratedCopy(req, week);
+    const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette, copy };
     cache.set(week, { at: Date.now(), body });
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {

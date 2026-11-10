@@ -33,6 +33,15 @@ Fandoms for: maruniak, riguy101, kaelanzm, sergioflores98, Vladimir Tuten. Confi
 - Wk1: jayabg
 - Wk2: elifelber (Eli / Jaxson Dart season-ending knee)
 - Wk3: KRogo5 (Kevin/Rogo / Waddle flopped on SNF, saved Jack)
+- Wk4: sergioflores98 (87.42 / had spent $0 FAAB all season - died as cheap as he lived)
+- Wk5: riguy101 (71.24)
+
+## Week 5 notes (new)
+- **JACK'S CHARACTER FLIP:** jackmccarthy25, the $0-FAAB-all-season freeloader, FINALLY cracked and dropped a LEAGUE-RECORD $562 on Jonathan Taylor... who is RULED OUT (high-ankle sprain, 4-6 wks, 2nd straight game missed). First big spend = an injured, inactive RB. All-time self-own.
+- **matthewmongelli/Matt:** also broke his $0 streak - $70 on RJ Harvey, STARTED him, got 0.7. First real bid, instant brick. Season FAAB ~$134 now.
+- **Always Safe/Jalijah:** TOP score Wk5 (159.76). The name keeps winning.
+- **BDALOHA/Ben:** Tyquan Thornton (his Wk4 bench gem, 28.1) now hurt. Luck matches spending.
+- **Vladimir Tuten:** FAAB up to $794 used - still the league's human bonfire.
 
 ## Spending patterns (season FAAB, budget $1000) - updated as waivers run
 Track who stays cheap vs who torches the budget; use in the receipts roast. Snapshot after Week 3 waivers:
@@ -53,7 +62,8 @@ Track who stays cheap vs who torches the budget; use in the receipts roast. Snap
 
 ## Marquee rule + history (avoid stale/repeat headlines)
 - The marquee MUST come from the freshest waiver run (the one that just cleared this morning = thisRun/freshContests in code), NEVER a prior week's run. A bid already printed last week is dead news.
-- Used marquees so far: Wk1 James Cook $503 (Vlad), Wk2 Michael Wilson $182 (JSN), Wk3 (this morning's run) Omarion Hampton $135 (PumpUpTheJam32/Peter). Do not re-headline any of these.
+- Used marquees so far: Wk1 James Cook $503 (Vlad), Wk2 Michael Wilson $182 (JSN), Wk3 Omarion Hampton $135 (Peter), Wk4 George Kittle $222 (JSN, then Kittle pulled a hamstring), Wk5 Jonathan Taylor $562 (Jack, RULED OUT high-ankle). Do not re-headline any of these.
+- marqueeNews feature (live): if the marquee player has current injury/benched/trade news, the headline auto-weaves it ("$562... plot twist, he's ruled out"). The jackpot: overpay + instant regret.
 
 ## Routine reminders
 - Post the Gazette **Wednesday 8am** (waivers clear Wed 3am).

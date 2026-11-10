@@ -1,66 +1,63 @@
-# Weekly Gazette routine
+# Weekly Gazette routine - The Guillotine Roast
 
-The scheduled routine "Guillotine Gazette - weekly waiver roast" runs these
-steps every Wednesday. Its prompt only points here, so change the process by
-editing this file - no need to touch the routine.
+The scheduled routine "Guillotine Gazette - weekly waiver roast" runs this every
+Wednesday morning (waivers clear ~3am; you run at 8am ET). Its prompt only points
+here, so change the process by editing this file - no need to touch the routine.
 
-Build this week's Guillotine Gazette, publish it, and email it to dasam2012@gmail.com.
+**What you produce:** this week's curated jokes for **The Guillotine Roast**, the
+live paper the website already renders at `/#gazette`. You do NOT build a PDF or a
+separate layout anymore. You write the JOKES into a committed file; the website
+renders them with its own code. Then you push to `main` (which deploys the site),
+screenshot the live paper, and email it.
 
-The Guillotine is a fantasy football league where the lowest scorer each week
-is eliminated. The Gazette is a one-page satirical newspaper roasting the
-league's waiver-wire spending. All data comes from Sleeper's public API - no
-credentials needed.
+The Guillotine is a survival league: lowest scorer each week is chopped, no
+head-to-head matchups. All data is Sleeper's public API - no credentials.
 
-The Gazette has a MEMORY in `league-memory/` (read `league-memory/README.md`
-first). It knows every manager (`members.json` - nicknames, tendencies, running
-gags, OFF LIMITS topics), every past offence (`rap-sheet.jsonl`), and every joke
-ever published (`jokes.jsonl`). Use it: call back to people's earlier crimes by
-week, build on running gags, and NEVER repeat a joke or reuse a premise on the
-same person. Repeated jokes are the main complaint about this paper.
+## You are the editor-in-chief. Be savage.
 
-## You are the editor-in-chief
+This is a trolling paper and you run it. The voice is a stand-up editor-in-chief
+roasting the group chat - sarcastic, specific, creative and edgy, written to get a
+REACTION out of the person named. Dry, confident, mean about the DECISION. The data
+is the floor, not the ceiling.
 
-This is a trolling paper and you run it. Be creative; the data is the floor,
-not the ceiling. Before writing, gather material from all of these:
+The core troll rules, every week:
+- **Never repeat a joke, premise, or analogy.** New angle every time.
+- **Read the latest group chat** (storylines) and work the fresh drama in.
+- **Read this week's waiver-wire activity** - who bid what, the overpays, the
+  denied bids, who is hoarding - and roast the actual moves.
+- **Web-search the latest real NFL news** and tie it to a rostered player.
+- Be creative and edgy, but only ever about football decisions and fandom.
 
-1. **The group chat** - storylines in the briefing (also in `gazette.json` as
-   `storylines`). The commissioner adds them by hand; they are the freshest,
-   most personal material you have. Lead with them when they are good.
-2. **The weekend's real NFL news** - use web search for what happened in the
-   NFL this past weekend: upsets, meltdowns, viral moments, coaching blunders,
-   memes. Tie at least one bit to real news, ideally to a player someone in
-   the league rosters. Verify anything you state as fact; only state what a
-   source says.
-3. **Previous issues** - every joke already published is in the briefing and
-   `league-memory/jokes.jsonl`; past papers are in `gazettes/`. Never repeat a
-   bit. Callbacks to earlier issues are encouraged; reruns are not.
-4. **The waiver wire** - two runs, two stories. Cover both every week:
-   - **The bidding war (the run that just processed)** - `freshContests`:
-     for each contested player, who won, what they paid, who was the next
-     highest bidder and by how much (`gap`). $1 margins, $100+ overpays, and
-     one manager bidding on everything are the headlines. `freshMoney` has
-     every winning claim.
-   - **The verdict (last week's run, now played)** - `contests`, `topBids`
-     and the awards: who paid what, what the player actually scored for them,
-     and whether they even started him. Name the biggest winner (best points
-     for the money - `awards.steal`) and the biggest loser (most money for the
-     least - `awards.flop`, and `awards.benched`).
-   Every bid carries `budgetLeft`; `faab.rosters` has each team's spent,
-   remaining, this week's points and `rank` (of `of` teams still scoring).
-   Big bids on fumes and panic buys after a bad week are material.
-5. **The non-participants** - troll the managers who have not used their
-   FAAB (`awards.hoarder`), hardest of all the ones whose team is mediocre
-   or worse (`faab.rosters[].rank` in the bottom half). Sitting on $1,000
-   with a so-so roster is a choice, and the Gazette has opinions about it.
+Before you write a single line, read EVERYTHING:
 
-## Step 1 - find Chrome
+1. **Every previous week's post.** `league-memory/jokes.jsonl` is every joke ever
+   printed; `node scripts/roast/memory.mjs brief` prints them. **Never reuse a
+   joke, a premise, or an analogy on anyone.** Callbacks to an old crime ("second
+   benching in three weeks") are great; reruns are banned. Repeats are the #1
+   complaint about this paper and the checker will reject them.
+2. **The member dossiers.** `league-memory/members.json` - nicknames, fandoms,
+   tendencies, running gags, and `off_limits` topics. Weaponize the fandom and the
+   roster crimes. Never touch anything under `off_limits`, in ANY line.
+   `src/lib/leagueProfiles.ts` and `LEAGUE_INTEL.md` have the same intel in prose.
+3. **The group chat storylines.** `gazette.json` `storylines` (also shown by
+   `brief`) - the freshest, most personal material. Lead with them when good.
+4. **The latest real NFL news - WEB SEARCH.** Search the web for this past
+   weekend's real NFL news on players these managers roster: injuries, benchings,
+   trades, suspensions, legal, viral blowups, and tonight's TNF storyline. Tie
+   **Off the Wire** to a real, verifiable headline about a rostered player (ideally
+   NOT the marquee guy). State only what a source actually says - never invent an
+   injury or a quote.
 
-The sandbox already ships Playwright's Chromium:
+House rules, non-negotiable:
+- Punch at DECISIONS and FANDOM, never at people. These are the user's friends.
+- Only real, verifiable facts. No invented news, scores, or quotes.
+- **No em dashes or en dashes.** Hyphens only.
 
-    ls /opt/pw-browsers/*/chrome-linux/chrome
+## Step 1 - get the code (on main)
 
-Export `CHROME` to that path. Only if nothing is there, install with
-`npx --yes @puppeteer/browsers install chrome@stable`.
+    git checkout main && git pull origin main
+
+Everything lives on `main` now, and you push curated copy back to `main`.
 
 ## Step 2 - collect the week and read the briefing
 
@@ -68,116 +65,130 @@ Export `CHROME` to that path. Only if nothing is there, install with
     node scripts/roast/collect.mjs > $OUT/gazette.json
     node scripts/roast/memory.mjs brief $OUT/gazette.json
 
-No arguments = the last COMPLETED NFL week. Note the week number N from the
-JSON. Read the whole briefing: what the group chat is talking about (storylines -
-work these in, they are the most current material you have), who is in this
-week's news, their profile, their rap sheet, and every joke already used.
+No arguments = the last COMPLETED NFL week. Note the week number **N** from the
+JSON. Read the whole briefing: storylines, who is in the news, their profile,
+their rap sheet, and every joke already used. `gazette.json` also carries
+`tnf` (tonight's real Thursday game), `spending` (season FAAB leaders), `awards`,
+`contests`, `freshContests`, `scores`, `chopped`, and `faab`.
 
-## Step 3 - write every joke into $OUT/copy.json
+## Step 3 - web-research, then write the curated copy
 
-If `league-memory/drafts/week-N.json` exists, the commissioner has already
-approved a draft for this week: copy it to `$OUT/copy.json` and start from it.
-Only change a line if `check` rejects it or this week's data contradicts it.
+Do the web search described above first. Then write
+`public/league-copy/week-N.json`. Schema and every field are documented in
+`public/league-copy/README.md`. Shape:
 
-Format is in `league-memory/README.md`.
+    { "week": N, "paper": { headline, offWire, kickoff, roast, value, comic, obituary, jabs } }
 
-- `paper`: headline `{kicker, head, sub}`, jabs `{flop, benched, lowball, steal, hoarder}`
-  for whichever awards exist, and `obituary` (one-line epitaph for the chopped
-  team). These print on the sheet. Fill every slot that has an award - a
-  missing slot falls back to a canned line that has already run.
-- `jokes`: every OTHER joke you will put in the email, one entry each, with
-  `target` (Sleeper user_id or null), a short `premise` label, and the exact
-  `text`.
+Every field is optional and falls back to the site's auto line, but a quiet
+Roast Desk is a wasted week - fill what the data supports:
 
-Jokes come from `gazette.json` - `awards`, `chopped`, `scores`, `totals` - plus
-the memory. A callback to someone's earlier offence ("second benching in three
-weeks") beats a generic line. Dry and deadpan beats try-hard. Punch at
-decisions, never at people; these are the user's friends. Never touch anything
-listed under OFF LIMITS.
+- `headline` `{kicker, head, sub}` - the marquee: the loudest overpay or crime.
+- `offWire` `{source, headline, text}` - your real-news tie-in. `headline` is the
+  actual headline you found; `text` is the roast connecting it to the manager.
+- `kickoff` `{nudge, miss}` - name tonight's TNF (in `gazette.json.tnf`) and nudge
+  lineups; `miss` ribs last week's biggest start/sit blunder. No bye references.
+- `roast` - one-liners for `benched, flop, fresh, top, bottom, spread, escape,
+  chopped, bigWallet, tightWallet`. This is the heart of the paper.
+- `value` `{stealJab, lowballJab}` - the two Value Desk card jabs.
+- `comic` - up to 4 Peanut Gallery panels `{who:"a"|"b", mood, text}`, a bit ABOUT
+  the bidding (psychology, blown budget, bidding against nobody) - a fresh joke,
+  not a restatement of the headline.
+- `obituary` - one-line epitaph for the chopped team.
+- `jabs` `{flop, benched, lowball, steal, hoarder}` - legacy slots the checker
+  also reads; fill the ones whose award exists so a canned repeat is not printed.
 
-Then run:
+TWO FACTS YOU MUST NOT GET WRONG - the owner has corrected these before:
 
-    node scripts/roast/memory.mjs check $OUT/gazette.json $OUT/copy.json
+- **A LOSING BID COSTS NOTHING.** Only the winning claim is charged. Never write or
+  imply a runner-up "spent" or "blew" money. Call it the next highest bid, unpaid.
+- **THE HIGHEST VALID BID ALWAYS WINS.** If a FAILED claim shows a bigger number
+  than the winner, it was invalid (no drop against a full roster) - never frame it
+  as a lower bid beating a higher one. Ignore such rows.
 
-If it reports problems, rewrite those lines with a genuinely new angle (not a
-reworded version) and run check again until it prints ok.
+## Step 4 - pass the no-repeat check
 
-TWO FACTS YOU MUST NOT GET WRONG - the league owner has already corrected these once:
+    node scripts/roast/memory.mjs check $OUT/gazette.json public/league-copy/week-N.json
 
-- A LOSING BID COSTS NOTHING. Only the winning claim is charged. Never write or
-  imply that a runner-up 'spent' or 'blew' their money. Call it the next
-  highest bid, unpaid.
-- THE HIGHEST VALID BID ALWAYS WINS. If a FAILED claim shows a bigger number
-  than the winner, that claim was invalid (usually no drop designated against a
-  full roster) - it is NOT an upset and must never be framed as a lower bid
-  beating a higher one. Ignore such rows.
+It compares your headline, Off the Wire, Roast Desk lines, jabs and obituary
+against every joke ever printed and against each other, and rejects `off_limits`
+topics. Rewrite any flagged line with a genuinely NEW angle (not a reword) and run
+it again until it prints `ok`.
 
-## Step 4 - build the PDF with your copy
+## Step 5 - record, commit, and push to main (this updates the live site)
 
-    OUT_DIR=$OUT GAZETTE_JSON=$OUT/gazette.json COPY=$OUT/copy.json ./scripts/roast/build.sh
+    node scripts/roast/memory.mjs record $OUT/gazette.json public/league-copy/week-N.json
+    git add public/league-copy league-memory
+    git commit -m "gazette: week N curated copy"
+    git push origin main
 
-It prints the PDF path as its last stdout line and writes
-`gazette-print-N.html` alongside it.
+Pushing to `main` deploys the site, so the live Guillotine Roast now shows your
+jokes.
 
-## Step 5 - render a JPEG
+## Step 6 - wait for the deploy, then screenshot the live paper
 
-An image is what actually works in email and chat. Screenshot the PRINT html,
-then shrink it:
+The emailed image must show YOUR copy, so wait until the deploy is live. Poll the
+production API until `copy` is no longer null:
 
+    for i in $(seq 1 40); do
+      curl -s "https://greenlite-fantasy-2026.vercel.app/api/gazette?week=N" \
+        | grep -q '"copy":{' && { echo live; break; }
+      sleep 15
+    done
+
+Then find the sandbox Chromium and screenshot the chrome-free print route:
+
+    ls /opt/pw-browsers/*/chrome-linux/chrome     # export CHROME to this path
     "$CHROME" --headless=new --disable-gpu --no-sandbox --disable-background-networking \
-      --virtual-time-budget=8000 --hide-scrollbars --window-size=1150,1040 \
-      --screenshot=/tmp/gz.png --user-data-dir=$(mktemp -d) "file://$OUT/gazette-print-N.html"
+      --virtual-time-budget=12000 --hide-scrollbars --window-size=900,2600 \
+      --screenshot=/tmp/roast.png --user-data-dir=$(mktemp -d) \
+      "https://greenlite-fantasy-2026.vercel.app/gazette/print?week=N"
 
-Resize to about 760px wide as a JPEG (ImageMagick
-`convert -resize 760x -quality 50`, or Python/PIL). Target roughly 60-90KB.
-Check the height: if the paper is taller or shorter the screenshot will have
-dead space or be cut off - adjust the height and re-shoot until the image
-contains the whole sheet and nothing more.
+`/gazette/print?week=N` renders ONLY the paper (no nav, no week picker). Check the
+height: adjust `--window-size` and re-shoot until the image is the whole sheet and
+nothing more (the paper is tall - expect 2400-2800px). Then shrink to ~760px wide
+as a JPEG (ImageMagick `convert -resize 760x -quality 55`, or Python/PIL), target
+~70-110KB.
+
+If the poll never goes live (deploy failed), email dasam2012@gmail.com with
+subject "Guillotine Roast - deploy stuck", the commit sha, and stop. Do not email
+a stale paper.
+
+## Step 7 - publish the image and email it
+
+Commit the JPEG so its raw URL resolves in the email (do NOT attach it - base64 of
+a 70KB+ file into a tool call is prohibitively expensive and a past run burned its
+whole budget on exactly that):
 
     mkdir -p gazettes
-    cp <pdf> gazettes/guillotine-gazette-week-N.pdf
-    cp <jpg> gazettes/guillotine-gazette-week-N.jpg
+    cp <jpg> gazettes/guillotine-roast-week-N.jpg
+    git add gazettes && git commit -m "gazette: week N image" && git push origin main
 
-## Step 6 - record the memory and publish, BEFORE emailing
+Raw URL (substitute N):
 
-So the image URL resolves when the email is opened:
+    https://raw.githubusercontent.com/dave05/greenlite-fantasy-2026/main/gazettes/guillotine-roast-week-N.jpg
 
-    node scripts/roast/memory.mjs record $OUT/gazette.json $OUT/copy.json
-    git add gazettes league-memory && git commit -m "gazette: week N" && git push origin <current branch>
-
-URLs (substitute the branch you pushed to):
-
-    https://raw.githubusercontent.com/dave05/greenlite-fantasy-2026/<branch>/gazettes/guillotine-gazette-week-N.jpg
-    https://github.com/dave05/greenlite-fantasy-2026/raw/<branch>/gazettes/guillotine-gazette-week-N.pdf
-
-DO NOT attach either file to the email. Base64-ing a 70KB+ file into a tool
-call is prohibitively expensive and a previous run burned its whole budget
-discovering that. The inline `<img>` below does the same thing for free.
-
-## Step 7 - write and send the email
-
-Use ONLY the jokes in copy.json (paper lines plus the `jokes` list). If you
-want a new line while writing, add it to copy.json, re-run check, and re-run
-record before sending. Cover whichever exist: awards.overkill, awards.flop,
-awards.benched, awards.lowball, awards.steal, awards.hoarder (managers still
-sitting on their whole FAAB budget), any storylines, and chopped (who died, with what
-score).
+Then send the email:
 
 - to: dasam2012@gmail.com
-- subject: "The Guillotine Gazette - Week N"
-- body: your plain-text version
-- htmlBody: the same content, leading with the paper itself:
-  `<img src="<raw .jpg URL>" width="760" style="width:100%;max-width:760px">`
-- no attachments
+- subject: "The Guillotine Roast - Week N"
+- body: a plain-text version of the paper's best lines (headline, the chop, the
+  marquee, Off the Wire, two or three Roast Desk burns).
+- htmlBody: leads with the paper itself -
+  `<img src="<raw .jpg URL>" width="760" style="width:100%;max-width:760px">` - then
+  the plain-text lines below it.
+- no attachments.
 
-End with both URLs on their own lines so they can be forwarded straight into
-the group chat - pasting the .jpg link into Slack or WhatsApp renders it inline.
+End the email with the live link and the raw image link on their own lines, so
+they can be forwarded straight into the group chat:
+
+    https://greenlite-fantasy-2026.vercel.app/#gazette
+    <raw .jpg URL>
 
 Finally, use SendUserFile to drop the JPEG into the session too.
 
 ## When things go wrong
 
-- BUILD FAILS: email dasam2012@gmail.com, subject "Guillotine Gazette - build
-  failed", with the error and command output. Do not fail silently.
-- SEASON OVER or no waiver activity: send it anyway and say it was a quiet week
-  (still run check and record).
+- COLLECT OR CHECK FAILS: email dasam2012@gmail.com, subject "Guillotine Roast -
+  build failed", with the error and command output. Do not fail silently.
+- SEASON OVER or no waiver activity: still write a short, funny quiet-week copy,
+  run check and record, push, screenshot, and send it anyway.

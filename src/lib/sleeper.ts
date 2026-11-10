@@ -1031,6 +1031,9 @@ export type Gazette = {
     // The team's role this week, so the copy can land the connection.
     role: "chopped" | "bottom" | "bigSpender" | "flop" | "benched" | "benchGem" | "marquee" | "top" | "other";
   } | null;
+  // Current real news about the MARQUEE player himself (e.g. the guy you just
+  // overpaid for is now hurt). The jackpot headline: overpay + instant regret.
+  marqueeNews: { category: NewsCategory; headline: string; source: string } | null;
   // Season-long FAAB spend, for the "Wallet Watch" receipts: who torches their
   // budget vs who survives on pocket change. null if no FAAB data.
   spending: {
@@ -1296,6 +1299,21 @@ export async function getGazette(
     return best;
   })();
 
+  // Does the MARQUEE player himself have roastable news right now? The dream
+  // headline: you just blew the budget on a guy who is already hurt/benched.
+  const marqueeNews = (() => {
+    if (!mostAbsurd) return null;
+    const needle = mostAbsurd.player.name.toLowerCase();
+    if (needle.length < 6 || !needle.includes(" ")) return null;
+    for (const h of headlines) {
+      const cat = classify(h.title);
+      if (cat !== "other" && h.title.toLowerCase().includes(needle)) {
+        return { category: cat, headline: h.title, source: h.source };
+      }
+    }
+    return null;
+  })();
+
   // Wallet Watch: season FAAB spend per team (Sleeper tracks it on the roster).
   // Biggest wallet = most spent overall; tightest = least spent among teams that
   // actually played this week (so a chopped/bye team isn't crowned "thrifty").
@@ -1346,6 +1364,7 @@ export async function getGazette(
         }
       : null,
     newsHook,
+    marqueeNews,
     spending,
   };
 }

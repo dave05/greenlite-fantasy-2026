@@ -303,6 +303,55 @@ async function main() {
   const spend = won.reduce((sum, b) => sum + b.bid, 0);
   const freshSpend = freshBids.filter((b) => b.won).reduce((sum, b) => sum + b.bid, 0);
 
+  // Season FAAB story for the Wallet Watch: the biggest spender still alive vs
+  // the cheapest manager still alive who actually put up points. Straight off
+  // waiver_budget_used (already in faab), so no bid math to get wrong.
+  const aliveFaab = faab.filter((f) => f.alive);
+  const asSpend = (f) => (f ? { team: f.team, ownerId: f.ownerId, used: f.spent } : null);
+  const topSpender = aliveFaab.length ? [...aliveFaab].sort((a, b) => b.spent - a.spent)[0] : null;
+  const cheapest =
+    aliveFaab.filter((f) => (f.points ?? 0) > 0).length
+      ? [...aliveFaab].filter((f) => (f.points ?? 0) > 0).sort((a, b) => a.spent - b.spent)[0]
+      : null;
+  const spending = { topSpender: asSpend(topSpender), cheapest: asSpend(cheapest) };
+
+  // Tonight's real Thursday kickoff for the Kickoff Bulletin, from ESPN's public
+  // scoreboard. Mirrors src/lib/schedule.ts exactly so the paper names the same
+  // TNF the website does: query the UPCOMING week by number (state.week, the
+  // week whose Thursday is next), take the earliest event, and confirm it is a
+  // Thursday in ET before trusting it. Best-effort - a failed fetch or a week
+  // with no Thursday opener just leaves tnf null and the paper falls back to a
+  // generic "set your lineups" nudge.
+  const upcomingWeek = Math.max(1, state.week ?? week + 1);
+  const tnf = await (async () => {
+    try {
+      const r = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=2&week=${upcomingWeek}`,
+      );
+      if (!r.ok) return null;
+      const j = await r.json();
+      const events = (j.events ?? [])
+        .map((e) => ({ e, t: e.date ? Date.parse(e.date) : NaN }))
+        .filter((x) => !Number.isNaN(x.t))
+        .sort((a, b) => a.t - b.t);
+      const first = events[0];
+      if (!first) return null;
+      const et = new Date(new Date(first.t).toLocaleString("en-US", { timeZone: "America/New_York" }));
+      if (et.getDay() !== 4) return null; // not a Thursday opener (e.g. Week 18)
+      const comp = first.e.competitions?.[0];
+      const away = comp?.competitors?.find((c) => c.homeAway === "away")?.team;
+      const home = comp?.competitors?.find((c) => c.homeAway === "home")?.team;
+      return {
+        short: first.e.shortName ?? `${away?.abbreviation ?? "AWAY"} @ ${home?.abbreviation ?? "HOME"}`,
+        away: away?.displayName ?? "the away team",
+        home: home?.displayName ?? "the home team",
+        kickoff: first.t,
+      };
+    } catch {
+      return null;
+    }
+  })();
+
   console.log(
     JSON.stringify(
       {
@@ -325,6 +374,8 @@ async function main() {
         scores,
         chopped,
         faab: { budget, rosters: faab },
+        spending,
+        tnf,
         // Group-chat material from league-memory/storylines.json that covers
         // this week, so it reaches whoever reads this file.
         storylines: await liveStorylines(week),

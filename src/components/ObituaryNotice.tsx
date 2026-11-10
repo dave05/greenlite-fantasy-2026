@@ -67,11 +67,15 @@ export default function ObituaryNotice({
   points,
   week,
   avatar,
+  epitaph,
 }: {
   name: string;
   points: number;
   week: number;
   avatar: string | null;
+  // Optional one-line epitaph from the editor routine's curated copy, printed as
+  // a pull-quote under the obituary paragraph. Omitted = just the paragraph.
+  epitaph?: string | null;
 }) {
   const initial = name.trim().charAt(0).toUpperCase() || "?";
   return (
@@ -119,6 +123,11 @@ export default function ObituaryNotice({
             <p className="mt-2 font-serif text-[13px] leading-snug text-[#221d15]/90">
               {obituary(name, points, week)}
             </p>
+            {epitaph && (
+              <p className="mt-1.5 font-serif text-[12px] italic leading-snug text-[#221d15]/75">
+                &ldquo;{epitaph}&rdquo;
+              </p>
+            )}
             {/* messages from the surviving league - the condolences column */}
             <div className="mt-3 border-t border-[#221d15]/25 pt-2">
               <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#221d15]/55">
