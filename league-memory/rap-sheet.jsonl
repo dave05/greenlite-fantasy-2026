@@ -16,3 +16,12 @@
 {"week":3,"kind":"heartbreak","ownerId":"1396537478361387008","team":"Sdobens4","player":"A.J. Brown","bid":42,"winningBid":52,"winner":"maruniak"}
 {"week":3,"kind":"top_score","ownerId":"1258801794037862400","team":"Vladimir Tuten","points":163.9}
 {"week":3,"kind":"chopped","ownerId":"558675356280602624","team":"KRogo5","points":50.98}
+{"week":9,"kind":"big_spender","ownerId":"1397960075913486336","team":"kylereckert","player":"Amon-Ra St. Brown","pos":"WR","bid":402,"points":16.6}
+{"week":9,"kind":"flop","ownerId":"741512280193261568","team":"maruniak","player":"David Montgomery","pos":"RB","bid":21,"points":0}
+{"week":9,"kind":"benched","ownerId":"860959579746484224","team":"matthewmongelli","player":"Saquon Barkley","pos":"RB","bid":150,"points":null}
+{"week":9,"kind":"steal","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Jayden Daniels","pos":"QB","bid":0,"points":14.56}
+{"week":9,"kind":"lowball","ownerId":"1396677940267216896","team":"PumpUpTheJam32","player":"Sam LaPorta","pos":"TE","bid":3,"points":null}
+{"week":9,"kind":"overkill","ownerId":"1397960075913486336","team":"kylereckert","player":"Amon-Ra St. Brown","pos":"WR","bid":402,"points":16.6,"nextBid":183,"gap":219}
+{"week":9,"kind":"heartbreak","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Saquon Barkley","bid":16,"winningBid":23,"winner":"Sdobens4"}
+{"week":9,"kind":"top_score","ownerId":"1138704096498597888","team":"kaelanzm","points":145.74}
+{"week":9,"kind":"chopped","ownerId":"1258801794037862400","team":"Vladimir Tuten","points":89.46}
