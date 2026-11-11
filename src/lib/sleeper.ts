@@ -1141,9 +1141,28 @@ export async function getGazette(
   const benched =
     [...won].filter((b) => b.bid >= 25 && b.started === false && b.points != null && b.points >= 8)
       .sort((a, b) => b.bid - a.bid)[0] ?? null;
-  // Best buy: cheapest starter who actually delivered this weekend.
+  // Best buy: cheapest starter who cleared a real bar FOR THEIR POSITION this
+  // weekend. Pure points-per-dollar lets any $0 pickup win on cheapness alone, so
+  // a $0 QB who scraped 14.6 looked like "genius" - but 14.6 is a bad week for a
+  // QB. The score has to actually be good for the slot, or cheap mediocrity wins
+  // every week. Baselines are roughly a solid (not elite) weekly PPR score.
+  const goodWeek = (pos: string): number => {
+    switch ((pos || "").toUpperCase()) {
+      case "QB":
+        return 18;
+      case "RB":
+        return 14;
+      case "WR":
+        return 13;
+      case "TE":
+        return 10;
+      default:
+        return 9; // K, DEF, and anything unlabeled
+    }
+  };
   const steal =
-    [...won].filter((b) => b.points != null && b.points > 0 && b.started === true)
+    [...won]
+      .filter((b) => b.points != null && b.started === true && b.points >= goodWeek(b.player.position))
       .sort((a, b) => b.points! / Math.max(1, b.bid) - a.points! / Math.max(1, a.bid))[0] ?? null;
 
   const contestsOf = (list: GazetteBid[]): GazetteContest[] => {

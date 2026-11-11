@@ -550,7 +550,7 @@ export default function Gazette({
         ? {
             kicker: "Money incinerated",
             head: `${money(a.flop.bid)} spent · ${pts(a.flop.points)} points returned`,
-            sub: `${a.flop.team} bought ${a.flop.player.name} for ${money(a.flop.bid)} and got ${pts(a.flop.points)} back - ${money(Math.round(a.flop.bid / Math.max(0.1, a.flop.points ?? 0.1)))} a point. The receipt has been laminated for the group chat.`,
+            sub: `${a.flop.team} bought ${a.flop.player.name} for ${money(a.flop.bid)} and got ${pts(a.flop.points)} back - ${money(Math.round(a.flop.bid / Math.max(0.1, a.flop.points ?? 0.1)))} a point. ${pick(["A car payment for a stat line you could sneeze out.", "No refunds, and no receipt worth framing.", "Somewhere a budget is filing a missing-persons report.", "That is rent money, gone, for a shrug.", "The math on this one should be illegal in several states."], a.flop.bid + g.week)}`,
           }
         : {
             kicker: `Week ${g.week}`,
