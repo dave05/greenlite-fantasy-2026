@@ -1383,7 +1383,7 @@ export async function getGazette(
           // Season FAAB this team actually spent, so the obituary can be accurate
           // (a big spender "torched $900", a hoarder "died on a full budget").
           spent:
-            (rosters.find((r) => r.roster_id === choppedRosterId)?.settings as
+            (rosters?.find((r) => r.roster_id === choppedRosterId)?.settings as
               | { waiver_budget_used?: number }
               | null)?.waiver_budget_used ?? 0,
         }
