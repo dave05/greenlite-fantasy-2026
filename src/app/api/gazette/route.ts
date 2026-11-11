@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { getGazette, getNflState } from "@/lib/sleeper";
 import { getThursdayGame } from "@/lib/schedule";
 import { choppedLeagueId } from "@/lib/leagues";
@@ -9,15 +11,16 @@ export const dynamic = "force-dynamic";
 const cache = new Map<number, { at: number; body: unknown }>();
 const TTL_MS = 10 * 60 * 1000;
 
-// The editor routine commits curated jokes as a static asset in public/. Read it
-// over a same-origin fetch (public files are served by the deployment, not the
-// function filesystem). Returns the `paper` object, or null if none exists yet.
-async function loadCuratedCopy(req: Request, week: number): Promise<unknown> {
+// The editor routine commits curated jokes to public/league-copy/week-N.json.
+// Read it off the function's filesystem (next.config bundles these files into
+// this route via outputFileTracingIncludes) rather than over HTTP - a same-origin
+// fetch of a public asset is unreliable under deployment protection / internal
+// routing. Returns the `paper` object, or null if no curated copy exists yet.
+async function loadCuratedCopy(week: number): Promise<unknown> {
   try {
-    const url = new URL(`/league-copy/week-${week}.json`, req.url);
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { paper?: unknown } | null;
+    const path = join(process.cwd(), "public", "league-copy", `week-${week}.json`);
+    const raw = await readFile(path, "utf8");
+    const json = JSON.parse(raw) as { paper?: unknown } | null;
     return json?.paper ?? json ?? null;
   } catch {
     return null;
@@ -60,7 +63,7 @@ export async function GET(req: Request) {
     // written, web-researched, no-repeat jokes instead of the auto-generated
     // lines. Same file the no-repeat checker (scripts/roast/memory.mjs) reads, so
     // the site and the guard never disagree. Absent = the deterministic fallback.
-    const copy = await loadCuratedCopy(req, week);
+    const copy = await loadCuratedCopy(week);
     const body = { connected: true, week, lastCompleted, currentWeek: current, tnf, gazette, copy };
     cache.set(week, { at: Date.now(), body });
     return NextResponse.json(body, { headers: { "Cache-Control": "no-store" } });
