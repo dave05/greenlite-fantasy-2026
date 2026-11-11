@@ -51,6 +51,12 @@ The core troll rules, every week (non-negotiable):
   one breath (e.g. do NOT write "107 yards and 5,000 career rushing yards all on
   Monday night" - that reads as one game). If you are not certain of a figure,
   leave it out. A wrong stat kills the whole joke's credibility.
+- **Benching an injured or ruled-out player is SMART, never a flop.** A 0.0 from
+  a guy who was OUT (on IR, inactive, ruled out) and correctly left on the bench
+  is good management, not misconduct. Do not build a "wasted money / the zeros are
+  a brand" bit out of injured-player blanks. Only roast a bad buy the manager
+  actually STARTED, or a real score they benched. (`collect.mjs` now enforces this
+  in the awards, but check the story before you write it.)
 - Be creative and edgy, but only ever about football decisions and fandom.
 
 Before you write a single line, read EVERYTHING:

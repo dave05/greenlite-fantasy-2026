@@ -159,20 +159,40 @@ async function main() {
 
   const bigSpender = byBidDesc[0] ?? null;
 
-  // Worst value: paid real money, got nothing. Only judge bids with a pulse,
-  // otherwise a $1 pickup that blanked wins "worst" every week.
+  // Worst value: paid real money, STARTED him, got nothing. Must be started -
+  // benching an injured or ruled-out pickup (e.g. a stashed A.J. Brown, or a
+  // Montgomery who was OUT) is smart management, not a flop, and roasting it
+  // punishes good process. Same rule the live site enforces.
   const flop = [...won]
-    .filter((b) => b.bid >= 20 && b.points != null)
+    .filter((b) => b.bid >= 20 && b.points != null && b.started === true)
     .sort((a, b) => a.points / a.bid - b.points / b.bid)[0] ?? null;
 
-  // Paid real money, then started someone else. The purest form of self-harm.
+  // Paid real money, then started someone else WHILE HE SCORED. Only a crime if
+  // you left real points on the bench - benching a guy who blanked (often because
+  // he was hurt) is the correct call, not self-harm.
   const benched = [...won]
-    .filter((b) => b.bid >= 25 && b.started === false)
+    .filter((b) => b.bid >= 25 && b.started === false && b.points != null && b.points >= 8)
     .sort((a, b) => b.bid - a.bid)[0] ?? null;
 
-  // Best value: the opposite, and the one person who gets praised.
+  // Best value: cheapest STARTER who cleared a real bar for their position. A $0
+  // pickup that scraped a mediocre score is not "genius" - cheap mediocrity would
+  // win on value every week. Baselines mirror the live site.
+  const goodWeek = (pos) => {
+    switch ((pos || "").toUpperCase()) {
+      case "QB":
+        return 18;
+      case "RB":
+        return 14;
+      case "WR":
+        return 13;
+      case "TE":
+        return 10;
+      default:
+        return 9;
+    }
+  };
   const steal = [...won]
-    .filter((b) => b.points != null && b.points > 0)
+    .filter((b) => b.points != null && b.started === true && b.points >= goodWeek(b.meta?.pos))
     .sort((a, b) => b.points / Math.max(1, b.bid) - a.points / Math.max(1, a.bid))[0] ?? null;
 
   // Contested players: someone won, others lost. The gap is the joke.
