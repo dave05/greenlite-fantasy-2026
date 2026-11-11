@@ -1016,7 +1016,7 @@ export type Gazette = {
   contests: GazetteContest[];
   freshContests: GazetteContest[];
   scores: { rosterId: number; team: string; points: number }[];
-  chopped: { rosterId: number; team: string; points: number | null; avatar: string | null } | null;
+  chopped: { rosterId: number; team: string; points: number | null; avatar: string | null; spent: number } | null;
   // Real NFL news tied to a team in this league: their rostered player is in a
   // headline. Lets the copy connect the wire to the week's fate ("your QB blew a
   // knee AND you got chopped"). null when nothing matched.
@@ -1380,6 +1380,12 @@ export async function getGazette(
           team: teamOf(choppedRosterId),
           points: scoreByRoster.get(choppedRosterId) ?? null,
           avatar: avatarOf(choppedRosterId),
+          // Season FAAB this team actually spent, so the obituary can be accurate
+          // (a big spender "torched $900", a hoarder "died on a full budget").
+          spent:
+            (rosters.find((r) => r.roster_id === choppedRosterId)?.settings as
+              | { waiver_budget_used?: number }
+              | null)?.waiver_budget_used ?? 0,
         }
       : null,
     newsHook,

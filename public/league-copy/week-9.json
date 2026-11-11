@@ -35,22 +35,26 @@
    {
     "who": "a",
     "mood": "talk",
-    "text": "I put every dollar I had on Amon-Ra. All $183."
+    "text": "I put every dollar I had on Amon-Ra. All $183.",
+    "label": "Vladimir Tuten"
    },
    {
     "who": "b",
     "mood": "smug",
-    "text": "kylereckert bid $402."
+    "text": "kylereckert bid $402.",
+    "label": "The Reaper"
    },
    {
     "who": "a",
     "mood": "react",
-    "text": "So I keep my $183?"
+    "text": "So I keep my $183?",
+    "label": "Vladimir Tuten"
    },
    {
     "who": "b",
     "mood": "yell",
-    "text": "Every cent. Forever. Enjoy it in the cemetery."
+    "text": "Every cent. Forever. Enjoy it in the cemetery.",
+    "label": "The Reaper"
    }
   ],
   "obituary": "Vladimir Tuten, Week 9. Started Derrick Henry (5.58) over Breece Hall (11.7) and Trevor Lawrence over Brock Purdy, lost by 0.34. By Wednesday his $503 James Cook resold for $181 and the rest of the roster got split four ways. Survived by $183 and an estate sale.",

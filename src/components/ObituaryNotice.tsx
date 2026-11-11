@@ -11,14 +11,21 @@ const pick = <T,>(arr: T[], seed: number) => arr[Math.abs(Math.floor(seed)) % ar
 
 // A full newspaper-obituary paragraph, in the mock-solemn "It is with great
 // regret..." voice - but every line roasts the fantasy team, never the person.
-const obituary = (name: string, points: number, week: number) => {
+const obituary = (name: string, points: number, week: number, spent: number) => {
   const pts = points.toFixed(1);
   const seed = Math.round(points * 10) + name.length + week * 7;
+  // An accurate FAAB epitaph: a big spender torched it, a hoarder died rich.
+  const faab =
+    spent >= 400
+      ? `$${spent.toLocaleString("en-US")} in FAAB torched for this`
+      : spent > 0
+        ? `$${spent.toLocaleString("en-US")} in FAAB, mostly wasted`
+        : `a FAAB balance nobody will ever audit`;
   return pick(
     [
       `It is with great regret, and considerable laughter, that we announce the passing of ${name}, chopped in Week ${week} at a tragic ${pts} points. Initial findings show a fatal overdose of bad start/sit decisions. A memorial will be held in the group chat, where mourners are encouraged to pile on. In lieu of flowers, the family asks only that you please set your lineup. ${name} is survived by a bench that begged to play.`,
       `The league solemnly reports the death of ${name}, found face-down in the basement of the standings with just ${pts} points. Cause of death: acute roster mismanagement. While an investigation is ongoing, early reports suggest they simply forgot it was game day. Services will be brief; so was the season.`,
-      `We mourn ${name}, ${pts} points, chopped in Week ${week} after a long and very public battle with the waiver wire. They leave behind $0 in FAAB well spent and a group chat full of receipts. Viewing will be held every time someone reopens the screenshots.`,
+      `We mourn ${name}, ${pts} points, chopped in Week ${week} after a long and very public battle with the waiver wire. They leave behind ${faab} and a group chat full of receipts. Viewing will be held every time someone reopens the screenshots.`,
       `${name} was laid to rest in Week ${week}, having posted a heroic ${pts} points - roughly what a competent bench scores by accident. Preceded in death by their draft strategy and survived by everyone who benched their kicker on time. Donations may be sent to a fund for people who check the injury report.`,
       `With heavy hearts and light schedules, we announce that ${name} has been chopped in Week ${week} at ${pts} points. The deceased is remembered for the trades they never made and the free agents they never claimed. A candlelight vigil will be held the moment someone remembers their team name.`,
     ],
@@ -68,6 +75,7 @@ export default function ObituaryNotice({
   week,
   avatar,
   epitaph,
+  spent = 0,
 }: {
   name: string;
   points: number;
@@ -76,6 +84,9 @@ export default function ObituaryNotice({
   // Optional one-line epitaph from the editor routine's curated copy, printed as
   // a pull-quote under the obituary paragraph. Omitted = just the paragraph.
   epitaph?: string | null;
+  // The chopped team's season FAAB spend, so the obituary is accurate (a big
+  // spender torched it; a hoarder died on a full budget).
+  spent?: number;
 }) {
   const initial = name.trim().charAt(0).toUpperCase() || "?";
   return (
@@ -121,7 +132,7 @@ export default function ObituaryNotice({
               🪓 Chopped · Week {week} · {points.toFixed(1)} pts
             </p>
             <p className="mt-2 font-serif text-[13px] leading-snug text-[#221d15]/90">
-              {obituary(name, points, week)}
+              {obituary(name, points, week, spent)}
             </p>
             {epitaph && (
               <p className="mt-1.5 font-serif text-[12px] italic leading-snug text-[#221d15]/75">

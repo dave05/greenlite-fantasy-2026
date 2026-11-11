@@ -161,6 +161,28 @@ against every joke ever printed and against each other, and rejects `off_limits`
 topics. Rewrite any flagged line with a genuinely NEW angle (not a reword) and run
 it again until it prints `ok`.
 
+## Step 4b - proofread in passes before publishing
+
+The `check` script only catches repeats and off-limits topics. YOU catch the rest.
+Read the whole paper back critically, one concern per pass. Fix, then re-read. Do
+not push until all four passes are clean:
+
+1. **FACTS.** Every number, name, score, bid and date matches `gazette.json` or a
+   cited source. No single-game line fused with a career or season total. No
+   invented stats. Re-verify the marquee bid, the chop score and the FAAB figures
+   against the data, not your memory of them.
+2. **FAIRNESS.** No roasting a benched injured or ruled-out player as a flop or a
+   waste. Punch at decisions and fandom, never people. Nothing from any manager's
+   `off_limits`. A losing bid costs nothing; the highest valid bid wins.
+3. **CLARITY and COMEDY.** Does each joke actually LAND, and is it clear WHO it is
+   about? Name names. For the comic, give each character a `label` (the manager
+   they are playing) so the reader knows who is talking. If a bit needs inside
+   knowledge the reader does not have, add the setup or cut it.
+4. **NO REPEATS.** `memory.mjs check` prints `ok` (Step 4 above).
+
+A second read of your own copy catches the stat slip, the unfair burn and the
+joke that does not land BEFORE the league sees them, not after.
+
 ## Step 5 - record, commit, and push to main (this updates the live site)
 
     node scripts/roast/memory.mjs record $OUT/gazette.json public/league-copy/week-N.json

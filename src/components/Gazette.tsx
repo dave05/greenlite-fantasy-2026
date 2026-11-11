@@ -972,6 +972,7 @@ export default function Gazette({
               week={g.week}
               avatar={g.chopped.avatar}
               epitaph={cc?.obituary ?? null}
+              spent={g.chopped.spent}
             />
           ) : (
             <p className="text-center text-[12px] italic text-[#14110d]/70">

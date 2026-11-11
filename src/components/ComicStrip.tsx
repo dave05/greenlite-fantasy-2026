@@ -7,6 +7,9 @@ export type ComicLine = {
   who: "a" | "b";
   mood: "talk" | "yell" | "smug" | "react";
   text: string;
+  // Optional name tag under the character (the manager they play, e.g. "Vladimir
+  // Tuten"). Labels make the bit land - the reader needs to know who is talking.
+  label?: string;
 };
 
 // One cartoon guy. `a` wears a backwards cap, `b` has spiky hair - enough to tell
@@ -92,11 +95,16 @@ function Panel({ line, compact }: { line: ComicLine; compact?: boolean }) {
           } -mt-1.5`}
         />
       </div>
-      {/* the guy, standing on the panel floor, on his own side */}
-      <div className={`mt-auto flex ${line.who === "a" ? "justify-start" : "justify-end"}`}>
+      {/* the guy, standing on the panel floor, on his own side, with a name tag */}
+      <div className={`mt-auto flex flex-col ${line.who === "a" ? "items-start" : "items-end"}`}>
         <div className={compact ? "h-14 w-12" : "h-20 w-16 sm:h-24 sm:w-20"}>
           <Guy who={line.who} mood={line.mood} />
         </div>
+        {line.label && (
+          <span className="mt-0.5 max-w-full truncate text-[8px] font-bold uppercase tracking-[0.08em] text-[#14110d]/70">
+            {line.label}
+          </span>
+        )}
       </div>
     </div>
   );
