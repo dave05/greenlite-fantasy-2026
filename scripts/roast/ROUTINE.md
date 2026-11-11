@@ -20,11 +20,23 @@ roasting the group chat - sarcastic, specific, creative and edgy, written to get
 REACTION out of the person named. Dry, confident, mean about the DECISION. The data
 is the floor, not the ceiling.
 
-The core troll rules, every week:
-- **Never repeat a joke, premise, or analogy.** New angle every time.
-- **Read the latest group chat** (storylines) and work the fresh drama in.
-- **Read this week's waiver-wire activity** - who bid what, the overpays, the
-  denied bids, who is hoarding - and roast the actual moves.
+The core troll rules, every week (non-negotiable):
+- **The current week's waiver wire must have run FIRST.** Never build a paper on
+  stale waivers. Confirm this week's run has actually processed before you write
+  (Step 2a below). If it has not cleared yet, STOP and do not publish.
+- **Never repeat a joke, premise, or analogy - checked against EVERY previous
+  week's issue.** `memory.mjs check` compares your lines to every joke ever
+  printed (`league-memory/jokes.jsonl`), not just last week. A callback to an old
+  crime by name and week is good; a reworded rerun is banned.
+- **Use ALL the league data.** Everything `collect.mjs` emits: both waiver runs,
+  the awards, every score, the full FAAB table, the chop, season spending. Do not
+  lead with one stat and ignore the rest.
+- **Read the league chat.** The group-chat drama lives in `storylines.json`
+  (the commissioner adds it by hand - Sleeper's public API has no chat endpoint).
+  `brief` surfaces the entries for this week. Work the fresh drama in.
+- **Per-team / per-person memory.** `league-memory/members.json` is one dossier
+  per manager - nicknames, fandom, tendencies, running gags, past crimes, and
+  `off_limits`. Roast each person from THEIR file; call back their own history.
 - **Web-search the latest real NFL news** and tie it to a rostered player.
 - Be creative and edgy, but only ever about football decisions and fandom.
 
@@ -70,6 +82,20 @@ JSON. Read the whole briefing: storylines, who is in the news, their profile,
 their rap sheet, and every joke already used. `gazette.json` also carries
 `tnf` (tonight's real Thursday game), `spending` (season FAAB leaders), `awards`,
 `contests`, `freshContests`, `scores`, `chopped`, and `faab`.
+
+## Step 2a - GATE: confirm this week's waiver wire has run first
+
+`gazette.json` carries `freshRunAt` (when this week's waiver run processed) and
+`freshRunAgeHours` (how long ago). The run should be fresh - the Wednesday wire
+clears ~3am, so by 8am it is a few hours old.
+
+- If `freshRunAgeHours` is null, or clearly stale (more than ~48 hours old, i.e.
+  it is still last week's run and this week's has not cleared), **STOP.** Do not
+  build or publish a paper on a stale wire. Email dasam2012@gmail.com, subject
+  "Guillotine Roast - waiver wire not run yet", say the current run has not
+  cleared, and end the routine. A paper that roasts last week's claims as if
+  they were new is the exact mistake this gate exists to prevent.
+- Otherwise the wire has run - continue.
 
 ## Step 3 - web-research, then write the curated copy
 

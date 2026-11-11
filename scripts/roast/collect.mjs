@@ -303,6 +303,14 @@ async function main() {
   const spend = won.reduce((sum, b) => sum + b.bid, 0);
   const freshSpend = freshBids.filter((b) => b.won).reduce((sum, b) => sum + b.bid, 0);
 
+  // When this week's waiver run actually processed, so the routine can refuse to
+  // build a paper on a stale wire (Rule 1). status_updated is ms epoch; null if
+  // this week's run has not cleared yet. freshRunAgeHours makes the gate a simple
+  // "is this recent?" check for whoever reads the JSON.
+  const freshRunAt =
+    Math.max(0, ...(thisRun ?? []).filter((t) => t.status_updated).map((t) => Number(t.status_updated) || 0)) || null;
+  const freshRunAgeHours = freshRunAt ? Math.round(((Date.now() - freshRunAt) / 3.6e6) * 10) / 10 : null;
+
   // Season FAAB story for the Wallet Watch: the biggest spender still alive vs
   // the cheapest manager still alive who actually put up points. Straight off
   // waiver_budget_used (already in faab), so no bid math to get wrong.
@@ -376,6 +384,8 @@ async function main() {
         faab: { budget, rosters: faab },
         spending,
         tnf,
+        freshRunAt,
+        freshRunAgeHours,
         // Group-chat material from league-memory/storylines.json that covers
         // this week, so it reaches whoever reads this file.
         storylines: await liveStorylines(week),
