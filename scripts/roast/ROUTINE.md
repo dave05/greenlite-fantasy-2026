@@ -46,6 +46,11 @@ The core troll rules, every week (non-negotiable):
   going for cheap everywhere else, or ignoring the obvious league-wide pickup, is
   a funnier burn when you know what the rest of the fantasy world did. Tie at
   least one bit to a real, verifiable headline about a rostered player.
+- **Get every real NFL stat exactly right.** Only state numbers a source
+  actually gives. Never mix a single-game line with a career or season total in
+  one breath (e.g. do NOT write "107 yards and 5,000 career rushing yards all on
+  Monday night" - that reads as one game). If you are not certain of a figure,
+  leave it out. A wrong stat kills the whole joke's credibility.
 - Be creative and edgy, but only ever about football decisions and fandom.
 
 Before you write a single line, read EVERYTHING:
