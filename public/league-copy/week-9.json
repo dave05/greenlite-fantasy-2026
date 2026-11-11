@@ -1,64 +1,64 @@
 {
-  "week": 9,
-  "paper": {
-    "headline": {
-      "kicker": "Waiver Wire - Week 9 Estate Sale",
-      "head": "THE LEAGUE PICKED VLADIMIR TUTEN'S CORPSE CLEAN FOR $481",
-      "sub": "All seven winning claims at 3am Wednesday came off the chopped roster. The whole haul cost $22 less than Tuten paid for James Cook alone in Week 2. maruniak walked out with Cook at $181, which is 36 cents on the dollar, and a Tuten for $61."
-    },
-    "offWire": {
-      "source": "NBC Sports, Nov. 9",
-      "headline": "James Cook rides elite volume to career milestone",
-      "text": "31 carries, 107 yards, a fourth-quarter touchdown, seven straight games with a score and 5,000 career rushing yards, all on Monday night. It was worth 16.7 points to Vladimir Tuten, who was chopped by 0.34 an hour later. maruniak read the same box score and paid $181 for him at 3am. PumpUpTheJam32's $108 was the next highest bid and costs nothing. Buying the hot hand off a dead man's roster is not scouting, it is probate."
-    },
-    "kickoff": {
-      "nudge": "Commanders at Giants (WSH @ NYG) opens Week 10 tonight at 8:15 ET. JSN, your free Jayden Daniels plays first. Everyone else, look at what Vladimir Tuten's bench did to him and set your lineup before kickoff.",
-      "miss": "Week 9's worst lineup call: Vladimir Tuten started Trevor Lawrence (13.58) over Brock Purdy (26.28) and was chopped by 0.34. A 12.7-point swing sat on the bench, unopened."
-    },
-    "roast": {
-      "benched": "matthewmongelli paid $150 for Saquon Barkley at 10am on a Sunday, started him, got 12.4, and was chopped in Week 8 anyway. Saquon went back on the wire and Sdobens4 got him for $23, then benched him for 8.2. Sdobens4 also sat Jordan Love's 36.18 to start Mahomes. Second place, built entirely out of spite.",
-      "flop": "maruniak's waiver receipts: A.J. Brown, 0.0, Week 3. David Montgomery, 0.0, Week 9. At this point the zeros are not bad luck, they are a brand. Montgomery got cut Wednesday for Bhayshul Tuten, so maruniak now owns the only Tuten still alive in this league.",
-      "top": "kaelanzm put up 145.7 while carrying a $40 Ladd McConkey and a $200 Jeremiyah Love on the bench for a combined zero. Winning the week with a two-man sinkhole on the roster is either dominance or a cry for help.",
-      "bottom": "Vladimir Tuten scored 89.5. Brock Purdy scored 26.28 on his bench. Purdy did his job. The manager did not.",
-      "spread": "56.3 points from first to last. kaelanzm could have benched Puka Nacua's 35 and still beaten the chopped team by 21.",
-      "escape": "BDALOHA survived by 0.34 after starting Jared Goff (6.3) over Bo Nix (16.68). The Nix Believers' only candidate in this league got benched by his own campaign manager, and the campaign still squeaked through. Second straight week in the bottom two.",
-      "chopped": "Vladimir Tuten goes out with $183 unspent, the exact amount he threw at Amon-Ra. He bet his whole wallet on a receiver and his whole week on Trevor Lawrence. Neither one paid out.",
-      "bigWallet": "BDALOHA dropped $160 on Brock Bowers and Drake London Wednesday and now leads the living at $933 spent, $67 left, after escaping the chop by 0.34. Bowers put up 22.3 for the guy who got chopped. BDALOHA is decorating the lifeboat with furniture from the ship that sank.",
-      "tightWallet": "The thriftiest survivor is kylereckert at $750 spent and $250 banked, which is a funny title for the man who paid $402 for Amon-Ra the first week of November. One splurge, then a vow of poverty. Monk behavior with a receiver budget.",
-      "fresh": "PumpUpTheJam32 bid on four of Tuten's guys and finished second on Cook ($108), Bowers ($64) and London ($41), unpaid every time. Then tied JSN at $31 for Derrick Henry, won the tiebreak, and grabbed Brock Purdy for $15, the same 26.28 Tuten left on his bench. Shopping the funeral with a coupon and still leaving with the good china."
-    },
-    "value": {
-      "stealJab": "JSN cut Jared Goff and grabbed Jayden Daniels for nothing. Goff then posted 6.3 for BDALOHA. The commissioner is running a free trade-in program and only he knows about it.",
-      "lowballJab": "$3 for Sam LaPorta. Sdobens4 paid $14 and got 7.2 out of him, so PumpUpTheJam32 lost the auction and somehow came out ahead."
-    },
-    "comic": [
-      {
-        "who": "a",
-        "mood": "talk",
-        "text": "I put every dollar I had on Amon-Ra. All $183."
-      },
-      {
-        "who": "b",
-        "mood": "smug",
-        "text": "kylereckert bid $402."
-      },
-      {
-        "who": "a",
-        "mood": "react",
-        "text": "So I keep my $183?"
-      },
-      {
-        "who": "b",
-        "mood": "yell",
-        "text": "Every cent. Forever. Enjoy it in the cemetery."
-      }
-    ],
-    "obituary": "Vladimir Tuten, Week 9. Started Derrick Henry (5.58) over Breece Hall (11.7) and Trevor Lawrence over Brock Purdy, lost by 0.34. By Wednesday his $503 James Cook resold for $181 and the rest of the roster got split four ways. Survived by $183 and an estate sale.",
-    "jabs": {
-      "flop": "Twenty-one dollars for a groin injury with a return date.",
-      "benched": "Same running back, 85 percent off, one funeral later.",
-      "lowball": "A tight end offer that rounds to a parking meter.",
-      "steal": "The commissioner shops the clearance rack and wins."
-    }
+ "week": 9,
+ "paper": {
+  "headline": {
+   "kicker": "Waiver Wire - Week 9 Estate Sale",
+   "head": "THE LEAGUE PICKED VLADIMIR TUTEN'S CORPSE CLEAN FOR $481",
+   "sub": "All seven winning claims at 3am Wednesday came off the chopped roster. The whole haul cost $22 less than Tuten paid for James Cook alone in Week 2. maruniak walked out with Cook at $181, which is 36 cents on the dollar, and a Tuten for $61."
+  },
+  "offWire": {
+   "source": "NBC Sports, Nov. 9",
+   "headline": "James Cook rides elite volume to career milestone",
+   "text": "31 carries, 107 yards, and a fourth-quarter touchdown: James Cook bludgeoned the Vikings on Monday night. It was worth 16.7 points to Vladimir Tuten, who got chopped by 0.34 an hour later. maruniak read the same box score and paid $181 for him at 3am. PumpUpTheJam32's $108 was the next highest bid, and it costs nothing. Buying the hot hand off a dead man's roster is not scouting, it is probate."
+  },
+  "kickoff": {
+   "nudge": "Commanders at Giants (WSH @ NYG) opens Week 10 tonight at 8:15 ET. JSN, your free Jayden Daniels plays first. Everyone else, look at what Vladimir Tuten's bench did to him and set your lineup before kickoff.",
+   "miss": "Week 9's worst lineup call: Vladimir Tuten started Trevor Lawrence (13.58) over Brock Purdy (26.28) and was chopped by 0.34. A 12.7-point swing sat on the bench, unopened."
+  },
+  "roast": {
+   "benched": "matthewmongelli paid $150 for Saquon Barkley at 10am on a Sunday, started him, got 12.4, and was chopped in Week 8 anyway. Saquon went back on the wire and Sdobens4 got him for $23, then benched him for 8.2. Sdobens4 also sat Jordan Love's 36.18 to start Mahomes. Second place, built entirely out of spite.",
+   "flop": "maruniak's waiver receipts: A.J. Brown, 0.0, Week 3. David Montgomery, 0.0, Week 9. At this point the zeros are not bad luck, they are a brand. Montgomery got cut Wednesday for Bhayshul Tuten, so maruniak now owns the only Tuten still alive in this league.",
+   "top": "kaelanzm put up 145.7 while carrying a $40 Ladd McConkey and a $200 Jeremiyah Love on the bench for a combined zero. Winning the week with a two-man sinkhole on the roster is either dominance or a cry for help.",
+   "bottom": "Vladimir Tuten scored 89.5. Brock Purdy scored 26.28 on his bench. Purdy did his job. The manager did not.",
+   "spread": "56.3 points from first to last. kaelanzm could have benched Puka Nacua's 35 and still beaten the chopped team by 21.",
+   "escape": "BDALOHA survived by 0.34 after starting Jared Goff (6.3) over Bo Nix (16.68). The Nix Believers' only candidate in this league got benched by his own campaign manager, and the campaign still squeaked through. Second straight week in the bottom two.",
+   "chopped": "Vladimir Tuten goes out with $183 unspent, the exact amount he threw at Amon-Ra. He bet his whole wallet on a receiver and his whole week on Trevor Lawrence. Neither one paid out.",
+   "bigWallet": "BDALOHA dropped $160 on Brock Bowers and Drake London Wednesday and now leads the living at $933 spent, $67 left, after escaping the chop by 0.34. Bowers put up 22.3 for the guy who got chopped. BDALOHA is decorating the lifeboat with furniture from the ship that sank.",
+   "tightWallet": "The thriftiest survivor is kylereckert at $750 spent and $250 banked, which is a funny title for the man who paid $402 for Amon-Ra the first week of November. One splurge, then a vow of poverty. Monk behavior with a receiver budget.",
+   "fresh": "PumpUpTheJam32 bid on four of Tuten's guys and finished second on Cook ($108), Bowers ($64) and London ($41), unpaid every time. Then tied JSN at $31 for Derrick Henry, won the tiebreak, and grabbed Brock Purdy for $15, the same 26.28 Tuten left on his bench. Shopping the funeral with a coupon and still leaving with the good china."
+  },
+  "value": {
+   "stealJab": "JSN cut Jared Goff and grabbed Jayden Daniels for nothing. Goff then posted 6.3 for BDALOHA. The commissioner is running a free trade-in program and only he knows about it.",
+   "lowballJab": "$3 for Sam LaPorta. Sdobens4 paid $14 and got 7.2 out of him, so PumpUpTheJam32 lost the auction and somehow came out ahead."
+  },
+  "comic": [
+   {
+    "who": "a",
+    "mood": "talk",
+    "text": "I put every dollar I had on Amon-Ra. All $183."
+   },
+   {
+    "who": "b",
+    "mood": "smug",
+    "text": "kylereckert bid $402."
+   },
+   {
+    "who": "a",
+    "mood": "react",
+    "text": "So I keep my $183?"
+   },
+   {
+    "who": "b",
+    "mood": "yell",
+    "text": "Every cent. Forever. Enjoy it in the cemetery."
+   }
+  ],
+  "obituary": "Vladimir Tuten, Week 9. Started Derrick Henry (5.58) over Breece Hall (11.7) and Trevor Lawrence over Brock Purdy, lost by 0.34. By Wednesday his $503 James Cook resold for $181 and the rest of the roster got split four ways. Survived by $183 and an estate sale.",
+  "jabs": {
+   "flop": "Twenty-one dollars for a groin injury with a return date.",
+   "benched": "Same running back, 85 percent off, one funeral later.",
+   "lowball": "A tight end offer that rounds to a parking meter.",
+   "steal": "The commissioner shops the clearance rack and wins."
   }
+ }
 }
