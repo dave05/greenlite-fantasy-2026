@@ -67,9 +67,11 @@ House rules, non-negotiable:
 
 ## Step 1 - get the code (on main)
 
-    git checkout main && git pull origin main
+    git fetch origin && git checkout main && git reset --hard origin/main
 
-Everything lives on `main` now, and you push curated copy back to `main`.
+Use `reset --hard`, not `pull`: `main` is occasionally force-pushed, and a plain
+`pull` then dies on "divergent branches". Reset lines you up with the remote
+every time. Everything lives on `main`, and you push curated copy back to `main`.
 
 ## Step 2 - collect the week and read the briefing
 
@@ -161,9 +163,11 @@ production API until `copy` is no longer null:
       sleep 15
     done
 
-Then find the sandbox Chromium and screenshot the chrome-free print route:
+Then find the sandbox Chromium and screenshot the chrome-free print route. The
+Playwright path changes between images (it has been `chrome-linux/chrome` and
+`chrome-linux64/chrome`), so glob for it rather than hardcoding:
 
-    ls /opt/pw-browsers/*/chrome-linux/chrome     # export CHROME to this path
+    CHROME=$(ls /opt/pw-browsers/chromium-*/chrome-linux*/chrome 2>/dev/null | head -1)
     "$CHROME" --headless=new --disable-gpu --no-sandbox --disable-background-networking \
       --virtual-time-budget=12000 --hide-scrollbars --window-size=900,2600 \
       --screenshot=/tmp/roast.png --user-data-dir=$(mktemp -d) \
