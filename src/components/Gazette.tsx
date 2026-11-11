@@ -791,8 +791,16 @@ export default function Gazette({
                   jab={cc?.value?.stealJab ?? "Exactly one manager in this league owns a calculator. Here they are."}
                 >
                   Paid <b>{money(a.steal.bid)}</b> for <b>{a.steal.player.name}</b> and
-                  got <b>{pts(a.steal.points)}</b> points out of him. Everyone else
-                  spent more and got less.
+                  got <b>{pts(a.steal.points)}</b> points out of him.{" "}
+                  {pick(
+                    [
+                      "Everyone else spent more and got less.",
+                      "A rounding error that outscored real investments.",
+                      "Proof the wire still hands out free money to the one person watching.",
+                      "The rest of the league paid full price for worse.",
+                    ],
+                    Math.round((a.steal.points ?? 0) * 10) + g.week,
+                  )}
                 </Card>
               )}
               {a.lowball && (
@@ -803,8 +811,17 @@ export default function Gazette({
                   jab={cc?.value?.lowballJab ?? "Bidding is a participation sport. You, notably, did not participate."}
                 >
                   Offered <b>{money(a.lowball.bid)}</b> for{" "}
-                  <b>{a.lowball.player.name}</b> and lost. It cost nothing, which is
-                  roughly what it was worth.
+                  <b>{a.lowball.player.name}</b> and lost.{" "}
+                  {pick(
+                    [
+                      "A losing bid is free, and this one was priced about right.",
+                      "No money changed hands, which tracks with the ambition.",
+                      "The claim failed and charged nothing - a fair trade.",
+                      "Bold to bring pocket lint to a budget fight.",
+                      "Somewhere a waiver processor is still laughing.",
+                    ],
+                    a.lowball.bid + g.week,
+                  )}
                 </Card>
               )}
             </div>
