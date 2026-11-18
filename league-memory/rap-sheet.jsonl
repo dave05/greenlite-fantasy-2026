@@ -25,3 +25,11 @@
 {"week":9,"kind":"heartbreak","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Saquon Barkley","bid":16,"winningBid":23,"winner":"Sdobens4"}
 {"week":9,"kind":"top_score","ownerId":"1138704096498597888","team":"kaelanzm","points":145.74}
 {"week":9,"kind":"chopped","ownerId":"1258801794037862400","team":"Vladimir Tuten","points":89.46}
+{"week":10,"kind":"big_spender","ownerId":"741512280193261568","team":"maruniak","player":"James Cook III","pos":"RB","bid":181,"points":21.7}
+{"week":10,"kind":"flop","ownerId":"1259206671360610305","team":"BDALOHA","player":"Brock Bowers","pos":"TE","bid":101,"points":3.8}
+{"week":10,"kind":"steal","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Ollie Gordon II","pos":"RB","bid":11,"points":15.5}
+{"week":10,"kind":"lowball","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Brock Purdy","pos":"QB","bid":0,"points":null}
+{"week":10,"kind":"overkill","ownerId":"741512280193261568","team":"maruniak","player":"James Cook III","pos":"RB","bid":181,"points":21.7,"nextBid":108,"gap":73}
+{"week":10,"kind":"heartbreak","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Derrick Henry","bid":31,"winningBid":31,"winner":"PumpUpTheJam32"}
+{"week":10,"kind":"top_score","ownerId":"994362778142011392","team":"JSN - Just Survive Now","points":182.86}
+{"week":10,"kind":"chopped","ownerId":"1259206671360610305","team":"BDALOHA","points":106.52}
