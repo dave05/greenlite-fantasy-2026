@@ -31,5 +31,29 @@
     "topic": "The great Drake Maye vs Bo Nix debate: the league is split into Nix Believers and Maye Defenders.",
     "angle": "Cover it like a bitter political race or a holy war - polling, campaign ads, defectors. The Gazette pretends to be neutral and obviously is not. Maye is on maruniak's team, Nix is on BDALOHA's, so each side has a candidate in the league.",
     "notes": "Runs all season: refresh the numbers each week from Sleeper (https://api.sleeper.app/v1/stats/nfl/regular/<season>/<week>, field pts_ppr; Nix id 11563, Maye id 11564). Week 4, verified: Maye 27.16 (269 pass yds, 3 TD, 1 INT, 54 rush yds) vs Nix 13.56 (214 yds, 1 TD). Season through week 4: Nix 60.26, Maye 54.76; interceptions Maye 7, Nix 4. So Maye finally showed up, but Nix still leads on the season."
+  },
+  {
+    "from_week": 11,
+    "until_week": 11,
+    "added_week": 11,
+    "topic": "PumpUpTheJam32's farewell. After being chopped (80.46, last of six) he posted \"It's been real folks\" (2 hearts), then \"today's no fun at all\". The commish (dawit21) replied: \"We will keep pumping the jam in your name\".",
+    "angle": "A gracious exit, the rarest thing in this league. Play the commish's tribute as a eulogy from the man who just scored 186.5 - the same Sunday.",
+    "notes": "Sleeper league chat, Nov 23-24 (screenshot from the commissioner). Quotes word for word. His Sleeper badges are Eagles, 76ers and Phillies."
+  },
+  {
+    "from_week": 11,
+    "until_week": 11,
+    "added_week": 11,
+    "topic": "The commish (dawit21) to Sdobens4 in the chat: \"just know that I own this league\". maruniak: \"Dawit talking crazy\". Sdobens4: \"I earned that one. He has 3 top ten receivers on bye I thought he was done.\"",
+    "angle": "JSN put up 186.5, the week's top score by 39 points, after Sam had written him off over byes. The commish declaring ownership of the league also feeds the season-long collusion running gag.",
+    "notes": "Sleeper league chat, Nov 23-24 (screenshot from the commissioner). Quotes word for word. Verify the bye claim against the week's byes and JSN's lineup before repeating it as fact."
+  },
+  {
+    "from_week": 11,
+    "until_week": 11,
+    "added_week": 11,
+    "topic": "kylereckert: \"No number one pick has ever lived up to expectations like Gibbs\"",
+    "angle": "Check whether Kyle rosters Jahmyr Gibbs and what Gibbs scored; the line works as sarcasm or sincere praise depending on the number.",
+    "notes": "Sleeper league chat, Nov 23-24 (screenshot from the commissioner). Quote word for word."
   }
 ]
