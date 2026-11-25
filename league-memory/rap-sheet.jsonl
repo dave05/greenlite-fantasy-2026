@@ -33,3 +33,11 @@
 {"week":10,"kind":"heartbreak","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Derrick Henry","bid":31,"winningBid":31,"winner":"PumpUpTheJam32"}
 {"week":10,"kind":"top_score","ownerId":"994362778142011392","team":"JSN - Just Survive Now","points":182.86}
 {"week":10,"kind":"chopped","ownerId":"1259206671360610305","team":"BDALOHA","points":106.52}
+{"week":11,"kind":"big_spender","ownerId":"1397960075913486336","team":"kylereckert","player":"Tony Pollard","pos":"RB","bid":86,"points":11}
+{"week":11,"kind":"flop","ownerId":"1138704096498597888","team":"kaelanzm","player":"Brock Bowers","pos":"TE","bid":33,"points":0}
+{"week":11,"kind":"steal","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Dak Prescott","pos":"QB","bid":0,"points":35.9}
+{"week":11,"kind":"lowball","ownerId":"741512280193261568","team":"maruniak","player":"Dak Prescott","pos":"QB","bid":1,"points":null}
+{"week":11,"kind":"overkill","ownerId":"1397960075913486336","team":"kylereckert","player":"Tony Pollard","pos":"RB","bid":86,"points":11,"nextBid":27,"gap":59}
+{"week":11,"kind":"heartbreak","ownerId":"994362778142011392","team":"JSN - Just Survive Now","player":"Brock Bowers","bid":32,"winningBid":33,"winner":"kaelanzm"}
+{"week":11,"kind":"top_score","ownerId":"994362778142011392","team":"JSN - Just Survive Now","points":186.5}
+{"week":11,"kind":"chopped","ownerId":"1396677940267216896","team":"PumpUpTheJam32","points":80.46}
