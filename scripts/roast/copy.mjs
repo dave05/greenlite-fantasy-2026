@@ -120,6 +120,12 @@ export function resolveCopy(d, override) {
     kickoff: o.kickoff ?? null,
     roast: o.roast ?? null,
     comic: Array.isArray(o.comic) ? o.comic : null,
+    // Slots that override the site's canned rotations (Gazette.tsx /
+    // ObituaryNotice.tsx). Left empty, the site prints a recycled line.
+    value: o.value ?? null,
+    benchGem: o.benchGem ?? null,
+    obituaryNotice: o.obituaryNotice ?? null,
+    condolences: Array.isArray(o.condolences) ? o.condolences : null,
   };
 }
 
@@ -136,11 +142,21 @@ export function printedJokes(d, copy) {
   // Aimed at a group, so no single target.
   if (a.hoarder) rows.push({ slot: "hoarder", target: null, text: copy.jabs.hoarder });
   if (d.chopped) rows.push({ slot: "obituary", target: targetOf(d, "obituary"), text: copy.obituary });
-  // Modern-format written burns - checked and recorded so they never repeat
-  // either. Off the Wire is a real joke about real news; the Roast Desk lines
-  // are the heart of the paper. The comic is visual filler, so it is left out of
-  // the no-repeat net on purpose (two "A win is a win!" bubbles are not a crime).
+  // Modern-format written burns - every word the editor writes is checked and
+  // recorded so nothing repeats: kicker, Off the Wire, kickoff, Roast Desk,
+  // Value Desk, the bench line, the memorial card and the comic.
+  if (copy.headline?.kicker) rows.push({ slot: "headline.kicker", target: null, text: copy.headline.kicker });
   if (copy.offWire?.text) rows.push({ slot: "offWire", target: null, text: copy.offWire.text });
+  for (const k of ["nudge", "miss"]) {
+    if (copy.kickoff?.[k]) rows.push({ slot: `kickoff.${k}`, target: null, text: copy.kickoff[k] });
+  }
+  for (const k of ["stealJab", "lowballJab", "stealLine", "lowballLine"]) {
+    if (copy.value?.[k]) rows.push({ slot: `value.${k}`, target: null, text: copy.value[k] });
+  }
+  if (copy.benchGem) rows.push({ slot: "benchGem", target: null, text: copy.benchGem });
+  if (copy.obituaryNotice) rows.push({ slot: "obituaryNotice", target: targetOf(d, "obituary"), text: copy.obituaryNotice });
+  (copy.condolences ?? []).forEach((c, i) => c?.msg && rows.push({ slot: `condolence.${i}`, target: null, text: c.msg }));
+  if (copy.comic?.length) rows.push({ slot: "comic", target: null, text: copy.comic.map((c) => c.text).join(" ") });
   if (copy.roast && typeof copy.roast === "object") {
     for (const [slot, text] of Object.entries(copy.roast)) {
       if (typeof text === "string" && text.trim()) rows.push({ slot: `roast.${slot}`, target: null, text });

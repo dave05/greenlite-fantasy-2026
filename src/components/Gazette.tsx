@@ -24,6 +24,9 @@ type Tnf = { short: string; away: string; home: string; kickoff: number };
 // a missing field falls back to the auto copy. The same file the no-repeat
 // checker reads, so the site and the guard never show different words.
 type CuratedCopy = {
+  // Optional centre header graphic for the issue (a committed file under
+  // public/league-copy/img/), with a printed credit line.
+  hero?: { src: string; alt?: string; credit?: string };
   headline?: { kicker?: string; head?: string; sub?: string };
   offWire?: { source?: string; headline?: string; text?: string };
   kickoff?: { nudge?: string; miss?: string };
@@ -33,9 +36,15 @@ type CuratedCopy = {
       string
     >
   >;
-  value?: { stealJab?: string; lowballJab?: string };
+  // stealLine/lowballLine replace the canned closer in each Value Desk card body.
+  value?: { stealJab?: string; lowballJab?: string; stealLine?: string; lowballLine?: string };
   comic?: ComicLine[];
   obituary?: string;
+  // Replaces the canned "Started the wrong guy" line (the site's benchGem award).
+  benchGem?: string;
+  // Replace the canned obituary paragraph and condolences in the memorial card.
+  obituaryNotice?: string;
+  condolences?: { msg: string; from: string }[];
 };
 
 type Payload = {
@@ -674,6 +683,22 @@ export default function Gazette({
           </section>
         )}
 
+        {cc?.hero?.src && (
+          <figure className="mx-auto mt-4 max-w-3xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={cc.hero.src}
+              alt={cc.hero.alt ?? ""}
+              className="block w-full border-2 border-[#14110d]"
+            />
+            {cc.hero.credit && (
+              <figcaption className="mt-1 text-right text-[9px] uppercase tracking-[0.18em] text-[#14110d]/60">
+                {cc.hero.credit}
+              </figcaption>
+            )}
+          </figure>
+        )}
+
         <section className="px-1 pb-2 pt-4 text-center">
           <p className="font-display text-[10px] uppercase tracking-[0.3em] text-[#8c1c13]">
             {lead.kicker}
@@ -750,7 +775,7 @@ export default function Gazette({
             </span>
           </div>
           <div className="mt-3 grid gap-x-5 gap-y-3 text-[13px] leading-snug sm:grid-cols-2">
-            {benchGem && <p><b>Started the wrong guy:</b> {roastBenchGem(benchGem)}</p>}
+            {benchGem && <p><b>Started the wrong guy:</b> {cc?.benchGem ?? roastBenchGem(benchGem)}</p>}
             {a.benched && <p><b>Clipboard criminal:</b> {cc?.roast?.benched ?? roastBench(a.benched)}</p>}
             {a.flop && <p><b>Financial misconduct:</b> {cc?.roast?.flop ?? roastFlop(a.flop)}</p>}
             {freshRoast && <p><b>Fresh from the panic room:</b> {cc?.roast?.fresh ?? roastContest(freshRoast)}</p>}
@@ -792,7 +817,7 @@ export default function Gazette({
                 >
                   Paid <b>{money(a.steal.bid)}</b> for <b>{a.steal.player.name}</b> and
                   got <b>{pts(a.steal.points)}</b> points out of him.{" "}
-                  {pick(
+                  {cc?.value?.stealLine ?? pick(
                     [
                       "Everyone else spent more and got less.",
                       "A rounding error that outscored real investments.",
@@ -812,7 +837,7 @@ export default function Gazette({
                 >
                   Offered <b>{money(a.lowball.bid)}</b> for{" "}
                   <b>{a.lowball.player.name}</b> and lost.{" "}
-                  {pick(
+                  {cc?.value?.lowballLine ?? pick(
                     [
                       "A losing bid is free, and this one was priced about right.",
                       "No money changed hands, which tracks with the ambition.",
@@ -972,6 +997,8 @@ export default function Gazette({
               week={g.week}
               avatar={g.chopped.avatar}
               epitaph={cc?.obituary ?? null}
+              notice={cc?.obituaryNotice ?? null}
+              condolences={cc?.condolences ?? null}
               spent={g.chopped.spent}
             />
           ) : (

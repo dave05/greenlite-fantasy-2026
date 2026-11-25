@@ -75,6 +75,8 @@ export default function ObituaryNotice({
   week,
   avatar,
   epitaph,
+  notice,
+  condolences: curatedCondolences,
   spent = 0,
 }: {
   name: string;
@@ -84,6 +86,10 @@ export default function ObituaryNotice({
   // Optional one-line epitaph from the editor routine's curated copy, printed as
   // a pull-quote under the obituary paragraph. Omitted = just the paragraph.
   epitaph?: string | null;
+  // Optional curated obituary paragraph and condolences from the editor
+  // routine; omitted = the canned rotation below.
+  notice?: string | null;
+  condolences?: { msg: string; from: string }[] | null;
   // The chopped team's season FAAB spend, so the obituary is accurate (a big
   // spender torched it; a hoarder died on a full budget).
   spent?: number;
@@ -132,7 +138,7 @@ export default function ObituaryNotice({
               🪓 Chopped · Week {week} · {points.toFixed(1)} pts
             </p>
             <p className="mt-2 font-serif text-[13px] leading-snug text-[#221d15]/90">
-              {obituary(name, points, week, spent)}
+              {notice || obituary(name, points, week, spent)}
             </p>
             {epitaph && (
               <p className="mt-1.5 font-serif text-[12px] italic leading-snug text-[#221d15]/75">
@@ -145,7 +151,7 @@ export default function ObituaryNotice({
                 Condolences from the surviving members
               </p>
               <ul className="mt-1 space-y-1">
-                {condolences(name, points, week).map((c, i) => (
+                {(curatedCondolences?.length ? curatedCondolences : condolences(name, points, week)).map((c, i) => (
                   <li key={i} className="font-serif text-[12px] italic leading-snug text-[#221d15]/85">
                     &ldquo;{c.msg}&rdquo;{" "}
                     <span className="not-italic text-[#221d15]/55">- {c.from}</span>

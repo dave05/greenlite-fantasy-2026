@@ -165,6 +165,7 @@ function brief(d) {
 
   const out = [];
   out.push(`# Gazette briefing - Week ${d.week}`, "");
+  for (const w of chatProblems(d)) out.push(`!! ${w}`, "!! Follow ROUTINE.md Step 2b: email the owner for the chat and stop.", "");
   out.push(
     "Use this to write copy.json. Call back to old offences by name and week; that is what the memory is for.",
     "Never reuse a joke or a premise listed under 'already used'. Never touch anything under OFF LIMITS.",
@@ -260,11 +261,166 @@ function candidates(d, copy) {
   return [...printed, ...extra];
 }
 
-function check(d, copy) {
+// ── Sentence frames ─────────────────────────────────────────────────────────
+// The word-overlap test above misses the same joke wearing new facts ("Survived
+// by $183 and an estate sale" / "Survived by $67 and a resale market"). A frame
+// is a sentence with names and numbers blanked out; if a new sentence opens or
+// closes the way a printed one did, or one issue leans on the same phrase in two
+// slots, it is the same bit again.
+const tokens = (sentence, names) => {
+  let t = String(sentence ?? "");
+  for (const n of names) if (n) t = t.split(n).join(" @ ");
+  return t
+    .replace(/\$?\d[\d,.]*('s|%)?/g, " # ")
+    .replace(/[^A-Za-z@#'\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    // capitalised mid-sentence words are names; the sentence's first word is not
+    .map((w, i) => (i > 0 && /^[A-Z][a-z]/.test(w) ? "@" : w.toLowerCase()))
+    // runs of names collapse to one placeholder
+    .filter((w, i, a) => !(w === "@" && a[i - 1] === "@"));
+};
+const sentences = (text) => String(text ?? "").split(/(?<=[.!?])\s+|\s+-\s+|:\s+/).filter((x) => x.trim());
+const real = (gram) => gram.filter((w) => w !== "@" && w !== "#").length;
+const FRAME = 4;
+function frames(text, names) {
+  const out = [];
+  for (const s of sentences(text)) {
+    const t = tokens(s, names);
+    if (t.length < FRAME + 1) continue;
+    const open = t.slice(0, FRAME);
+    const close = t.slice(-FRAME);
+    if (real(open) >= 3) out.push(`open: ${open.join(" ")}`);
+    if (real(close) >= 3) out.push(`close: ${close.join(" ")}`);
+  }
+  return out;
+}
+const SHINGLE = 5;
+function shingles(text, names) {
+  const out = new Set();
+  for (const s of sentences(text)) {
+    const t = tokens(s, names);
+    for (let i = 0; i + SHINGLE <= t.length; i++) {
+      const g = t.slice(i, i + SHINGLE);
+      const content = g.filter((w) => w !== "@" && w !== "#" && !STOP.has(w));
+      if (real(g) >= 3 && content.length >= 2) out.add(g.join(" "));
+    }
+  }
+  return out;
+}
+
+// Every text slot the live site prints. Anything left empty falls back to a
+// canned rotation that readers have already seen, so all of them are required.
+const REQUIRED = [
+  ["headline.kicker", (p) => p.headline?.kicker],
+  ["headline.head", (p) => p.headline?.head],
+  ["headline.sub", (p) => p.headline?.sub],
+  ["offWire.text", (p) => p.offWire?.text],
+  ["offWire.headline", (p) => p.offWire?.headline],
+  ["kickoff.nudge", (p) => p.kickoff?.nudge],
+  ["kickoff.miss", (p) => p.kickoff?.miss],
+  ...["benched", "flop", "fresh", "top", "bottom", "spread", "escape", "chopped", "bigWallet", "tightWallet"].map((k) => [
+    `roast.${k}`,
+    (p) => p.roast?.[k],
+  ]),
+  ["value.stealJab", (p) => p.value?.stealJab],
+  ["value.stealLine", (p) => p.value?.stealLine],
+  ["value.lowballJab", (p) => p.value?.lowballJab],
+  ["value.lowballLine", (p) => p.value?.lowballLine],
+  ["benchGem", (p) => p.benchGem],
+  ["comic", (p) => (Array.isArray(p.comic) && p.comic.length >= 2 ? "x" : "")],
+];
+const REQUIRED_IF_CHOPPED = [
+  ["obituary", (p) => p.obituary],
+  ["obituaryNotice", (p) => p.obituaryNotice],
+  ["condolences", (p) => (Array.isArray(p.condolences) && p.condolences.length >= 2 ? "x" : "")],
+];
+
+// The league chat only reaches the paper through storylines.json, which the
+// owner fills by hand. If nothing new has gone in lately the paper would be
+// written from stale gossip, so the check refuses.
+function chatProblems(d) {
+  const lines = readJson(STORYLINES, []);
+  const newest = Math.max(0, ...lines.map((s) => Number(s.added_week ?? s.from_week ?? 0)));
+  if (newest >= d.week - 1) return [];
+  return [
+    `STALE CHAT: the newest league-chat storyline is from week ${newest || "never"}, and this is week ${d.week}. ` +
+      `Add this week's group-chat drama to league-memory/storylines.json (one entry with "added_week": ${d.week} - ` +
+      `a "quiet chat week" entry counts) before publishing.`,
+  ];
+}
+
+// The site computes its own awards (sleeper.ts), which can differ from
+// collect.mjs. Given the live API payload, make sure each card's jab is about
+// the manager the card actually names - week 10's lowball jab was not.
+function siteProblems(site, paper) {
+  const a = site?.gazette?.awards ?? {};
+  const slots = [
+    ["benchGem", paper.benchGem],
+    ["benched", paper.roast?.benched],
+    ["flop", paper.roast?.flop],
+    ["steal", [paper.value?.stealJab, paper.value?.stealLine].join(" ")],
+    ["lowball", [paper.value?.lowballJab, paper.value?.lowballLine].join(" ")],
+  ];
+  const out = [];
+  for (const [k, text] of slots) {
+    const team = a[k]?.team;
+    const team2 = a[k]?.winner?.team;
+    const who = team ?? team2;
+    const short = who ? who.split(" - ")[0] : null;
+    if (who && text && !String(text).includes(who) && !String(text).includes(short))
+      out.push(`[${k}] the live site's ${k} card is about ${who}${a[k]?.player?.name ? ` (${a[k].player.name})` : ""}, but your line never names them`);
+  }
+  return out;
+}
+
+function check(d, copy, site) {
   const members = readJson(MEMBERS, {});
   const past = readJsonl(JOKES).filter((j) => j.week !== d.week);
   const now = candidates(d, copy);
-  const problems = [];
+  const problems = [...chatProblems(d)];
+  const paper = copy?.paper ?? {};
+  // With the live site's awards in hand, a card the site will not print needs
+  // no line; without them, every slot is required.
+  const sa = site?.gazette?.awards;
+  const needs = {
+    "roast.benched": "benched",
+    "roast.flop": "flop",
+    benchGem: "benchGem",
+    "value.stealJab": "steal",
+    "value.stealLine": "steal",
+    "value.lowballJab": "lowball",
+    "value.lowballLine": "lowball",
+  };
+  const required = [...REQUIRED, ...(d.chopped ? REQUIRED_IF_CHOPPED : [])].filter(
+    ([slot]) => !sa || !needs[slot] || sa[needs[slot]],
+  );
+  for (const [slot, get] of required) {
+    if (!String(get(paper) ?? "").trim()) problems.push(`[${slot}] is missing - the site would print a canned line readers have seen before`);
+  }
+  if (site) problems.push(...siteProblems(site, paper));
+  const names = [
+    ...(d.managers ?? []).flatMap((m) => [m.team, m.displayName]),
+    ...Object.values(members).flatMap((m) => [m.display_name, m.real_name, ...(m.teams ?? [])]),
+  ]
+    .filter((n) => n && n.length > 2)
+    .sort((x, y) => y.length - x.length);
+  const pastFrames = new Map();
+  for (const p of past) for (const f of frames(p.text, names)) if (!pastFrames.has(f)) pastFrames.set(f, p);
+  now.forEach((j) => {
+    for (const f of frames(j.text, names)) {
+      const p = pastFrames.get(f);
+      if (p) problems.push(`[${j.slot}] reuses a sentence frame from wk ${p.week} [${p.slot}] (${f}): "${p.text.slice(0, 90)}..."`);
+    }
+  });
+  const seen = new Map();
+  now.forEach((j) => {
+    for (const g of shingles(j.text, names)) {
+      const prev = seen.get(g);
+      if (prev && prev !== j.slot) problems.push(`[${j.slot}] repeats the phrase "${g}" already used in [${prev}] this issue - one bit, one slot`);
+      else seen.set(g, j.slot);
+    }
+  });
   const known = new Set((d.managers ?? []).map((m) => m.ownerId));
 
   now.forEach((j, i) => {
@@ -330,9 +486,9 @@ function record(d, copy) {
 }
 
 // ── CLI ─────────────────────────────────────────────────────────────────────
-const [cmd, gazettePath, copyPath] = process.argv.slice(2);
+const [cmd, gazettePath, copyPath, sitePath] = process.argv.slice(2);
 if (!cmd || !gazettePath || !["brief", "check", "record"].includes(cmd)) {
-  console.error("usage: memory.mjs brief|check|record <gazette.json> [copy.json]");
+  console.error("usage: memory.mjs brief|check|record <gazette.json> [copy.json] [site.json]");
   process.exit(2);
 }
 const d = JSON.parse(readFileSync(gazettePath, "utf8"));
@@ -348,7 +504,8 @@ if (copy?.week != null && copy.week !== d.week) {
 
 if (cmd === "brief") console.log(brief(d));
 if (cmd === "check") {
-  const problems = check(d, copy);
+  const site = sitePath ? JSON.parse(readFileSync(sitePath, "utf8")) : null;
+  const problems = check(d, copy, site);
   if (problems.length) {
     console.error(`${problems.length} problem(s) - rewrite these and check again:\n`);
     for (const p of problems) console.error(`- ${p}`);

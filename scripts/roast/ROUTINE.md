@@ -97,6 +97,14 @@ every time. Everything lives on `main`, and you push curated copy back to `main`
     OUT=$(mktemp -d)
     node scripts/roast/collect.mjs > $OUT/gazette.json
     node scripts/roast/memory.mjs brief $OUT/gazette.json
+    N=$(node -e 'console.log(require(process.argv[1]).week)' $OUT/gazette.json)
+    curl -s "https://greenlite-fantasy-2026.vercel.app/api/gazette?week=$N" > $OUT/site.json
+
+`site.json` is what the LIVE SITE computes for the week. Its `gazette.awards` can
+differ from `collect.mjs` (different lowball, a `benchGem` that collect does not
+have). The cards on the paper are built from site.json, so every card jab must be
+about the manager and player THAT card names - read `site.json` awards before
+writing `benchGem`, `roast.benched`, `roast.flop` and the `value` lines.
 
 No arguments = the last COMPLETED NFL week. Note the week number **N** from the
 JSON. Read the whole briefing: storylines, who is in the news, their profile,
@@ -118,17 +126,38 @@ clears ~3am, so by 8am it is a few hours old.
   they were new is the exact mistake this gate exists to prevent.
 - Otherwise the wire has run - continue.
 
+## Step 2b - GATE: this week's league chat must be in
+
+The group chat is the best material this paper has, and it only reaches you
+through `league-memory/storylines.json`, which the owner fills by hand. If the
+newest entry (`added_week`, else `from_week`) is older than week N-1, the brief
+prints `!! STALE CHAT` and `check` refuses to pass. Do NOT publish from stale
+gossip. Email dasam2012@gmail.com, subject "Guillotine Roast - need this week's
+league chat", asking for the chat highlights (screenshots or pasted text; or a
+reply saying the chat was quiet), and end the routine. When the owner sends it,
+add the entries with `"added_week": N` and re-run from Step 2.
+
+When the chat IS fresh, the headline or at least two Roast Desk lines must come
+from this week's chat entries. Name the entry you used in your summary.
+
 ## Step 3 - web-research, then write the curated copy
 
 Do the web search described above first. Then write
-`public/league-copy/week-N.json`. Schema and every field are documented in
+`public/league-copy/week-N.json`. **If that file already exists, the owner has
+pre-loaded something for this issue (e.g. a `hero` header graphic). Read it and
+MERGE your copy into it - never drop or overwrite fields you did not write.** Schema and every field are documented in
 `public/league-copy/README.md`. Shape:
 
-    { "week": N, "paper": { headline, offWire, kickoff, roast, value, comic, obituary, jabs } }
+    { "week": N, "paper": { hero?, headline, offWire, kickoff, roast, value, benchGem,
+      comic, obituary, obituaryNotice, condolences, jabs } }
 
-Every field is optional and falls back to the site's auto line, but a quiet
-Roast Desk is a wasted week - fill what the data supports:
+**Every text slot is REQUIRED.** Any slot you leave empty prints one of the
+site's canned rotating lines, which the league has already read many times -
+that is the "same paper every week" complaint. `check` fails on any missing
+slot. Fill all of them:
 
+- `hero` `{src, alt, credit}` - optional centre header graphic, set by the owner.
+  Keep it if present and write the headline so it fits the graphic.
 - `headline` `{kicker, head, sub}` - the marquee: the loudest overpay or crime.
 - `offWire` `{source, headline, text}` - your real-news tie-in. `headline` is the
   actual headline you found; `text` is the roast connecting it to the manager.
@@ -136,11 +165,19 @@ Roast Desk is a wasted week - fill what the data supports:
   lineups; `miss` ribs last week's biggest start/sit blunder. No bye references.
 - `roast` - one-liners for `benched, flop, fresh, top, bottom, spread, escape,
   chopped, bigWallet, tightWallet`. This is the heart of the paper.
-- `value` `{stealJab, lowballJab}` - the two Value Desk card jabs.
+- `value` `{stealJab, stealLine, lowballJab, lowballLine}` - the two Value Desk
+  cards. `*Line` replaces the canned closer in the card body, `*Jab` is the red
+  jab under it. Both must name the manager on that card in `site.json`.
+- `benchGem` - the "Started the wrong guy" line: `site.json` `awards.benchGem`
+  (the biggest bench score left out of a lineup). Must name that manager.
 - `comic` - up to 4 Peanut Gallery panels `{who:"a"|"b", mood, text}`, a bit ABOUT
   the bidding (psychology, blown budget, bidding against nobody) - a fresh joke,
   not a restatement of the headline.
 - `obituary` - one-line epitaph for the chopped team.
+- `obituaryNotice` - the memorial card's full paragraph (replaces the canned
+  "We mourn..." text). Mock-solemn, specific to THIS team's season.
+- `condolences` - 2 or 3 `{msg, from}` notes "from" the survivors, written fresh
+  for this chop (the canned ones are retired).
 - `jabs` `{flop, benched, lowball, steal, hoarder}` - legacy slots the checker
   also reads; fill the ones whose award exists so a canned repeat is not printed.
 
@@ -154,12 +191,22 @@ TWO FACTS YOU MUST NOT GET WRONG - the owner has corrected these before:
 
 ## Step 4 - pass the no-repeat check
 
-    node scripts/roast/memory.mjs check $OUT/gazette.json public/league-copy/week-N.json
+    node scripts/roast/memory.mjs check $OUT/gazette.json public/league-copy/week-N.json $OUT/site.json
 
-It compares your headline, Off the Wire, Roast Desk lines, jabs and obituary
-against every joke ever printed and against each other, and rejects `off_limits`
-topics. Rewrite any flagged line with a genuinely NEW angle (not a reword) and run
-it again until it prints `ok`.
+It fails on:
+- a line that shares half its words with any joke ever printed, or with another
+  line in this issue;
+- a reused SENTENCE FRAME - a sentence that opens or closes the way a printed one
+  did once names and numbers are blanked ("Survived by $X and...", "N points from
+  first to last", "X goes out with..."). New facts in an old frame are a repeat;
+- the same phrase in two slots of one issue (one bit, one slot - week 10 ran
+  "at 3am X bought the same Y" three times);
+- any missing text slot (see Step 3);
+- a card jab that does not name the manager on that card in `site.json`;
+- stale league chat (Step 2b) and `off_limits` topics.
+
+Rewrite any flagged line with a genuinely NEW angle and structure (not a reword,
+not the same template with new numbers) and run it again until it prints `ok`.
 
 ## Step 4b - proofread in passes before publishing
 
@@ -178,7 +225,11 @@ not push until all four passes are clean:
    about? Name names. For the comic, give each character a `label` (the manager
    they are playing) so the reader knows who is talking. If a bit needs inside
    knowledge the reader does not have, add the setup or cut it.
-4. **NO REPEATS.** `memory.mjs check` prints `ok` (Step 4 above).
+4. **NO REPEATS.** `memory.mjs check` prints `ok` (Step 4 above). Then compare
+   your issue side by side with last week's `week-(N-1).json`: different kicker
+   format, different headline angle, different obituary shape, and no running
+   bit (Maye-Nix campaign, estate sale, spite) framed the same way twice. The
+   checker catches wording; you catch premises.
 
 A second read of your own copy catches the stat slip, the unfair burn and the
 joke that does not land BEFORE the league sees them, not after.
@@ -196,11 +247,12 @@ jokes.
 ## Step 6 - wait for the deploy, then screenshot the live paper
 
 The emailed image must show YOUR copy, so wait until the deploy is live. Poll the
-production API until `copy` is no longer null:
+production API until your `headline` shows up in `copy` (a pre-loaded
+`hero` alone does not count):
 
     for i in $(seq 1 40); do
       curl -s "https://greenlite-fantasy-2026.vercel.app/api/gazette?week=N" \
-        | grep -q '"copy":{' && { echo live; break; }
+        | grep -q '"headline":{' && { echo live; break; }
       sleep 15
     done
 
